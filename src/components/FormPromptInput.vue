@@ -44,7 +44,7 @@ function handleUseStyle(style: string) {
     const { prompt, negativePrompt, model } = getStyle(style);
     store.prompt = prompt.replace("{p}", store.prompt).replace("{np}", "");
     if (negativePrompt) store.negativePrompt = negativePrompt.replace("{np}", store.negativePrompt);
-    if (store.filteredAvailableModels.map(el => el.value).includes(model)) {
+    if (store.filteredAvailableModelsGrouped.map(el => el?.options.map(el2 => el2.value)).find(el => el?.includes(model))) {
         store.selectedModel = model;
     } else {
         uiStore.raiseWarning("Warning: style's model isn't available.", false)

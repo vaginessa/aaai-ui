@@ -22,10 +22,10 @@ import {
 import { computed, ref } from 'vue';
 import type { IModelData } from '@/stores/generator';
 import { useIntersectionObserver } from '@vueuse/core';
-
 import { useWorkerStore } from '@/stores/workers';
-const store = useWorkerStore();
 import { useOptionsStore } from '@/stores/options';
+
+const store = useWorkerStore();
 const optStore = useOptionsStore();
 
 const props = defineProps<{
