@@ -10,6 +10,7 @@ import { liveQuery, type IndexableType } from "dexie";
 import { from } from 'rxjs';
 import { useObservable } from "@vueuse/rxjs";
 import { useLiveQuery } from "@/utils/useLiveQuery";
+import { DEBUG_MODE } from "@/constants";
 
 export interface ImageData {
     id: number;
@@ -33,6 +34,7 @@ export interface ImageData {
     seed?: string;
     steps?: number;
     cfg_scale?: number;
+    clip_skip?: number;
     height?: number;
     width?: number;
     modelName?: string;
@@ -45,7 +47,6 @@ export interface ImageData {
     rated?: 1 | 0;
     sharedExternally?: boolean;
     hires_fix?: boolean;
-    clip_skip?: number;
 }
 
 export const useOutputStore = defineStore("outputs", () => {
@@ -97,7 +98,7 @@ export const useOutputStore = defineStore("outputs", () => {
     async function persistStorage() {
         if (navigator.storage && navigator.storage.persist) {
             const isPersisted = await navigator.storage.persist();
-            console.log(`Persisted storage granted: ${isPersisted}`);
+            if (DEBUG_MODE) console.log(`Persisted storage granted: ${isPersisted}`);
         }
     }
 
@@ -122,7 +123,7 @@ export const useOutputStore = defineStore("outputs", () => {
             return rest;
         })
         const cleanOutputs = JSON.parse(JSON.stringify(newOutputsWithoutID));
-        console.log("Inserting outputs into database", cleanOutputs)
+        if (DEBUG_MODE) console.log("Inserting outputs into database", cleanOutputs)
         const resultingIDs = await db.outputs.bulkAdd(cleanOutputs, undefined, { allKeys: true }) as IndexableType[];
         return db.outputs.bulkGet(resultingIDs);
     }

@@ -2,6 +2,7 @@ import type { ImageData } from "@/stores/outputs";
 import { useGeneratorStore } from '@/stores/generator';
 import { inflateRaw } from 'pako';
 import { useUIStore } from '../stores/ui';
+import { DEBUG_MODE } from "@/constants";
 
 function mapParams(params: any[]) {
     const paramMap = new Map();
@@ -23,7 +24,7 @@ const handleUrlParams = function() {
     const urlParams = window.location.search.replace("?", "");
     const params = urlParams.split("&");
     let paramMap = mapParams(params);
-    console.log("URL params:", paramMap);
+    if (DEBUG_MODE) console.log("URL params:", paramMap);
 
     if (paramMap.get("share")) {
         // Decodes base64 string, then turns string to Uint8Array, then decodes the array.
@@ -33,7 +34,7 @@ const handleUrlParams = function() {
             return;
         }
         paramMap = mapParams(newParams.split("&"));
-        console.log("Share URL params:", paramMap);
+        if (DEBUG_MODE) console.log("Share URL params:", paramMap);
     }
 
     // Fill ModelGenerationInputStable
@@ -46,9 +47,9 @@ const handleUrlParams = function() {
         modelName: paramMap.get("model_name") || "stable_diffusion",
         steps: Number(paramMap.get("steps") || 30),
         cfg_scale: Number(paramMap.get("cfg_scale") || 7),
+        clip_skip: Number(paramMap.get("clip_skip") || 1),
         height: Number(paramMap.get("height") || 512),
         width: Number(paramMap.get("width") || 512),
-        clip_skip: Number(paramMap.get("clip_skip") || 1),
         karras: Boolean(paramMap.get("karras") || true),
         hires_fix: Boolean(paramMap.get("hires_fix") || false),
         post_processing: paramMap.get("post_processing") ? JSON.parse(paramMap.get("post_processing")) : [],

@@ -2,6 +2,7 @@
 import {
     ElFormItem,
     ElSelect,
+    ElOptionGroup,
     ElOption
 } from 'element-plus';
 import FormLabel from './FormLabel.vue';
@@ -18,6 +19,7 @@ const props = defineProps<{
     labelStyle?: string;
     placement?: string;
     change?: Function;
+    grouping?: boolean;
 }>();
 
 const emit = defineEmits(["update:modelValue"]);
@@ -35,13 +37,27 @@ function onChanged(value: any) {
                 <slot name="label">{{label}}</slot>
             </FormLabel>
         </template>
-        <el-select :model-value="modelValue" :filterable="filterable" :multiple="multiple" :placement="placement" @change="onChanged" placeholder="Select">
-            <el-option
-                v-for="item in options"
-                :key="item"
-                :label="item.label !== undefined ? item.label : item"
-                :value="item.value !== undefined ? item.value : item"
-            />
+        <el-select v-if="grouping" :model-value="modelValue" :filterable="filterable" :multiple="multiple" :placement="placement" @change="onChanged" placeholder="Select">
+            <el-option-group
+            v-for="group in options"
+            :key="group.label"
+            :label="group.label"
+            >
+                <el-option
+                    v-for="item in group.options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+            </el-option-group>
+        </el-select>
+        <el-select v-else :model-value="modelValue" :filterable="filterable" :multiple="multiple" :placement="placement" @change="onChanged" placeholder="Select">
+                <el-option
+                    v-for="item in options"
+                    :key="item"
+                    :label="item.label !== undefined ? item.label : item"
+                    :value="item.value !== undefined ? item.value : item"
+                />
         </el-select>
         <slot name="inline" />
     </el-form-item>

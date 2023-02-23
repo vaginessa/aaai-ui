@@ -5,6 +5,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useOptionsStore } from "./options";
 import { useOutputStore } from "./outputs";
+import { DEBUG_MODE } from "@/constants";
 
 export const useUIStore = defineStore("ui", () => {
     const multiSelect = ref(false);
@@ -69,7 +70,7 @@ export const useUIStore = defineStore("ui", () => {
         const { wait_time } = checkData;
         const percentage = 100 * (1 - (wait_time as number) / ((wait_time as number) + secondsElapsed));
         progress.value   = Math.round(percentage * 100) / 100;
-        console.log(`${progress.value.toFixed(2)}%`);
+        if (DEBUG_MODE) console.log(`${progress.value.toFixed(2)}%`);
     }
 
     async function openModalToRight() {

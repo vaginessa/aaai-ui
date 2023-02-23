@@ -85,6 +85,12 @@ export interface ModelPayloadRootStable {
    * @max 1
    * @example 0.75
    */
+  clip_skip?: number;
+  /**
+   * @min 0
+   * @max 12
+   * @example 1
+   */
   denoising_strength?: number;
   /** The seed to use to generete this request */
   seed?: string;
@@ -112,15 +118,8 @@ export interface ModelPayloadRootStable {
   karras?: boolean;
   /** Set to True to create images that stitch together seamlessly */
   tiling?: boolean;
-  /** Set to True to process the image at base resolution before upscaling and re-processing */
+  /** Set to True to create a highres fix images first pass will be with lower dize and then upscaled */
   hires_fix?: boolean;
-  /**
-   * The number of CLIP language processor layers to skip
-   * @min 1
-   * @max 12
-   * @example 1
-   */
-  clip_skip?: number;
 }
 
 export interface RequestAsync {
@@ -195,12 +194,6 @@ export interface Generation {
    * The model which generated this image
    */
   model?: string;
-  /**
-   * Generation State
-   * The state of this generation.
-   * @example ok
-   */
-  state: "ok" | "censored";
 }
 
 export interface AestheticsPayload {
@@ -387,16 +380,10 @@ export interface SubmitInput {
    */
   id: string;
   /**
-   * R2 result was uploaded to R2, else the string of the result.
+   * R2 if the image has been uploaded to R2, or the b64 string of the encoded image.
    * @example R2
    */
   generation?: string;
-  /**
-   * Generation State
-   * The state of this generation.
-   * @example ok
-   */
-  state?: "ok" | "censored" | "faulted";
 }
 
 export type UserDetailsStable = UserDetails & {
@@ -433,11 +420,6 @@ export interface UserDetails {
    * @example false
    */
   trusted?: boolean;
-  /**
-   * This user has been flagged for suspicious activity.
-   * @example false
-   */
-  flagged?: boolean;
   /**
    * (Privileged) How much suspicion this user has accumulated
    * @example 0
@@ -541,11 +523,6 @@ export interface ModifyUserInput {
    * @example false
    */
   trusted?: boolean;
-  /**
-   * When set to true, the user cannot tranfer kudos and all their workers are put into permanent maintenance.
-   * @example false
-   */
-  flagged?: boolean;
   /** Set the user's suspicion back to 0 */
   reset_suspicion?: boolean;
   /**
@@ -595,8 +572,6 @@ export interface ModifyUser {
   monthly_kudos?: number;
   /** The user's new trusted status */
   trusted?: boolean;
-  /** The user's new flagged status */
-  flagged?: boolean;
   /** The user's new suspiciousness rating */
   new_suspicion?: number;
   /**
@@ -658,7 +633,6 @@ export type WorkerDetails = WorkerDetailsLite & {
   owner?: string;
   /** The worker is trusted to return valid generations. */
   trusted?: boolean;
-  /** The worker's owner has been flagged for suspicious activity. This worker will not be given any jobs to process. */
   flagged?: boolean;
   /**
    * (Privileged) How much suspicion this worker has accumulated
@@ -725,13 +699,6 @@ export interface ModifyWorkerInput {
   team?: string;
 }
 
-export interface DeletedWorker {
-  /** The ID of the deleted worker */
-  deleted_id?: string;
-  /** The Name of the deleted worker */
-  deleted_name?: string;
-}
-
 export interface ModifyWorker {
   /** The new state of the 'maintenance' var for this worker. When True, this worker will not pick up any new requests. */
   maintenance?: boolean;
@@ -746,6 +713,13 @@ export interface ModifyWorker {
    * @example Direct Action
    */
   team?: string;
+}
+
+export interface DeletedWorker {
+  /** The ID of the deleted worker */
+  deleted_id?: string;
+  /** The Name of the deleted worker */
+  deleted_name?: string;
 }
 
 export interface KudosTransferred {

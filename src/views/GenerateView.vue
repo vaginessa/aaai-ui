@@ -12,20 +12,11 @@ import {
     vLoading,
     ElLoading,
     ElTooltip,
-    ElUpload,
-    ElIcon,
-    ElCheckbox,
-    ElCheckboxGroup,
-    ElImage,
-    type UploadFile,
-    type UploadRawFile,
 } from 'element-plus';
 import {
     Comment,
     PictureFilled,
-    MagicStick,
-    UploadFilled,
-    Refresh,
+    MagicStick
 } from '@element-plus/icons-vue';
 import ImageProgress from '../components/ImageProgress.vue';
 import FormSlider from '../components/FormSlider.vue';
@@ -35,12 +26,11 @@ import FormInput from '../components/FormInput.vue';
 import FormModelSelect from '../components/FormModelSelect.vue';
 import FormPromptInput from '../components/FormPromptInput.vue';
 import GeneratedCarousel from '../components/GeneratedCarousel.vue'
+import BrushFilled from '../components/icons/BrushFilled.vue';
 import CustomCanvas from '../components/CustomCanvas.vue';
 import GeneratorMenuItem from '../components/GeneratorMenuItem.vue';
 import DialogList from '../components/DialogList.vue';
-import BrushFilled from '../components/icons/BrushFilled.vue';
 import StarEdit24Regular from '../components/icons/StarEdit24Regular.vue';
-import ImageSearch from '../components/icons/ImageSearch.vue';
 import RatingView from '../components/RatingView.vue';
 import BaseLink from '../components/BaseLink.vue';
 import { useUIStore } from '@/stores/ui';
@@ -49,8 +39,7 @@ import { useOptionsStore } from '@/stores/options';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import handleUrlParams from "@/router/handleUrlParams";
 import { useRatingStore } from '@/stores/rating';
-import { useInterrogationStore } from '@/stores/interrogation';
-import { convertToBase64 } from '@/utils/base64';
+import { DEBUG_MODE } from "@/constants";
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
@@ -60,7 +49,6 @@ const uiStore = useUIStore();
 const canvasStore = useCanvasStore();
 const optionsStore = useOptionsStore();
 const ratingStore = useRatingStore();
-const interrogationStore = useInterrogationStore();
 
 const samplerListLite = ["k_lms", "k_heun", "k_euler", "k_euler_a", "k_dpm_2", "k_dpm_2_a"]
 const dpmSamplers = ['k_dpm_fast', 'k_dpm_adaptive', 'k_dpmpp_2m', 'k_dpmpp_2s_a', 'k_dpmpp_sde']
@@ -80,14 +68,41 @@ const availableSamplers = computed(() => {
     return updateCurrentSampler(samplerListLite);
 })
 
+const setKarras = computed({
+    get() {
+        return store.params.karras ? "Enabled" : "Disabled";
+    },
+    set(value: string) {
+        store.params.karras = value === "Enabled";
+    }
+})
+
+const setHiresfix = computed({
+    get() {
+        return store.params.hires_fix ? "Enabled" : "Disabled";
+    },
+    set(value: string) {
+        store.params.hires_fix = value === "Enabled";
+    }
+})
+
+const setTiling = computed({
+    get() {
+        return store.params.tiling ? "Enabled" : "Disabled";
+    },
+    set(value: string) {
+        store.params.tiling = value === "Enabled";
+    }
+})
+
 function disableBadge() {
-    if (!store.validGeneratorTypes.includes(store.generatorType)) uiStore.showGeneratorBadge = false;
+    if (store.generatorType !== "Rating") uiStore.showGeneratorBadge = false;
 }
 
 function onMenuChange(key: any) {
     store.generatorType = key;
     disableBadge();
-    console.log(key)
+    if (DEBUG_MODE) console.log(key)
 }
 
 function onDimensionsChange() {
@@ -118,23 +133,6 @@ onUnmounted(() => {
 
 disableBadge();
 handleUrlParams();
-
-const upload = ref();
-
-async function handleChange(uploadFile: UploadFile) {
-    upload.value!.clearFiles();
-    if (!(uploadFile.raw as UploadRawFile).type.includes("image")) {
-        uiStore.raiseError("Uploaded file needs to be a image!", false);
-        return;
-    }
-    const base64File = await convertToBase64(uploadFile.raw as UploadRawFile) as string;
-    interrogationStore.currentInterrogation.source_image = base64File;
-    interrogationStore.interrogateImage();
-}
-
-function getFormStatus(form: string) {
-    return (interrogationStore.currentInterrogation?.status?.forms || []).filter(el => el.form === form)[0];
-}
 </script>
 
 <template>
@@ -144,13 +142,11 @@ function getFormStatus(form: string) {
         @select="onMenuChange"
         :mode="isMobile ? 'horizontal' : 'vertical'"
         :class="isMobile ? 'mobile-generator-types' : 'generator-types'"
-        :style="isMobile ? 'overflow-x: auto' : ''"
     >
         <GeneratorMenuItem index="Text2Img"      :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Inpainting"    :icon-one="BrushFilled"         :icon-two="PictureFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Rating"        :icon-one="StarEdit24Regular"   :isMobile="isMobile" />
-        <GeneratorMenuItem index="Interrogation" :icon-one="ImageSearch"         :isMobile="isMobile" />
     </el-menu>
     <div class="form">
         <div v-if="store.generatorType === 'Rating'" style="padding-bottom: 50px;">
@@ -171,87 +167,6 @@ function getFormStatus(form: string) {
                 :submitted="ratingStore.submitted"
                 @onRatingSubmit="ratingStore.submitRating"
             />
-        </div>
-        <div v-else-if="store.generatorType === 'Interrogation'" style="padding-bottom: 50px;">
-            <h1 style="margin: 0">Interrogation</h1>
-            <div>Interrogate images to get their predicted descriptions, tags, and NSFW status.</div>
-            <el-checkbox-group
-                v-model="interrogationStore.selectedForms"
-                style="display: inline-flex; flex-direction: column;"
-            >
-                <el-checkbox v-for="form in interrogationStore.possibleForms" :key="form" :label="form">
-                    {{ form }}
-                    <span style="color: var(--el-color-danger)">{{ form === "interrogation" ? " (warning: may not fulfill)" : "" }}</span>
-                </el-checkbox>
-            </el-checkbox-group>
-            <div v-if="!interrogationStore.currentInterrogation.source_image" style="margin-top: 16px">
-                <strong v-if="interrogationStore.selectedForms.length === 0" style="color: var(--el-color-danger)">Choose an interrogation option to proceed!</strong>
-                <div :style="interrogationStore.selectedForms.length === 0 ? {
-                    pointerEvents: 'none',
-                    opacity: 0.5,
-                } : ''">
-                    <el-upload
-                        drag
-                        ref="upload"
-                        :auto-upload="false"
-                        @change="handleChange"
-                        :limit="1"
-                        multiple
-                        style="max-width: 720px"
-                        :disabled="interrogationStore.selectedForms.length === 0"
-                    >
-                        <el-icon :size="100"><upload-filled /></el-icon>
-                        <div>Drop file here OR <em>click to upload</em></div>
-                    </el-upload>
-                </div>
-            </div>
-            <div v-else-if="!interrogationStore.currentInterrogation.status" style="margin-top: 16px">
-                <strong>Uploading image{{dots}}</strong>
-            </div>
-            <div v-else>
-                <div style="margin-top: 8px">
-                    <el-button
-                        :icon="Refresh"
-                        @click="() => {
-                            interrogationStore.currentInterrogation = {};
-                            interrogationStore.interrogating = false;
-                        }"
-                    >New Interrogation</el-button>
-                </div>
-                <h2 style="margin: 16px 0 8px 0">Interrogation Results</h2>
-                <el-image
-                    :src="interrogationStore.currentInterrogation.source_image"
-                    alt="Uploaded Image"
-                />
-                <div v-if="getFormStatus('nsfw')">
-                    <h3 style="margin-bottom: 0">NSFW</h3>
-                    <div v-if="getFormStatus('nsfw').state === 'processing'">Processing{{dots}}</div>
-                    <div v-else>This image is predicted to be <strong>{{ (getFormStatus('nsfw').result as any).nsfw ? "not safe for work" : "safe for work" }}</strong>.</div>
-                </div>
-                <div v-if="getFormStatus('caption')">
-                    <h3 style="margin-bottom: 0">Caption</h3>
-                    <div v-if="getFormStatus('caption').state === 'processing'">Processing{{dots}}</div>
-                    <div v-else><strong>{{ (getFormStatus('caption').result as any).caption }}</strong></div>
-                </div>
-                <div v-if="getFormStatus('interrogation')">
-                    <h3 style="margin-bottom: 0">Interrogation</h3>
-                    <div
-                        v-if="getFormStatus('interrogation').state === 'processing' && (interrogationStore.currentInterrogation.elapsed_seconds || 0) > 300"
-                        style="color: var(--el-color-danger)"
-                    >
-                        <strong>Interrogation is taking longer than expected and may not fulfill.</strong>
-                    </div>
-                    <div v-if="getFormStatus('interrogation').state === 'processing'">Processing{{dots}}</div>
-                    <div v-else>
-                        <div v-for="[subject, tags] in (Object.entries(getFormStatus('interrogation').result as any) as any[])" :key="subject">
-                            <strong>{{ subject }}</strong>
-                            <div v-for="tag in tags" :key="tag.text" style="margin-left: 8px">
-                                {{ tag.text }} - <strong>{{ tag.confidence.toFixed(2) }}%</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <el-form
             label-position="left"
@@ -295,14 +210,14 @@ function getFormStatus(form: string) {
                         <form-slider label="Width"           prop="width"          v-model="store.params.width"              :min="store.minDimensions" :max="store.maxDimensions" :step="64"   :change="onDimensionsChange" />
                         <form-slider label="Height"          prop="height"         v-model="store.params.height"             :min="store.minDimensions" :max="store.maxDimensions" :step="64"   :change="onDimensionsChange" />
                         <form-slider label="Guidance"        prop="cfgScale"       v-model="store.params.cfg_scale"          :min="store.minCfgScale"   :max="store.maxCfgScale"   :step="0.5"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
-                        <form-slider label="CLIP Skip"       prop="clipSkip"       v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="Last layers of CLIP to ignore. For most situations this can be left alone. This may produce better results - for example, Anything Diffusion and CLIP skip 2 pairs well." />
+                        <form-slider label="Clip Skip"       prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
+                        <form-radio  label="Hires Fix"       prop="hires_fix"      v-model="setHiresfix"            :options="['Enabled', 'Disabled']" :disabled="store.params.width > 512 && store.params.height > 512 ? false : true"   info="Improves image generation, generation im multiples passe with lower resolution at start!" />
                         <form-slider label="Init Strength"   prop="denoise"        v-model="store.params.denoising_strength" :min="store.minDenoise"    :max="store.maxDenoise"    :step="0.01" info="The final image will diverge from the starting image at higher values." v-if="store.generatorType !== 'Text2Img'" />
                         <form-model-select />
                         <form-select label="Post-processors" prop="postProcessors" v-model="store.postProcessors"   :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
                         <form-radio  label="Multi-model select" prop="multiModel"  v-model="store.multiModelSelect" :options="['Enabled', 'Disabled']" />
-                        <form-radio  label="Hi-res fix"      prop="hiresFix"       v-model="store.params.hires_fix" :options="['Enabled', 'Disabled']" use-boolean info="May make high resolution images more coherent." v-if="store.generatorType === 'Text2Img'" />
-                        <form-radio  label="Tiling"          prop="tiling"         v-model="store.params.tiling"    :options="['Enabled', 'Disabled']" use-boolean info="Creates seamless textures! You can test your resulting images here: https://www.pycheung.com/checker/" />
-                        <form-radio  label="Karras"          prop="karras"         v-model="store.params.karras"    :options="['Enabled', 'Disabled']" use-boolean info="Improves image generation while requiring fewer steps. Mostly magic!" />
+                        <form-radio  label="Tiling"          prop="tiling"         v-model="setTiling"              :options="['Enabled', 'Disabled']"       info="Creates seamless textures! You can test your resulting images here: https://www.pycheung.com/checker/" />
+                        <form-radio  label="Karras"          prop="karras"         v-model="setKarras"              :options="['Enabled', 'Disabled']"       info="Improves image generation while requiring fewer steps. Mostly magic!" />
                         <form-radio  label="NSFW"            prop="nsfw"           v-model="store.nsfw"             :options="['Enabled', 'Disabled', 'Censored']" />
                         <form-radio  label="Worker Type"     prop="trusted"        v-model="store.trustedOnly"      :options="['All Workers', 'Trusted Only']" />
                     </el-collapse-item>
@@ -370,6 +285,16 @@ function getFormStatus(form: string) {
 <style>
 :root {
     --sidebar-width: 70px
+}
+
+:root .el-carousel {
+    --el-carousel-arrow-background: rgba(31, 45, 61, 0.31);
+    --el-carousel-arrow-hover-background: rgba(31, 45, 61, 0.51);
+}
+
+:root .el-carousel__arrow {
+    border-radius: 0;
+    height: 100%;
 }
 
 .small-btn {

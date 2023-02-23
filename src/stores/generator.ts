@@ -13,6 +13,8 @@ import { MODELS_DB_URL, POLL_MODELS_INTERVAL, DEBUG_MODE, POLL_STYLES_INTERVAL, 
 import { convertToBase64 } from "@/utils/base64";
 import { validateResponse } from "@/utils/validate";
 import { ElNotification } from "element-plus";
+import { useWorkerStore } from '@/stores/workers';
+import { BASE_URL_STABLE } from "@/constants";
 
 function getDefaultStore() {
     return <ModelGenerationInputStable>{
@@ -22,13 +24,13 @@ function getDefaultStore() {
         width: 512,  // make sure these are divisible by 64
         height: 512, // make sure these are divisible by 64
         cfg_scale: 7,
+        clip_skip: 1,
         seed_variation: 1000,
         seed: "",
         karras: true,
         denoising_strength: 0.75,
         tiling: false,
         hires_fix: false,
-        clip_skip: 1,
     }
 }
 
@@ -77,22 +79,27 @@ interface IPromptHistory {
     timestamp: number;
 }
 
-export const useGeneratorStore = defineStore("generator", () => {
-    const validGeneratorTypes = ['Text2Img', 'Img2Img', 'Inpainting'];
-    const generatorType = ref<'Text2Img' | 'Img2Img' | 'Inpainting' | 'Rating' | 'Interrogation'>("Text2Img");
+type IGeneratorType = 'Text2Img' | 'Img2Img' | 'Inpainting' | 'Rating'
+type INSFW = "Enabled" | "Disabled" | "Censored"
+type ITrustedOnly = "All Workers" | "Trusted Only"
+type IMultiModel = "Enabled" | "Disabled"
+type IGroupedModel ={ label: string; options: {label: string; value: string;}[] }[];
 
-    const prompt = ref("");
+export const useGeneratorStore = defineStore("generator", () => {
+    const generatorType = useLocalStorage<IGeneratorType>("generationType", "Text2Img");
+
+    const prompt = useLocalStorage("lastPrompt", "")
     const promptHistory = useLocalStorage<IPromptHistory[]>("promptHistory", []);
-    const negativePrompt = ref("");
+    const negativePrompt = useLocalStorage("lastNegativePrompt", "")
     const negativePromptLibrary = useLocalStorage<string[]>("negativeLibrary", []);
-    const params = ref<ModelGenerationInputStable>(getDefaultStore());
-    const nsfw   = ref<"Enabled" | "Disabled" | "Censored">("Enabled");
-    const trustedOnly = ref<"All Workers" | "Trusted Only">("All Workers");
+    const params = useLocalStorage<ModelGenerationInputStable>("params", getDefaultStore());
+    const nsfw   = useLocalStorage<INSFW>("nsfw", "Enabled");
+    const trustedOnly = useLocalStorage<ITrustedOnly>("trustedOnly", "All Workers");
 
     const availablePostProcessors: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[] = ["GFPGAN", "RealESRGAN_x4plus", "CodeFormers"];
-    const postProcessors = ref<typeof availablePostProcessors>([]);
+    const postProcessors = useLocalStorage<typeof availablePostProcessors>("postProcessors", []);
 
-    const availableModels = ref<{ value: string; label: string; }[]>([]);
+    const availableModelsGrouped = ref<IGroupedModel>([]);
     const modelsData = ref<IModelData[]>([]);
     const modelDescription = computed(() => {
         if (selectedModel.value === "Random!") {
@@ -100,27 +107,43 @@ export const useGeneratorStore = defineStore("generator", () => {
         }
         return selectedModelData.value?.description || "Not Found!";
     })
-    const multiModelSelect = ref<"Enabled" | "Disabled">("Disabled");
-    const selectedModel = ref("stable_diffusion");
-    const selectedModelMultiple = ref(["stable_diffusion"]);
+    const multiModelSelect = useLocalStorage<IMultiModel>("multiModelSelect", "Disabled");
+    const selectedModel = useLocalStorage("selectedModel", "stable_diffusion");
+    const selectedModelMultiple = useLocalStorage("selectedModelMultiple", ["stable_diffusion"]);
     const selectedModelData = computed<IModelData>(() => modelsData.value.find(el => el.name === selectedModel.value) || {});
-    const filteredAvailableModels = computed(() => {
-        if (availableModels.value.length === 0) return [];
-        let filtered = availableModels.value.filter(el => {
-            if (generatorType.value === "Inpainting") {
-                return el.value.includes("inpainting") && el.value !== "Stable Diffusion 2 Depth";
-            }
+    
+    const filteredAvailableModelsGrouped = computed(() => {
+        if (availableModelsGrouped.value.length === 0) return [];
+
+        var filtered;
+        
+        if (generatorType.value === "Inpainting") {
+            filtered = [availableModelsGrouped.value.find(mg => mg.label == "inpainting")];
+        } else {
             if (generatorType.value === "Img2Img") {
-                return el.value !== "stable_diffusion_2.0" && !el.value.includes("inpainting");
+                filtered = availableModelsGrouped.value.filter(mg => mg.label !== "inpainting");
+            } else {
+                filtered = availableModelsGrouped.value.filter(mg => mg.label !== "inpainting" && mg.label !== "depth2img");
             }
-            return !el.value.includes("inpainting") && el.value !== "pix2pix" && el.value !== "Stable Diffusion 2 Depth";
+        }
+
+        let sModel = filtered.find(el2 => {
+            if(!el2) return false;
+            return el2.options.find(el => {
+                return el.value == selectedModel.value;
+            });
         });
-        if (!filtered.find(el => el.value === selectedModel.value)) {
-            selectedModel.value = filtered[0].value;
+
+        if(!sModel) {
+            if(!filtered[0]) return [];
+            selectedModel.value = filtered[0].options[0].value;
         }
+
         if (multiModelSelect.value === "Enabled") {
-            filtered = filtered.filter(el => el.value !== "Random!" && el.value !== "All Models!");
+            filtered = filtered.filter(el => el?.label !== "Extra");
         }
+        
+        console.log(filtered);
         return filtered;
     })
 
@@ -132,12 +155,12 @@ export const useGeneratorStore = defineStore("generator", () => {
         maskImage: undefined,
     })
 
-    const inpainting = ref<ITypeParams>({
+    const inpainting = useLocalStorage<ITypeParams>("inpainting", {
         ...getDefaultImageProps(),
         sourceProcessing: "inpainting",
     })
 
-    const img2img = ref(<ITypeParams>{
+    const img2img = useLocalStorage("img2img", <ITypeParams>{
         ...getDefaultImageProps(),
         sourceProcessing: "img2img",
     })
@@ -180,11 +203,24 @@ export const useGeneratorStore = defineStore("generator", () => {
     const minDenoise = ref(0.1);
     const maxDenoise = ref(1);
     const minClipSkip = ref(1);
-    const maxClipSkip = ref(10);
+    const maxClipSkip = ref(12);
 
-    const totalImageCount = computed(() => {
+    const totalImageCount = computed<number>(() => {
         const newPrompts = promptMatrix();
-        return newPrompts.length * (multiModelSelect.value === "Enabled" ? selectedModelMultiple.value.length : selectedModel.value === "All Models!" ? filteredAvailableModels.value.filter(el => el.value !== "Random!" && el.value !== "All Models!").length : 1) * (params.value.n || 1);
+        let returnValue = newPrompts.length;
+        if(multiModelSelect.value === "Enabled") 
+        {
+            returnValue *= selectedModelMultiple.value.length;
+        }
+        else
+        {
+            if(selectedModel.value === "All Models!")
+            {
+                returnValue *= filteredAvailableModelsGrouped.value.filter(el => el?.label !== "Extra").length;
+            }
+        }
+        returnValue *= (params.value.n || 1);
+        return returnValue;
     })
 
     const kudosCost = computed(() => {
@@ -217,8 +253,8 @@ export const useGeneratorStore = defineStore("generator", () => {
     /**
      * Generates images on the Horde; returns a list of image(s)
      * */ 
-    async function generateImage(type: 'Text2Img' | 'Img2Img' | 'Inpainting' | 'Rating' | 'Interrogation') {
-        if (!validGeneratorTypes.includes(type)) return [];
+    async function generateImage(type: "Img2Img" | "Text2Img" | "Inpainting" | "Rating") {
+        if (type === "Rating") return [];
         if (prompt.value === "") return generationFailed("Failed to generate: No prompt submitted.");
         if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed("Failed to generate: No model selected.");
 
@@ -230,12 +266,18 @@ export const useGeneratorStore = defineStore("generator", () => {
         const { sourceImage, maskImage, sourceProcessing } = getImageProps(type);
         
         let model = [selectedModel.value];
-        const realModels = filteredAvailableModels.value.filter(el => el.value !== "Random!" && el.value !== "All Models!");
+        const realModels = filteredAvailableModelsGrouped.value.filter(el => el?.label !== "Extra");
         if (selectedModel.value === "Random!") {
-            model = [realModels[Math.floor(Math.random() * realModels.length)].value];
+            let categoryId = Math.floor(Math.random() * realModels.length);
+            let modelId = Math.floor(Math.random() * realModels[categoryId].options.length);
+            model = [realModels[categoryId].options[modelId].value];
         } 
         if (selectedModel.value === "All Models!") {
-            model = realModels.map(el => el.value);
+            realModels.forEach(el => {
+                el.options.forEach(el2 => {
+                    model.push(el2.value);
+                })
+            })
         }
 
         pushToPromptHistory(prompt.value);
@@ -265,7 +307,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                 source_image: sourceImage?.split(",")[1],
                 source_mask: maskImage,
                 source_processing: sourceProcessing,
-                workers: optionsStore.useWorker === "None" ? undefined : [optionsStore.useWorker],
+                workers: optionsStore.getWokersToUse,
                 models: [currentModel],
                 r2: true,
                 shared: useOptionsStore().shareWithLaion === "Enabled",
@@ -419,12 +461,14 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (data.sampler_name)    params.value.sampler_name = data.sampler_name;
         if (data.steps)           params.value.steps = validateParam("steps", data.steps, maxSteps.value, defaults.steps as number);
         if (data.cfg_scale)       params.value.cfg_scale = data.cfg_scale;
+        if (data.clip_skip)       params.value.clip_skip = data.clip_skip;
         if (data.width)           params.value.width = validateParam("width", data.width, maxDimensions.value, defaults.width as number);
         if (data.height)          params.value.height = validateParam("height", data.height, maxDimensions.value, defaults.height as number);
         if (data.seed)            params.value.seed = data.seed;
         if (data.karras)          params.value.karras = data.karras;
         if (data.post_processing) postProcessors.value = data.post_processing as typeof availablePostProcessors;
         if (data.modelName)       selectedModel.value = data.modelName;
+        if (data.hires_fix)       params.value.hires_fix = data.hires_fix
     }
 
     /**
@@ -504,8 +548,9 @@ export const useGeneratorStore = defineStore("generator", () => {
      * Fetches a new ID
      */
     async function fetchNewID(parameters: GenerationInput) {
+        if (DEBUG_MODE) console.log("New Generation: ", parameters)
         const optionsStore = useOptionsStore();
-        const response: Response = await fetch(`${optionsStore.baseURL}/api/v2/generate/async`, {
+        const response: Response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/async`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -524,8 +569,6 @@ export const useGeneratorStore = defineStore("generator", () => {
     async function processImages(finalImages: (GenerationStable & ICurrentGeneration)[]) {
         const store = useOutputStore();
         const optionsStore = useOptionsStore();
-
-        console.log(finalImages)
         const finalParams: ImageData[] = await Promise.all(
             finalImages.map(async (image) => {
                 let { img } = image;
@@ -554,11 +597,11 @@ export const useGeneratorStore = defineStore("generator", () => {
                     width: (params?.width as number) * ((params?.post_processing || []).includes("RealESRGAN_x4plus") ? 4 : 1),
                     height: (params?.height as number) * ((params?.post_processing || []).includes("RealESRGAN_x4plus") ? 4 : 1),
                     cfg_scale: params?.cfg_scale,
+                    clip_skip: params?.clip_skip,
                     karras: params?.karras,
+                    hires_fix: params?.hires_fix,
                     post_processing: params?.post_processing,
                     tiling: params?.tiling,
-                    hires_fix: params?.hires_fix,
-                    clip_skip: params?.clip_skip,
                     starred: 0,
                     rated: 0,
                 }
@@ -582,7 +625,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         queue.value = [];
 
         const onGeneratorPage = router.currentRoute.value.fullPath === "/";
-        if ((onGeneratorPage && !validGeneratorTypes.includes(generatorType.value)) || !onGeneratorPage) {
+        if ((onGeneratorPage && generatorType.value === "Rating") || !onGeneratorPage) {
             uiStore.showGeneratorBadge = true;
             const notification = ElNotification({
                 title: 'Images Finished',
@@ -594,7 +637,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                             cursor: "pointer",
                         },
                         onClick: () => {
-                            if (!validGeneratorTypes.includes(generatorType.value)) generatorType.value = "Text2Img";
+                            if (generatorType.value === "Rating") generatorType.value = "Text2Img";
                             uiStore.showGeneratorBadge = false;
                             router.push("/");
                             notification.close();
@@ -615,9 +658,15 @@ export const useGeneratorStore = defineStore("generator", () => {
     /**
      * Gets information about the generating image(s). Returns false if an error occurs.
      * */ 
-    async function checkImage(imageID: string) {
-        const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/generate/check/`+imageID);
+    async function checkImage(imageID: string, tries: number = 0) {
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/check/`+imageID);
+        
+        if (response.status == 500) {
+            tries++;
+            if (tries < 5)
+                return checkImage(imageID, tries);
+        }
+
         const resJSON: RequestStatusCheck = await response.json();
         if (cancelled.value) return { wait_time: 0, done: false };
         if (!validateResponse(response, resJSON, 200, "Failed to check image status", onInvalidResponse)) return false;
@@ -628,8 +677,8 @@ export const useGeneratorStore = defineStore("generator", () => {
      * Cancels the generating image(s) and returns their state. Returns false if an error occurs.
      * */ 
     async function cancelImage(imageID: string) {
-        const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/generate/status/`+imageID, {
+        queue.value = [];
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/status/`+imageID, {
             method: 'DELETE',
         });
         const resJSON = await response.json();
@@ -642,8 +691,7 @@ export const useGeneratorStore = defineStore("generator", () => {
      * Gets the final status of the generated image(s). Returns false if response is invalid.
      * */ 
     async function getImageStatus(imageID: string) {
-        const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/generate/status/`+imageID);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/status/`+imageID);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to check image status", onInvalidResponse)) return false;
         const generations: GenerationStable[] = resJSON.generations;
@@ -663,16 +711,10 @@ export const useGeneratorStore = defineStore("generator", () => {
      * Updates available models
      * */ 
     async function updateAvailableModels() {
-        const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/status/models`);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/status/models`);
         const resJSON: ActiveModel[] = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to get available models")) return;
-        resJSON.sort((a, b) => (b.count as number) - (a.count as number));
-        availableModels.value = [
-            ...resJSON.map(el => ({ value: el.name as string, label: `${el.name} (${el.count})` })),
-            { value: "Random!", label: "Random!" },
-            { value: "All Models!", label: "All Models!" },
-        ];
+
         const dbResponse = await fetch(MODELS_DB_URL);
         const dbJSON = await dbResponse.json();
         const nameList = Object.keys(dbJSON);
@@ -684,7 +726,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                 queued = 0,
                 eta = Infinity,
                 count = 0,
-                performance = 0
+                performance = 0,
             } = resJSON.find(el => el.name === name) || {};
           
             return {
@@ -702,6 +744,30 @@ export const useGeneratorStore = defineStore("generator", () => {
             };
         });
         modelsData.value = newStuff;
+
+        
+        availableModelsGrouped.value = [];
+        modelsData.value.forEach((model) => {
+            if(
+                nsfw.value == "Enabled" ||
+                nsfw.value == "Censored" ||
+                nsfw.value == "Disabled" && model.nsfw == false
+                )
+            {
+                let restModel = resJSON.find(el => el.name == model.name);
+                if (restModel != null)
+                {
+                    let modelStyle = availableModelsGrouped.value.find(el2 => el2.label == model.style);
+                    if(modelStyle != null)
+                        modelStyle.options.push({value: restModel.name as string, label: `${(model.nsfw == true?"[NSFW] ":"")}${restModel.name} (${restModel.count})`});
+                    else
+                    availableModelsGrouped.value.push({ label: model.style as string, options: [{value: restModel.name as string, label: `${(model.nsfw == true?"[NSFW] ":"")}${restModel.name} (${restModel.count})`}] })
+
+                }
+            }
+        });
+
+        availableModelsGrouped.value.push({ label: 'Extra', options: [{value: "Random!", label: "Random!"}, {value: "All Models!", label: "All Models!"}] });
     }
 
     async function updateStyles() {
@@ -767,7 +833,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         uploadDimensions,
         cancelled,
         postProcessors,
-        availableModels,
         selectedModel,
         selectedModelMultiple,
         multiModelSelect,
@@ -783,18 +848,17 @@ export const useGeneratorStore = defineStore("generator", () => {
         maxSteps,
         minCfgScale,
         maxCfgScale,
-        minDenoise,
-        maxDenoise,
         minClipSkip,
         maxClipSkip,
+        minDenoise,
+        maxDenoise,
         queue,
         gatheredImages,
         promptHistory,
         styles,
-        // Constants
-        validGeneratorTypes,
+        availableModelsGrouped,
         // Computed
-        filteredAvailableModels,
+        filteredAvailableModelsGrouped,
         kudosCost,
         canGenerate,
         modelDescription,

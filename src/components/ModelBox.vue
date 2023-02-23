@@ -10,6 +10,9 @@ import {
     ElEmpty,
     vLoading,
     ElLoading,
+    ElCollapse,
+    ElCollapseItem,
+    ElButton
 } from 'element-plus';
 import {
     CircleCheck,
@@ -19,6 +22,12 @@ import {
 import { computed, ref } from 'vue';
 import type { IModelData } from '@/stores/generator';
 import { useIntersectionObserver } from '@vueuse/core';
+
+import { useWorkerStore } from '@/stores/workers';
+const store = useWorkerStore();
+import { useOptionsStore } from '@/stores/options';
+const optStore = useOptionsStore();
+
 const props = defineProps<{
     model: IModelData;
 }>();
@@ -47,6 +56,9 @@ useIntersectionObserver(
 
 <template>
     <el-card class="model-box" :body-style="{ padding: '0px' }" ref="imageRef">
+        <div v-if="model.nsfw" :class="{ 'ribbon ribbon-top-right': model.nsfw }">
+            <span class="ribbonSpan">NSFW</span>
+        </div>
         <div v-if="shouldRender">
             <el-carousel
                 style="width: 100%; margin: 0"
@@ -82,13 +94,25 @@ useIntersectionObserver(
                 </div>
                 <slot name="header"></slot>
             </div>
-            <div>There are <strong>{{model.count}}</strong> workers running this model</div>
+            <div>
+                <el-collapse style="margin-top: 0.5rem; --el-collapse-header-height: 2.5rem">
+                    <el-collapse-item :title="`There are ${model.count} workers running this model`" name="1">
+                        <div id="workerTable" v-for="(worker) of store.getAllWorkersWithModel(model.name)">
+                            <div style="float:left; min-width: 20%;">{{Math.floor(Math.sqrt(worker.max_pixels))}}x{{Math.floor(Math.sqrt(worker.max_pixels))}}</div>
+                            <div style="float:left; width: 55%;">{{worker.name}}</div>
+                            
+                            <el-button v-if="optStore.isWorkerWhitelisted(worker)" style="width: 25%;border: none;" @click="() => optStore.addWorkerToSelection(worker)">Add to {{optStore.getListMode()}}</el-button>
+                            <el-button v-else style="width: 25%;border: none;color: #777;">---</el-button>
+                        </div>
+                    </el-collapse-item>
+                </el-collapse>
+            </div>
+            <div></div>
             <div>There are <strong>{{Math.floor((model.queued || 0) / 10_000) / 100}}</strong> MPS queued</div>
             <div>The average model speed is <strong>{{Math.floor((model.performance || 0) / 10_000) / 100}}</strong> MPS/s</div>
             <div>It is expected to take <strong>{{model.eta}}s</strong> to clear this queue</div>
             <div></div>
             <div>The style of this model is <strong>{{model.style}}</strong></div>
-            <div v-if="model.nsfw">This model may produce NSFW images.</div>
             <el-divider v-if="model.description" style="margin: 10px 0" />
             <div class="small-font">{{model.description}}</div>
         </div>
@@ -96,6 +120,12 @@ useIntersectionObserver(
 </template>
 
 <style scoped>
+    #workerTable:nth-child(2n) {
+        background:#312d2d;
+    }
+    .models > .el-card {
+        max-width: 550px;
+    }
     .card-header {
         display: flex;
         align-items: center;
@@ -110,4 +140,63 @@ useIntersectionObserver(
     .model-box {
         min-height: 100%;
     }
+
+    .ribbon-top-right {
+        top: -10px;
+        right: -73%;
+    }
+
+    .ribbon-top-right::before,
+    .ribbon-top-right::after {
+        border-top-color: transparent;
+        border-right-color: transparent;
+    }
+
+    .ribbon-top-right::before {
+        top: 0;
+        left: 0;
+    }
+
+    .ribbon-top-right::after {
+        bottom: 0;
+        right: 0;
+    }
+
+    .ribbon-top-right .ribbonSpan {
+        left: -25px;
+        top: 30px;
+        transform: rotate(45deg);
+    }
+
+    .ribbon {
+        position: relative;
+        overflow: visible;
+        z-index: 10;
+    }
+
+    .ribbon::before,
+    .ribbon::after {
+        position: absolute;
+        z-index: -1;
+        content: '';
+        display: block;
+        border: 5px solid #3f0000;
+    }
+
+    .ribbon .ribbonSpan {
+        position: absolute;
+        display: block;
+        width: 225px;
+        padding: 2px 0;
+        background-color: #c10000;
+        box-shadow: 0 5px 10px rgb(0 0 0 / 10%);
+        color: #fff;
+        text-shadow: 0 1px 1px rgb(0 0 0 / 20%);
+        text-transform: uppercase;
+        text-align: center;
+        font-weight: bolder;
+        font-family: system-ui;
+        font-size: 30px;
+    }
+
 </style>

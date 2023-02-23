@@ -1,26 +1,35 @@
 import type { TeamDetailsStable, WorkerDetailsStable } from "@/types/stable_horde";
 import { defineStore } from "pinia";
+import { useLocalStorage } from '@vueuse/core'
 import { computed, ref } from "vue";
 import { useGeneratorStore, type IModelData } from "./generator";
 import { POLL_WORKERS_INTERVAL, DEBUG_MODE } from "@/constants";
 import { useOptionsStore } from "./options";
 import { validateResponse } from "@/utils/validate";
+import { BASE_URL_STABLE } from "@/constants";
 
 type SortOptions = "Default" | "Name" | "Info" | "Uptime" | "MPS" | "Speed" | "Requests" | "Model Count" | "Worker Count" | "Queued" | "Clear Time"
 
 export const useWorkerStore = defineStore("workers", () => {
     const workers = ref<WorkerDetailsStable[]>([]);
     const teams = ref<TeamDetailsStable[]>([]);
-    const sortBy = ref<SortOptions>("Default");
-    const searchFilter = ref("");
-    const sortDirection = ref<"Ascending" | "Descending">("Descending");
-    const activeTab = ref<"workers" | "teams" | "models">('workers');
+    const sortBy = useLocalStorage<SortOptions>("sortBy", "Default");
+    const searchFilter = useLocalStorage("sortFilter", "");
+    const sortDirection = useLocalStorage<"Ascending" | "Descending">("sortDirection", "Descending");
+    const activeTab = useLocalStorage<"workers" | "teams" | "models">("activceWorkerTab", 'workers');
 
     function filterBySearch<T extends { name?: string }>(data: T[]) {
         return data.filter(el => (el?.name || "").toLowerCase().includes(searchFilter.value.toLowerCase()));
     }
 
     const descending = computed(() => sortDirection.value === "Descending");
+    const sortedByNameWorkers = computed(() => workers.value.sort((t1, t2) => {
+        const name1 = (t1.name?.toLowerCase() || "");
+        const name2 = (t2.name?.toLowerCase() || "");
+        if (name1 > name2) { return 1; }
+        if (name1 < name2) { return -1; }
+        return 0;
+      }));
     const sortedWorkers = computed(() => filterBySearch(sortWorkersBy(sortBy.value, descending.value, workers.value)))
     const sortedTeams = computed(() => filterBySearch(sortTeamsBy(sortBy.value, descending.value, teams.value)))
     const sortedModels = computed(() => filterBySearch(sortModelsBy(sortBy.value, descending.value, useGeneratorStore().modelsData.filter(el => el.type === "ckpt"))));
@@ -32,6 +41,21 @@ export const useWorkerStore = defineStore("workers", () => {
         if (!options.includes(sortBy.value)) sortBy.value = "Info";
         return options;
     });
+
+    function getAllWorkersWithModel(modelName: string) {
+        if(workers.value.length === 0) 
+            updateWorkers();
+        let worker: WorkerDetailsStable[] = [];
+        workers.value.forEach(element => {
+            element.models?.forEach(ml => {
+                if (ml == modelName) {
+                    worker.push(element);
+                    return;
+                }
+            });
+        });
+        return worker;
+    }
     
     function updateStore() {
         if (DEBUG_MODE) console.log("Attempting to update worker store...")
@@ -43,8 +67,7 @@ export const useWorkerStore = defineStore("workers", () => {
      * Updates the current list of workers
      * */ 
     async function updateWorkers() {
-        const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/workers`);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers`);
         const resJSON: WorkerDetailsStable[] = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to update workers")) return;
         if (DEBUG_MODE) console.log("Updated workers!", resJSON)
@@ -52,8 +75,7 @@ export const useWorkerStore = defineStore("workers", () => {
     }
 
     async function updateTeams() {
-        const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/teams`);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/teams`);
         const resJSON: TeamDetailsStable[] = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to update teams")) return;
         if (DEBUG_MODE) console.log("Updated teams!", resJSON)
@@ -141,11 +163,13 @@ export const useWorkerStore = defineStore("workers", () => {
         searchFilter,
         activeTab,
         // Computed
+        sortedByNameWorkers,
         sortedWorkers,
         sortedTeams,
         sortedModels,
         sortOptions,
         // Actions
-        updateWorkers
+        updateWorkers,
+        getAllWorkersWithModel
     };
 });

@@ -15,14 +15,14 @@ const store = useGeneratorStore();
         label="Models"
         prop="models"
         v-model="store.selectedModelMultiple"
-        :options="store.filteredAvailableModels"
+        :options="store.filteredAvailableModelsGrouped"
         filterable
         multiple
         placement="top" 
         v-if="store.multiModelSelect === 'Enabled'"
-        class="multi-model-select"
+        class="multi-model-select" :grouping="true"
     />
-    <form-select label="Model" prop="model"  v-model="store.selectedModel" :options="store.filteredAvailableModels" filterable v-else>
+    <form-select label="Model" prop="model" :grouping="true" v-model="store.selectedModel" :options="store.filteredAvailableModelsGrouped" filterable v-else>
         <template #label>
             <div style="display: flex; align-items: center; width: 100%">
                 <div style="margin-right: 5px">Model</div>

@@ -1,4 +1,3 @@
-import { CLIENT_AGENT } from "@/constants";
 import type { DatasetImagePopResponse, RatePostInput, RatePostResponse } from "@/types/ratings";
 import type { AestheticRating, GenerationSubmitted } from "@/types/stable_horde";
 import { validateResponse } from "@/utils/validate";
@@ -7,6 +6,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useOptionsStore } from "./options";
 import { useUIStore } from "./ui";
+import { BASE_URL_STABLE } from "@/constants";
 
 export const useRatingStore = defineStore("rating", () => {
     const currentRatingInfo = ref<DatasetImagePopResponse>({});
@@ -54,11 +54,11 @@ export const useRatingStore = defineStore("rating", () => {
 
     async function submitRatingHorde(currentRating: AestheticRating, jobId: string) {
         const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/generate/rate/`+jobId, {
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/rate/`+jobId, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                "Client-Agent": CLIENT_AGENT,
+                "Client-Agent": "StableUI:1.0:(discord)aqualxx#5004",
                 apikey: optionsStore.apiKey,
             },
             body: JSON.stringify({

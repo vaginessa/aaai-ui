@@ -5,6 +5,7 @@ import { useUIStore } from '@/stores/ui';
 import { ElCarousel, ElCarouselItem, ElImage, ElDivider, ElScrollbar, ElIcon } from 'element-plus';
 import { Back } from '@element-plus/icons-vue';
 import { ref } from 'vue';
+import { DEBUG_MODE } from "@/constants";
 import ImageActions from './ImageActions.vue';
 
 const store = useGeneratorStore();
@@ -14,7 +15,7 @@ const optionStore = useOptionsStore();
 const index = ref(0);
 function onChange(newIndex: number) {
     index.value = newIndex;
-    console.log(store.images[index.value])
+    if (DEBUG_MODE) console.log(store.images[index.value])
 }
 
 function onDelete(id: number) {

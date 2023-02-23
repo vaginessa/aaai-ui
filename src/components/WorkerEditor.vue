@@ -16,6 +16,7 @@ import type { WorkerDetailsStable } from "@/types/stable_horde";
 import { useWorkerStore } from "@/stores/workers";
 import { useOptionsStore } from "@/stores/options";
 import { validateResponse } from "@/utils/validate";
+import { BASE_URL_STABLE } from "@/constants";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -26,7 +27,7 @@ const workerStore = useWorkerStore();
 const optionsStore = useOptionsStore();
 
 async function updateWorkerOptions() {
-    const response = await fetch(`${optionsStore.baseURL}/api/v2/workers/${props.worker?.id}`, {
+    const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers/${props.worker?.id}`, {
         method: "PUT",
         body: JSON.stringify(workerOptionsChange.value),
         headers: {
@@ -57,7 +58,7 @@ function deleteWorker() {
         }
     ).then(() => {
         deleteTimer.value = setTimeout(async () => {
-            const response = await fetch(`${optionsStore.baseURL}/api/v2/workers/${props.worker?.id}`, {
+            const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers/${props.worker?.id}`, {
                 method: "DELETE",
                 headers: {
                     apikey: optionsStore.apiKey
@@ -80,10 +81,10 @@ const dialogOpen = ref(false);
 const workerOptionsChange = ref({
     maintenance: props.worker?.maintenance_mode,
     maintenance_msg: "",
+    paused: false,
     info: props.worker.info,
     name: props.worker.name,
-    team: props.worker.team?.id === null ? '' : props.worker.team?.id,
-    paused: false,
+    team: props.worker.team?.id === null ? '' : props.worker.team?.id
 })
 </script>
 

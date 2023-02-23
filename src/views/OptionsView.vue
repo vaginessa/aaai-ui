@@ -25,6 +25,7 @@ import { ref } from 'vue';
 import { useOutputStore, type ImageData } from '@/stores/outputs';
 import { downloadMultipleWebp } from '@/utils/download';
 import { db } from '@/utils/db';
+import FormWorkerSelect from '../components/FormWorkerSelect.vue';
 
 const store = useOptionsStore();
 const outputsStore = useOutputStore();
@@ -42,7 +43,13 @@ const options: ColorModeOption[] = [
     }, {
         value: 'light',
         label: 'Light',
+    }/*, {
+        value: 'contrast',
+        label: 'Contrast',
     }, {
+        value: 'cafe',
+        label: 'Zelda',
+    }*/, {
         value: 'auto',
         label: 'Auto',
     }
@@ -83,8 +90,11 @@ async function bulkDownload() {
                     />
                     <el-button class="anon" @click="store.useAnon()">Anon?</el-button>
                 </el-form-item>
-                <form-radio  label="Larger Values" prop="allowLargerParams" v-model="store.allowLargerParams" :options="['Enabled', 'Disabled']" info="Allows use of larger step values and dimension sizes if you have the kudos on hand." :disabled="store.apiKey === '0000000000' || store.apiKey === ''" />
-                <form-select label="Use Specific Worker" prop="worker" v-model="store.useWorker" :options="['None', ...workerStore.workers.map(el => {return {label: el.name, value: el.id}})]" />
+                <form-radio label="Larger Values" prop="allowLargerParams" v-model="store.allowLargerParams" :options="['Enabled', 'Disabled']" info="Allows use of larger step values and dimension sizes if you have the kudos on hand." :disabled="store.apiKey === '0000000000' || store.apiKey === ''" />
+                
+                <form-radio label="Worker List Mode" prop="workerListMode" v-model="store.workerListMode" :options="['Whitelist', 'Blacklist']" info="Defines if the selected workers should be included or excluded." />
+                <form-worker-select />
+
                 <form-radio  label="Share Generated Images with LAION" prop="shareWithLaion" v-model="store.shareWithLaion" :options="['Enabled', 'Disabled']" info="Automatically and anonymously share images with LAION (the non-profit that created the dataset that was used to train Stable Diffusion) for use in aesthetic training in order to improve future models. See the announcement at https://discord.com/channels/781145214752129095/1020707945694101564/1061980573096226826 for more information. NOTE: This option is automatically enabled for users without a valid API key. " :disabled="store.apiKey === '0000000000' || store.apiKey === ''" />
             </el-tab-pane>
             <el-tab-pane label="📷 Images">
@@ -114,13 +124,9 @@ async function bulkDownload() {
                 <h2>General Options</h2>
                 <form-select label="Color Scheme" prop="colorScheme" v-model="store.options.colorMode" :options="options" />
             </el-tab-pane>
-            <el-tab-pane disabled>
-                <template #label>
-                    <el-tooltip content="No running experiments!">🧪 Experimental</el-tooltip>
-                </template>
+            <el-tab-pane label="🧪 Experimental">
                 <h2>Experimental Options</h2>
-                <!--<form-radio label="Beta Testing" prop="betaTesting" v-model="store.useBeta" :options="['Enabled', 'Disabled']" info="Enables the beta channel for Stable Horde testing. WARNING: This beta channel is bleeding edge and may not function as intended. If you don't know what this is, leave this disabled." />-->
-                <!--<form-radio label="Utilize Cloudflare" prop="useCloudflare" v-model="store.useCloudflare" :options="['Enabled', 'Disabled']" info="An experimental feature to retrieve potentially lossless images from the Horde by using Cloudflare. Note: not all workers support this feature at the moment - generation times may be slower." />-->
+                <div>Working on something ...</div>
             </el-tab-pane>
         </el-tabs>
     </el-form>

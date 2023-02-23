@@ -8,6 +8,7 @@ import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
 import { POLL_DASHBOARD_INTERVAL, POLL_USERS_INTERVAL, DEBUG_MODE } from "@/constants";
 import { validateResponse } from "@/utils/validate";
+import { BASE_URL_STABLE } from "@/constants";
 
 const formatter = Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 2});
 
@@ -27,7 +28,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     async function updateDashboard() {
         const optionsStore = useOptionsStore();
 
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/find_user`, {
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/find_user`, {
             headers: {
                 apikey: optionsStore.apiKey
             }
@@ -47,7 +48,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
      * */ 
     async function getStaleWorker(workerID: string) {
         const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/workers/${workerID}`);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers/${workerID}`);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to find user by API key")) return false;
         return resJSON;
@@ -74,7 +75,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
 
     async function updateUsers() {
         const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/users`);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/users`);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to update leaderboard")) return false;
         users.value = resJSON;
@@ -83,7 +84,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
 
     async function getHordePerformance() {
         const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/status/performance`);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/status/performance`);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to get server performance")) return false;
         performance.value = resJSON;
@@ -91,7 +92,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
 
     async function getNews() {
         const optionsStore = useOptionsStore();
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/status/news`);
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/status/news`);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to get news")) return false;
         resJSON.forEach((el: any) => el.newspiece = sanitizeHtml(marked.parse(el.newspiece)))

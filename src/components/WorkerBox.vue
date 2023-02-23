@@ -62,6 +62,7 @@ const status = computed(() => {
         <div>They're utilizing <strong>{{worker.threads}}</strong> thread(s)</div>
         <div>They have fulfilled <strong>{{worker.requests_fulfilled}}</strong> requests</div>
         <div>They have NSFW set to <strong>{{worker.nsfw}}</strong></div>
+        <div>Max 1:1 Resolution <strong>{{Math.floor(Math.sqrt(worker.max_pixels))}}x{{Math.floor(Math.sqrt(worker.max_pixels))}}</strong></div>
         <div>
             <el-collapse style="margin-top: 0.5rem; --el-collapse-header-height: 2.5rem">
                 <el-collapse-item :title="worker.models?.length + ' model(s)'" name="1">

@@ -4,14 +4,13 @@ import {
     ElRadioGroup,
     ElRadioButton
 } from 'element-plus';
-import { computed } from 'vue';
 import FormLabel from './FormLabel.vue';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
     label?: string;
     modelValue: any;
     prop: string;
-    useBoolean?: boolean;
     options: any[];
     disabled?: boolean;
     info?: string;
@@ -22,25 +21,9 @@ const props = defineProps<{
 const emit = defineEmits(["update:modelValue"]);
 
 function onChanged(value: string | number | boolean) {
-    if (props.useBoolean && value === "Enabled") {
-        emit("update:modelValue", true);
-    } else if (props.useBoolean && value === "Disabled") {
-        emit("update:modelValue", false);
-    } else {
-        emit("update:modelValue", value);
-    }
-    if (!props.change) return;
-    if (props.useBoolean && value === "Enabled") return props.change(true);
-    if (props.useBoolean && value === "Disabled") return props.change(false);
-    return props.change(value);
+    emit("update:modelValue", value);
+    if (props.change) props.change(value);
 }
-
-const currentEnabled = computed(() => {
-    if (!props.useBoolean) return props.modelValue;
-    if (props.modelValue === true) return "Enabled";
-    if (props.modelValue === false) return "Disabled";
-    return props.modelValue;
-})
 </script>
 
 <template>
@@ -50,7 +33,7 @@ const currentEnabled = computed(() => {
                 <slot name="label">{{label}}</slot>
             </FormLabel>
         </template>
-        <el-radio-group :disabled="disabled" :model-value="currentEnabled" @change="onChanged">
+        <el-radio-group :disabled="disabled" :model-value="modelValue" @change="onChanged">
             <el-radio-button 
                 v-for="option in options"
                 :key="option"
