@@ -660,6 +660,8 @@ export type WorkerDetails = WorkerDetailsLite & {
 
 export interface WorkerDetailsLite {
   /** The Name given to this worker. */
+  type?: string;
+  /** The Name given to this worker. */
   name?: string;
   /** The UUID of this worker. */
   id?: string;
