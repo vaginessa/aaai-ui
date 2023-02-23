@@ -36,6 +36,7 @@ export const useOptionsStore = defineStore("options", () => {
             });
         } else {
             workerStore.workers.forEach(newWorker => {
+                if(useWorkers.value.length == 0) return allowedWorkers;
                 let include = true;
                 useWorkers.value.forEach(exluded => {
                     if((newWorker.id || "") ==  exluded) {
