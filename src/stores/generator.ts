@@ -142,8 +142,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (multiModelSelect.value === "Enabled") {
             filtered = filtered.filter(el => el?.label !== "Extra");
         }
-        
-        console.log(filtered);
         return filtered;
     })
 
