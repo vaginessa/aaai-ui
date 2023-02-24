@@ -82,14 +82,14 @@ export interface ModelPayloadRootStable {
   cfg_scale?: number;
   /**
    * @min 0
-   * @max 1
-   * @example 0.75
+   * @max 12
+   * @example 1
    */
   clip_skip?: number;
   /**
    * @min 0
-   * @max 12
-   * @example 1
+   * @max 1
+   * @example 0.75
    */
   denoising_strength?: number;
   /** The seed to use to generete this request */
@@ -114,6 +114,7 @@ export interface ModelPayloadRootStable {
    */
   seed_variation?: number;
   post_processing?: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[];
+  control_type?: ("canny" | "hed" | "depth" | "normal" | "openpose" | "seg" | "scribble" | "fakescribbles" | "hough");
   /** Set to True to enable karras noise scheduling tweaks */
   karras?: boolean;
   /** Set to True to create images that stitch together seamlessly */

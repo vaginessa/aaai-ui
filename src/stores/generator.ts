@@ -1,4 +1,4 @@
-import { computed, h, ref } from "vue";
+import { computed, h, ref, reactive } from "vue";
 import { defineStore } from "pinia";
 import type { ModelGenerationInputStable, GenerationStable, RequestAsync, GenerationInput, ActiveModel, RequestStatusCheck } from "@/types/stable_horde"
 import { useOutputStore, type ImageData } from "./outputs";
@@ -15,6 +15,8 @@ import { validateResponse } from "@/utils/validate";
 import { ElNotification } from "element-plus";
 import { useWorkerStore } from '@/stores/workers';
 import { BASE_URL_STABLE } from "@/constants";
+import { type FormRules } from 'element-plus';
+import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
 
 function getDefaultStore() {
     return <ModelGenerationInputStable>{
@@ -79,7 +81,7 @@ interface IPromptHistory {
     timestamp: number;
 }
 
-type IGeneratorType = 'Text2Img' | 'Img2Img' | 'Inpainting' | 'Rating'
+type IGeneratorType = 'Text2Img' | 'Img2Img' | 'Inpainting' | 'ControlNet' | 'Rating'
 type INSFW = "Enabled" | "Disabled" | "Censored"
 type ITrustedOnly = "All Workers" | "Trusted Only"
 type IMultiModel = "Enabled" | "Disabled"
@@ -99,6 +101,8 @@ export const useGeneratorStore = defineStore("generator", () => {
     const availablePostProcessors: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[] = ["GFPGAN", "RealESRGAN_x4plus", "CodeFormers"];
     const postProcessors = useLocalStorage<typeof availablePostProcessors>("postProcessors", []);
 
+    const availableControlType: ('canny' | 'hed' | 'depth' | 'normal' | 'openpose' | 'seg' | 'scribble' | 'fakescribbles' | 'hough')[] = ['canny', 'hed', 'depth', 'normal', 'openpose', 'seg', 'scribble', 'fakescribbles', 'hough'];
+
     const availableModelsGrouped = ref<IGroupedModel>([]);
     const modelsData = ref<IModelData[]>([]);
     const modelDescription = computed(() => {
@@ -116,6 +120,9 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (availableModelsGrouped.value.length === 0) return [];
 
         var filtered;
+
+
+        console.log(availableModelsGrouped);
         
         if (generatorType.value === "Inpainting") {
             filtered = [availableModelsGrouped.value.find(mg => mg.label == "inpainting")];
@@ -123,7 +130,11 @@ export const useGeneratorStore = defineStore("generator", () => {
             if (generatorType.value === "Img2Img") {
                 filtered = availableModelsGrouped.value.filter(mg => mg.label !== "inpainting");
             } else {
-                filtered = availableModelsGrouped.value.filter(mg => mg.label !== "inpainting" && mg.label !== "depth2img");
+                filtered = availableModelsGrouped.value;
+                
+                filtered.forEach(el => el.options = el.options.filter(
+                    md => md.value !== "pix2pix" 
+                ));
             }
         }
 
@@ -167,7 +178,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (type === "Inpainting") {
             return inpainting.value;
         }
-        if (type === "Img2Img") {
+        if (type === "Img2Img" || type === "ControlNet" ) {
             return img2img.value;
         }
         return getDefaultImageProps();
@@ -196,7 +207,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     const maxImages = ref(20);
     const minSteps = ref(1);
     const maxSteps = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 500 : 50);
-    const minCfgScale = ref(1);
+    const minCfgScale = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? -40 : 1);
     const maxCfgScale = ref(30);
     const minDenoise = ref(0.1);
     const maxDenoise = ref(1);
@@ -248,13 +259,28 @@ export const useGeneratorStore = defineStore("generator", () => {
         return true;
     }
 
+    const generateFormBaseRules = reactive<FormRules>({
+        prompt: [{
+            required: true,
+            message: 'Please input prompt',
+            trigger: 'change'
+        }],
+        apiKey: [{
+            required: true,
+            message: 'Please input API Key',
+            trigger: 'change'
+        }]
+    });
+
     /**
      * Generates images on the Horde; returns a list of image(s)
      * */ 
-    async function generateImage(type: "Img2Img" | "Text2Img" | "Inpainting" | "Rating") {
+    async function generateImage(type:IGeneratorType) {
         if (type === "Rating") return [];
         if (prompt.value === "") return generationFailed("Failed to generate: No prompt submitted.");
         if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed("Failed to generate: No model selected.");
+
+        MersenneTwister(undefined);
 
         const canvasStore = useCanvasStore();
         const optionsStore = useOptionsStore();
@@ -291,25 +317,33 @@ export const useGeneratorStore = defineStore("generator", () => {
             const currentModel = multiModelSelect.value === "Enabled" ? selectCurrentItem(selectedModelMultiple.value) : selectCurrentItem(model);
             const currentPrompt = selectCurrentItem(newPrompts);
             const currentSampler = currentModel.includes("stable_diffusion_2.0") ? "dpmsolver" : params.value.sampler_name
-            paramsCached.push({
-                prompt: currentPrompt,
-                params: {
-                    ...params.value,
-                    seed_variation: params.value.seed === "" ? 1000 : 1,
-                    post_processing: postProcessors.value,
-                    sampler_name: currentSampler,
-                },
-                nsfw: nsfw.value === "Enabled",
-                censor_nsfw: nsfw.value === "Censored",
-                trusted_workers: trustedOnly.value === "Trusted Only",
-                source_image: sourceImage?.split(",")[1],
-                source_mask: maskImage,
-                source_processing: sourceProcessing,
-                workers: optionsStore.getWokersToUse,
-                models: [currentModel],
-                r2: true,
-                shared: useOptionsStore().shareWithLaion === "Enabled",
-            });
+            for (let iN = 0; iN < (params.value.n || 1); iN++) {
+                paramsCached.push({
+                    prompt: currentPrompt,
+                    params: {
+                        ...params.value,
+                        seed: params.value.seed == "" ? genrand_int32().toString() : params.value.seed,
+                        karras: params.value.karras == "Enabled" ? true : false,
+                        tiling: params.value.tiling == "Enabled" ? true : false,
+                        hires_fix: params.value.hires_fix == "Enabled" ? true : false,
+                        seed_variation: params.value.seed === "" ? 1000 : 1,
+                        post_processing: postProcessors.value,
+                        sampler_name: currentSampler,
+                        n: 1,
+                        control_type: type === "ControlNet" ? params.value.control_type : undefined,
+                    },
+                    nsfw: nsfw.value === "Enabled",
+                    censor_nsfw: nsfw.value === "Censored",
+                    trusted_workers: trustedOnly.value === "Trusted Only",
+                    source_image: sourceImage?.split(",")[1],
+                    source_mask: maskImage,
+                    source_processing: sourceProcessing,
+                    workers: optionsStore.getWokersToUse,
+                    models: [currentModel],
+                    r2: true,
+                    shared: useOptionsStore().shareWithLaion === "Enabled",
+                });
+            }
         }
 
         if (DEBUG_MODE) console.log("Using generation parameters:", paramsCached)
@@ -742,7 +776,6 @@ export const useGeneratorStore = defineStore("generator", () => {
             };
         });
         modelsData.value = newStuff;
-
         
         availableModelsGrouped.value = [];
         modelsData.value.forEach((model) => {
@@ -819,6 +852,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     return {
         // Constants
         availablePostProcessors,
+        availableControlType,
         // Variables
         generatorType,
         prompt,
@@ -879,5 +913,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         removeFromNegativeLibrary,
         pushToPromptHistory,
         removeFromPromptHistory,
+        generateFormBaseRules,
     };
 });

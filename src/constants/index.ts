@@ -1,3 +1,5 @@
+import { ref } from 'vue';
+
 export const BASE_URL_STABLE = "https://stablehorde.net";
 export const MODELS_DB_URL = "https://raw.githubusercontent.com/Sygil-Dev/nataili-model-reference/main/db.json";
 export const POLL_DASHBOARD_INTERVAL = 30; // seconds
@@ -8,3 +10,4 @@ export const POLL_USERS_INTERVAL     = 60 * 5; // seconds
 export const MAX_PARALLEL_IMAGES     = 20;
 export const MAX_PARALLEL_REQUESTS   = 10;
 export const DEBUG_MODE = false;
+export const dots = ref("...");

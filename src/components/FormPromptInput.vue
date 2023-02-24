@@ -73,11 +73,8 @@ const showNsfwBong = computed(() => nsfwBong.value);
 const nsfwREGEX = new RegExp('girl|\\bboy\\b|student|\\byoung\\b|lit[tl]le|\\blil\\b|small|tiny')
 function showNsfwNotification(event) {
   if (nsfwREGEX.test(event.toLowerCase())) {
-    console.log("bong - ", event);
-
     nsfwBong.value = true;
   } else {
-    console.log("no bong - ", event);
     nsfwBong.value = false;
   }
 }

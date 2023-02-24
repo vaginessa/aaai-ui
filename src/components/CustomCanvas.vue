@@ -53,7 +53,7 @@ onMounted(() => {
         <el-icon :size="100"><upload-filled /></el-icon>
         <div>Drop file here OR <em>click to upload</em></div>
         <template #tip>
-            <div v-if="store.generatorType === 'Img2Img'">
+            <div v-if="store.generatorType === 'Img2Img' || store.generatorType === 'ControlNet'">
                 <div class="center-horizontal" style="margin-top: 5px;">OR</div>
                 <div
                     class="center-both"
