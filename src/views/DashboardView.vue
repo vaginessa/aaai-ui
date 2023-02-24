@@ -61,42 +61,6 @@ const signedIn = computed(() => optionsStore.apiKey != '0000000000' && optionsSt
                 <div class="api-key-required"><el-icon :size="30" style="margin-right: 10px"><Lock /></el-icon>User statistics requires an API key</div>
             </div>
             <el-row :gutter="breakLabels ? 0 : 20" justify="space-around" style="margin-bottom: 2rem;">
-                <el-col :span="spanAmount" class="label">
-                    <el-card style="margin-bottom: 10px;">
-                        <template #header>
-                            <strong>Horde Performance</strong>
-                        </template>
-                        <div>There are <strong>{{dashStore.performance.queued_requests}}</strong> queued requests (<strong>{{dashStore.performance.queued_megapixelsteps}}</strong> MPS) with <strong>{{dashStore.performance.worker_count}}</strong> workers.</div>
-                        <div>In the past minute, there have been <strong>{{dashStore.performance.past_minute_megapixelsteps}}</strong> MPS processed.</div>
-                    </el-card>
-                    <el-card>
-                        <template #header>
-                            <strong>News</strong>
-                        </template>           
-                        <el-scrollbar>
-                            <div class="news">
-                                <div v-for="news in dashStore.news" :key="news.newspiece" style="margin-bottom: 20px">
-                                    <e>{{news.date_published}}</e>
-                                    <el-divider style="margin: 0 0" />
-                                    <div v-html="news.newspiece" />
-                                </div>
-                            </div>
-                        </el-scrollbar>
-                    </el-card>
-                </el-col>
-                <el-col :span="spanAmount" class="label" style="width: 100%">
-                    <el-card style="height: 100%">
-                        <template #header>
-                            <strong>Leaderboard</strong>
-                        </template>
-                        <el-table style="height: 100%" :data="dashStore.leaderboard" @sort-change="sortChange" :default-sort="{ prop: 'kudos', order: 'descending' }" stripe :size="breakLabelsMore ? 'small' : 'medium' " class="leaderboard">
-                            <el-table-column prop="id" label="#" />
-                            <el-table-column prop="name" label="User" width="170" />
-                            <el-table-column prop="kudos" sortable="custom" label="Kudos" />
-                            <el-table-column prop="mps" sortable="custom" label="MPS" :sort-orders="['descending', null]" />
-                        </el-table>
-                    </el-card>
-                </el-col>
             </el-row>
             <el-card v-if="signedIn">
                 <template #header><strong>Your Workers</strong></template>
