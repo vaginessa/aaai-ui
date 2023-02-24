@@ -120,9 +120,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (availableModelsGrouped.value.length === 0) return [];
 
         var filtered;
-
-
-        console.log(availableModelsGrouped);
         
         if (generatorType.value === "Inpainting") {
             filtered = [availableModelsGrouped.value.find(mg => mg.label == "inpainting")];
@@ -133,7 +130,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                 filtered = availableModelsGrouped.value;
                 
                 filtered.forEach(el => el.options = el.options.filter(
-                    md => md.value !== "pix2pix" 
+                    md => md.value !== "pix2pix" && md.value !== "stable_diffusion_inpainting" 
                 ));
             }
         }
