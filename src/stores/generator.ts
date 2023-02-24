@@ -33,6 +33,7 @@ function getDefaultStore() {
         denoising_strength: 0.75,
         tiling: false,
         hires_fix: false,
+        control_type: "normal",
     }
 }
 
@@ -99,7 +100,6 @@ export const useGeneratorStore = defineStore("generator", () => {
     const trustedOnly = useLocalStorage<ITrustedOnly>("trustedOnly", "All Workers");
 
     const availablePostProcessors: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[] = ["GFPGAN", "RealESRGAN_x4plus", "CodeFormers"];
-    const postProcessors = useLocalStorage<typeof availablePostProcessors>("postProcessors", []);
 
     const availableControlType: ('canny' | 'hed' | 'depth' | 'normal' | 'openpose' | 'seg' | 'scribble' | 'fakescribbles' | 'hough')[] = ['canny', 'hed', 'depth', 'normal', 'openpose', 'seg', 'scribble', 'fakescribbles', 'hough'];
 
@@ -230,11 +230,36 @@ export const useGeneratorStore = defineStore("generator", () => {
     })
 
     const kudosCost = computed(() => {
-        const result = Math.pow((params.value.height as number) * (params.value.width as number) - (64*64), 1.75) / Math.pow((1024*1024) - (64*64), 1.75);
-        const kudos_cost_with_steps = (0.1232 * (params.value.steps as number)) + result * (0.1232 * (params.value.steps as number) * 8.75);
-        const kudos_cost_with_processing_options = kudos_cost_with_steps * totalImageCount.value * (/dpm_2|dpm_2_a|k_heun/.test(params.value.sampler_name as string) ? 2 : 1) * (1 + (postProcessors.value.includes("RealESRGAN_x4plus") ? (0.2 * (1) + 0.3) : 0));
-        return kudos_cost_with_processing_options + (useOptionsStore().shareWithLaion === "Enabled" ? 1 : 3) * (totalImageCount.value / (params.value.n || 1));
+        const result = Math.pow(((params.value.width as number) * (params.value.height as number)) - (64*64), 1.75) / Math.pow((1024*1024) - (64*64), 1.75);
+        const steps = getAccurateSteps();
+        console.log(steps);
+
+        let kudos = Math.round((((0.1232 * steps) + result * (0.1232 * steps * 8.75))) * 100) / 100;
+
+        (params.value.post_processing || []).forEach( el => {
+            kudos = Math.round((kudos * 1.2) * 100) / 100;
+        });
+        if(generatorType.value == "ControlNet"){
+            kudos = Math.round((kudos * 3) * 100) / 100;
+        }
+        console.log(kudos);
+        return kudos * (totalImageCount.value || 1);
     })
+
+    function getAccurateSteps() {
+        const { sourceImage, maskImage, sourceProcessing } = getImageProps(generatorType.value);
+        if((params.value.sampler_name || "k_euler_a") == "k_dpm_adaptive") {
+            return 50;
+        }
+        let result: number = params.value.steps || 0;
+        if(['k_heun', "k_dpm_2", "k_dpm_2_a", "k_dpmpp_2s_a"].includes(params.value.sampler_name || "k_euler_a")) {
+            result *= 2;
+        }
+        if(sourceImage && sourceProcessing == "img2img"){
+            result *= params.value.denoising_strength || 0.8;
+        }
+        return result;
+    }
 
     const canGenerate = computed(() => {
         const dashStore = useDashboardStore();
@@ -308,7 +333,11 @@ export const useGeneratorStore = defineStore("generator", () => {
 
         // Get all prompt matrices (example: {vase|pot}) + models and try to spread the batch size evenly
         const newPrompts = promptMatrix();
+        const plannedSeeds = [];
         const requestCount = totalImageCount.value / (params.value.n || 1);
+        for (let i = 0; i < (params.value.n || 1); i++) {
+            plannedSeeds.push(params.value.seed == "" ? genrand_int32().toString() : params.value.seed);
+        }
         for (let i = 0; i < requestCount; i++) {
             const selectCurrentItem = (arr: any[]) => arr[i % arr.length];
             const currentModel = multiModelSelect.value === "Enabled" ? selectCurrentItem(selectedModelMultiple.value) : selectCurrentItem(model);
@@ -319,12 +348,12 @@ export const useGeneratorStore = defineStore("generator", () => {
                     prompt: currentPrompt,
                     params: {
                         ...params.value,
-                        seed: params.value.seed == "" ? genrand_int32().toString() : params.value.seed,
+                        seed: params.value.seed == "" ? plannedSeeds[iN] : params.value.seed,
                         karras: params.value.karras == "Enabled" ? true : false,
                         tiling: params.value.tiling == "Enabled" ? true : false,
                         hires_fix: params.value.hires_fix == "Enabled" ? true : false,
                         seed_variation: params.value.seed === "" ? 1000 : 1,
-                        post_processing: postProcessors.value,
+                        post_processing: params.value.post_processing || [],
                         sampler_name: currentSampler,
                         n: 1,
                         control_type: type === "ControlNet" ? params.value.control_type : undefined,
@@ -495,7 +524,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (data.height)          params.value.height = validateParam("height", data.height, maxDimensions.value, defaults.height as number);
         if (data.seed)            params.value.seed = data.seed;
         if (data.karras)          params.value.karras = data.karras;
-        if (data.post_processing) postProcessors.value = data.post_processing as typeof availablePostProcessors;
+        if (data.post_processing) params.value.post_processing = data.post_processing as typeof availablePostProcessors;
         if (data.modelName)       selectedModel.value = data.modelName;
         if (data.hires_fix)       params.value.hires_fix = data.hires_fix
     }
@@ -861,7 +890,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         img2img,
         uploadDimensions,
         cancelled,
-        postProcessors,
         selectedModel,
         selectedModelMultiple,
         multiModelSelect,
