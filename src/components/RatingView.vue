@@ -64,7 +64,7 @@ function onRatingSubmit() {
             <div>How would you describe the flaws in this image? ({{ artifactDescriptions[currentRating.artifacts || 1] }})</div>
             <el-rate :max="6" v-model="currentRating.artifacts" />
         </div>
-        <div><el-button style="height: 50px; width: 200px" @click="() => onRatingSubmit()" :disabled="submitted">Submit rating</el-button></div>
+        <div><el-button style="height: 50px; width: 200px; margin-bottom: 75px;" @click="() => onRatingSubmit()" :disabled="submitted">Submit rating</el-button></div>
     </div>
 </template>
 

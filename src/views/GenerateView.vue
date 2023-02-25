@@ -73,7 +73,7 @@ handleUrlParams();
         <FormInpainting v-if="store.generatorType === 'Inpainting'" />
         <FormControlNet v-if="store.generatorType === 'ControlNet'" />
 
-        <FormRating v-if="store.generatorType === 'Rating'" style="padding-bottom: 50px;" />
+        <FormRating v-if="store.generatorType === 'Rating'" />
 
     </div>
 </template>
