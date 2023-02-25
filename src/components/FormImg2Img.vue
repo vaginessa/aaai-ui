@@ -66,9 +66,10 @@ function onDimensionsChange() {
                         <form-slider label="Height"             prop="height"         v-model="store.params.height"             :min="store.minDimensions" :max="store.maxDimensions" :step="64"   :change="onDimensionsChange" />
                         <form-slider label="Guidance"           prop="cfgScale"       v-model="store.params.cfg_scale"          :min="store.minCfgScale"   :max="store.maxCfgScale"   :step="0.5"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
                         <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
+                        <form-slider label="Init Strength"      prop="denoise"        v-model="store.params.denoising_strength" :min="store.minDenoise"    :max="store.maxDenoise"    :step="0.01" info="The final image will diverge from the starting image at higher values." />
                         <form-model-select />
                         <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                        <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
+                        <form-on-off-button label="Karras"      prop="karras"         v-model="store.params.karras" :icon-on="Check" :icon-off="Close"  info="Improves image generation while requiring fewer steps. Mostly magic!" />
                         <form-radio  label="NSFW"               prop="nsfw"           v-model="store.nsfw"                      :options="['Enabled', 'Disabled', 'Censored']" />
                         <form-radio  label="Worker Type"        prop="trusted"        v-model="store.trustedOnly"               :options="['All Workers', 'Trusted Only']" />
                     </el-collapse-item>
