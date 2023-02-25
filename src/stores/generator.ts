@@ -603,7 +603,8 @@ export const useGeneratorStore = defineStore("generator", () => {
 
     function addDreamboothTrigger(trigger?: string) {
         if (!selectedModelData.value?.trigger) return;
-        prompt.value += trigger || selectedModelData.value.trigger[0];
+        if (prompt.value.includes((trigger || selectedModelData.value.trigger[0]))) return;
+        prompt.value = (trigger || selectedModelData.value.trigger[0]) + ", " + prompt.value;
     }
 
     /**
