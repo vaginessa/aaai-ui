@@ -42,8 +42,6 @@ function onMenuChange(key: any) {
     if (DEBUG_MODE) console.log(key)
 }
 
-const negativePromptLibrary = ref(false);
-
 const ellipsis = setInterval(() => dots.value = dots.value.length >= 3 ? "" : ".".repeat(dots.value.length+1), 1000);
 
 onUnmounted(() => {
@@ -78,18 +76,6 @@ handleUrlParams();
         <FormRating v-if="store.generatorType === 'Rating'" style="padding-bottom: 50px;" />
 
     </div>
-    <DialogList
-        v-model="negativePromptLibrary"
-        title="Negative Prompts"
-        :list="store.negativePromptLibrary"
-        empty-description="No negative prompts found"
-        search-empty-description="Found no matching negative prompt(s) from your search."
-        search-text="Search by prompt"
-        deleteText="Delete preset"
-        useText="Use preset"
-        @use="negPrompt => store.negativePrompt = negPrompt"
-        @delete="store.removeFromNegativeLibrary"
-    />
 </template>
 
 <style>

@@ -65,6 +65,8 @@ const sortedPromptHistory = computed(
         .map(el => el.prompt || el)
 )
 
+const negativePromptLibrary = ref(false);
+
 const searchStyle = ref("");
 const showDetails = ref(false);
 const nsfwBong = ref(false);
@@ -172,6 +174,34 @@ function showNsfwNotification(event) {
             </div>
         </template>
     </DialogList>
+    <form-input
+        label="Negative Prompt"
+        prop="negativePrompt"
+        v-model="store.negativePrompt"
+        autosize
+        resize="vertical"
+        type="textarea"
+        placeholder="Enter negative prompt here"
+        info="What to exclude from the image. Not working? Try increasing the guidance."
+        label-position="top"
+    >
+        <template #inline>
+            <el-button class="small-btn" style="margin-top: 2px" @click="store.pushToNegativeLibrary(store.negativePrompt)" text>Save preset</el-button>
+            <el-button class="small-btn" style="margin-top: 2px" @click="() => negativePromptLibrary = true" text>Load preset</el-button>
+        </template>
+    </form-input>
+    <DialogList
+        v-model="negativePromptLibrary"
+        title="Negative Prompts"
+        :list="store.negativePromptLibrary"
+        empty-description="No negative prompts found"
+        search-empty-description="Found no matching negative prompt(s) from your search."
+        search-text="Search by prompt"
+        deleteText="Delete preset"
+        useText="Use preset"
+        @use="negPrompt => store.negativePrompt = negPrompt"
+        @delete="store.removeFromNegativeLibrary"
+    />
 </template>
 
 <style scoped>

@@ -23,8 +23,6 @@ const canvasStore = useCanvasStore();
 const samplerListLite = ["k_lms", "k_heun", "k_euler", "k_euler_a", "k_dpm_2", "k_dpm_2_a"]
 const dpmSamplers = ['k_dpm_fast', 'k_dpm_adaptive', 'k_dpmpp_2m', 'k_dpmpp_2s_a', 'k_dpmpp_sde']
 
-const negativePromptLibrary = ref(false);
-
 const availableSamplers = computed(() => {
     if (store.selectedModel === "stable_diffusion_2.0") return updateCurrentSampler(["dpmsolver"])
     if (store.generatorType === 'Text2Img') return updateCurrentSampler([...samplerListLite, ...dpmSamplers]);
@@ -60,22 +58,6 @@ function onDimensionsChange() {
                 <el-collapse v-model="uiStore.activeCollapse">
                     <el-collapse-item title="Generation Options" name="2">
                         <form-prompt-input />
-                        <form-input
-                            label="Negative Prompt"
-                            prop="negativePrompt"
-                            v-model="store.negativePrompt"
-                            autosize
-                            resize="vertical"
-                            type="textarea"
-                            placeholder="Enter negative prompt here"
-                            info="What to exclude from the image. Not working? Try increasing the guidance."
-                            label-position="top"
-                        >
-                            <template #inline>
-                                <el-button class="small-btn" style="margin-top: 2px" @click="store.pushToNegativeLibrary(store.negativePrompt)" text>Save preset</el-button>
-                                <el-button class="small-btn" style="margin-top: 2px" @click="() => negativePromptLibrary = true" text>Load preset</el-button>
-                            </template>
-                        </form-input>
                         <FormSeed />
                         <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   info="k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast."/>
                         <form-slider label="Batch Size"         prop="batchSize"      v-model="store.params.n"                  :min="store.minImages"     :max="store.maxImages" />
