@@ -4,6 +4,10 @@ import { useRatingStore } from '@/stores/rating';
 import { useOptionsStore } from '@/stores/options';
 import RatingView from '../components/RatingView.vue';
 import BaseLink from '../components/BaseLink.vue';
+import {
+    ElButton,
+} from 'element-plus';
+
 
 const ratingStore = useRatingStore();
 const optionsStore = useOptionsStore();
