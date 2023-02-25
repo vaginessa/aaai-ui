@@ -353,9 +353,6 @@ export const useGeneratorStore = defineStore("generator", () => {
                     params: {
                         ...params.value,
                         seed: params.value.seed == "" ? plannedSeeds[iN] : params.value.seed,
-                        karras: params.value.karras == "Enabled" ? true : false,
-                        tiling: params.value.tiling == "Enabled" ? true : false,
-                        hires_fix: params.value.hires_fix == "Enabled" ? true : false,
                         seed_variation: params.value.seed === "" ? 1000 : 1,
                         post_processing: params.value.post_processing || [],
                         sampler_name: currentSampler,

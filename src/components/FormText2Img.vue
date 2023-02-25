@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { ElForm, ElButton, ElTooltip, ElCollapseItem, ElCollapse } from 'element-plus';
+import { computed } from 'vue';
+import { ElForm, ElCollapseItem, ElCollapse } from 'element-plus';
 import FormSlider from '../components/FormSlider.vue';
 import FormSeed from '../components/FormSeed.vue';
 import FormRadio from '../components/FormRadio.vue';
 import FormModelSelect from '../components/FormModelSelect.vue';
 import FormSelect from '../components/FormSelect.vue';
-import FormInput from '../components/FormInput.vue';
+import FormOnOffButton from '../components/FormOnOffButton.vue';
 import FormPromptInput from '../components/FormPromptInput.vue';
 import FormImagePreview from '../components/FormImagePreview.vue';
 import { useGeneratorStore } from '@/stores/generator';
 import { useUIStore } from '@/stores/ui';
 import { useOptionsStore } from '@/stores/options';
 import { useCanvasStore } from '@/stores/canvas';
+import { Check, Close } from '@element-plus/icons-vue';
 
 const store = useGeneratorStore();
 const uiStore = useUIStore();
@@ -67,9 +68,11 @@ function onDimensionsChange() {
                         <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
                         <form-model-select />
                         <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                        <form-radio  label="Tiling"             prop="tiling"         v-model="store.params.tiling"             :options="['Enabled', 'Disabled']"       info="Creates seamless textures! You can test your resulting images here: https://www.pycheung.com/checker/" />
-                        <form-radio  label="Karras"             prop="karras"         v-model="store.params.karras"             :options="['Enabled', 'Disabled']"       info="Improves image generation while requiring fewer steps. Mostly magic!" />
-                        <form-radio  label="Hires Fix"          prop="hires_fix"      v-model="store.params.hires_fix"          :options="['Enabled', 'Disabled']"       :disabled="store.params.width > 512 && store.params.height > 512 ? false : true"   info="Improves image generation, generation im multiples passe with lower resolution at start!" />
+                        
+                        <form-on-off-button prop="tiling" label="Tiling" :icon-on="Check" :icon-off="Close" v-model="store.params.tiling" info="Creates seamless textures! You can test your resulting images here: https://www.pycheung.com/checker/" />
+                        <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
+                        <form-on-off-button prop="hirex_fix" label="Hires Fix" :icon-on="Check" :icon-off="Close" v-model="store.params.hires_fix" info="Improves image generation, generation im multiples passe with lower resolution at start!" :disabled="(store.params.width || 0) > 512 && (store.params.height || 0) > 512 ? false : true" />
+                        
                         <form-radio  label="NSFW"               prop="nsfw"           v-model="store.nsfw"                      :options="['Enabled', 'Disabled', 'Censored']" />
                         <form-radio  label="Worker Type"        prop="trusted"        v-model="store.trustedOnly"               :options="['All Workers', 'Trusted Only']" />
                     </el-collapse-item>

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ElForm, ElButton, ElCollapseItem, ElCollapse } from 'element-plus';
+import { ElForm, ElCollapseItem, ElCollapse } from 'element-plus';
 import FormSlider from '../components/FormSlider.vue';
 import FormRadio from '../components/FormRadio.vue';
 import FormModelSelect from '../components/FormModelSelect.vue';
 import FormControlSelect from '../components/FormControlSelect.vue';
 import FormSelect from '../components/FormSelect.vue';
-import FormInput from '../components/FormInput.vue';
+import FormOnOffButton from '../components/FormOnOffButton.vue';
 import FormSeed from '../components/FormSeed.vue';
 import FormPromptInput from '../components/FormPromptInput.vue';
 import FormImagePreview from '../components/FormImagePreview.vue';
@@ -14,6 +13,7 @@ import { useGeneratorStore } from '@/stores/generator';
 import { useUIStore } from '@/stores/ui';
 import { useOptionsStore } from '@/stores/options';
 import { useCanvasStore } from '@/stores/canvas';
+import { Check, Close } from '@element-plus/icons-vue';
 
 const store = useGeneratorStore();
 const uiStore = useUIStore();
@@ -50,7 +50,7 @@ function onDimensionsChange() {
                         <FormSeed />
                         <form-model-select />
                         <form-select label="Post-processors" prop="postProcessors" v-model="store.params.post_processing"   :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                        <form-radio  label="Karras"          prop="karras"         v-model="store.params.karras"              :options="['Enabled', 'Disabled']"       info="Improves image generation while requiring fewer steps. Mostly magic!" />
+                        <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
                         <form-radio  label="NSFW"            prop="nsfw"           v-model="store.nsfw"             :options="['Enabled', 'Disabled', 'Censored']" />
                         <form-radio  label="Worker Type"     prop="trusted"        v-model="store.trustedOnly"      :options="['All Workers', 'Trusted Only']" />
                     </el-collapse-item>
