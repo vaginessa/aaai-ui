@@ -3,7 +3,8 @@ import type { Component } from 'vue';
 import { useGeneratorStore } from '@/stores/generator';
 import {
     ElFormItem,
-    ElButton
+    ElButton,
+    ElTooltip
 } from 'element-plus';
 import FormLabel from './FormLabel.vue';
 const store = useGeneratorStore();
@@ -16,6 +17,7 @@ const props = defineProps<{
     modelValue: boolean | undefined;
     info?: string;
     disabled?: boolean;
+    disabled_info?: string;
     iconOn:Component<any>;
     iconOff:Component<any>;
 }>();
@@ -34,8 +36,11 @@ function onClicked(value: string | number | boolean) {
                 <slot name="label">{{label}}</slot>
             </FormLabel>
         </template>
-        <el-button v-if="modelValue === true && disabled !== true" :disabled="disabled" :icon="iconOn" :type="disabled === false ? 'success' : ''" @click="() => { onClicked(false); }" />
-        <el-button v-else :icon="iconOff" :type="disabled === false ? '' : 'danger'" @click="() => { onClicked(true); }" />
+        <el-button v-if="modelValue === true && disabled !== true" :disabled="disabled" :icon="iconOn" type="success" @click="() => { onClicked(false); }" />
+        <el-tooltip v-else-if="disabled === true" :content="disabled_info" placement="top">
+            <el-button :icon="iconOff" type="danger" @click="() => { onClicked(true); }" />
+        </el-tooltip>
+        <el-button v-else :icon="iconOff" @click="() => { onClicked(true); }" />
         <slot name="inline" />
     </el-form-item>
 </template>

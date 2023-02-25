@@ -71,7 +71,7 @@ function onDimensionsChange() {
                         
                         <form-on-off-button prop="tiling" label="Tiling" :icon-on="Check" :icon-off="Close" v-model="store.params.tiling" info="Creates seamless textures! You can test your resulting images here: https://www.pycheung.com/checker/" />
                         <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
-                        <form-on-off-button prop="hirex_fix" label="Hires Fix" :icon-on="Check" :icon-off="Close" v-model="store.params.hires_fix" info="Improves image generation, generation im multiples passe with lower resolution at start!" :disabled="(store.params.width || 0) > 512 && (store.params.height || 0) > 512 ? false : true" />
+                        <form-on-off-button prop="hirex_fix" label="Hires Fix" :icon-on="Check" :icon-off="Close" v-model="store.params.hires_fix" info="Improves image generation, generation im multiples passe with lower resolution at start!" :disabled="(store.params.width || 0) > 512 && (store.params.height || 0) > 512 ? false : true" disabled_info="You need to have an image that is at least 576x576!" />
                         
                         <form-radio  label="NSFW"               prop="nsfw"           v-model="store.nsfw"                      :options="['Enabled', 'Disabled', 'Censored']" />
                         <form-radio  label="Worker Type"        prop="trusted"        v-model="store.trustedOnly"               :options="['All Workers', 'Trusted Only']" />
