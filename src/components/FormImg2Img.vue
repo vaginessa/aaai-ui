@@ -86,7 +86,6 @@ function onDimensionsChange() {
                         <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
                         <form-model-select />
                         <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                        <form-radio  label="Multi-model select" prop="multiModel"     v-model="store.multiModelSelect"          :options="['Enabled', 'Disabled']" />
                         <form-radio  label="Karras"             prop="karras"         v-model="store.params.karras"             :options="['Enabled', 'Disabled']"       info="Improves image generation while requiring fewer steps. Mostly magic!" />
                         <form-radio  label="NSFW"               prop="nsfw"           v-model="store.nsfw"                      :options="['Enabled', 'Disabled', 'Censored']" />
                         <form-radio  label="Worker Type"        prop="trusted"        v-model="store.trustedOnly"               :options="['All Workers', 'Trusted Only']" />

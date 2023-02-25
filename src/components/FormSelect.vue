@@ -10,6 +10,7 @@ import FormLabel from './FormLabel.vue';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
     label?: string;
+    inline?: string;
     modelValue: any;
     prop: string;
     options: any[];
@@ -59,6 +60,6 @@ function onChanged(value: any) {
                     :value="item.value !== undefined ? item.value : item"
                 />
         </el-select>
-        <slot name="inline" />
+        <slot name="inline"/>
     </el-form-item>
 </template>

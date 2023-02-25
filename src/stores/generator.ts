@@ -115,6 +115,9 @@ export const useGeneratorStore = defineStore("generator", () => {
     const selectedModel = useLocalStorage("selectedModel", "stable_diffusion");
     const selectedModelMultiple = useLocalStorage("selectedModelMultiple", ["stable_diffusion"]);
     const selectedModelData = computed<IModelData>(() => modelsData.value.find(el => el.name === selectedModel.value) || {});
+
+    const multiControlTypeSelect = useLocalStorage<IMultiModel>("multiControlTypeSelect", "Disabled");
+    const selectedControlTypeMultiple = useLocalStorage("selectedControlTypeMultiple", ["depth"]);
     
     const filteredAvailableModelsGrouped = computed(() => {
         if (availableModelsGrouped.value.length === 0) return [];
@@ -147,9 +150,10 @@ export const useGeneratorStore = defineStore("generator", () => {
             selectedModel.value = filtered[0].options[0].value;
         }
 
-        if (multiModelSelect.value === "Enabled") {
-            filtered = filtered.filter(el => el?.label !== "Extra");
-        }
+        if (multiModelSelect !== undefined)
+            if ((multiModelSelect.value || "") === "Enabled") 
+                filtered = filtered.filter(el => el?.label !== "Extra");
+
         return filtered;
     })
 
@@ -225,6 +229,10 @@ export const useGeneratorStore = defineStore("generator", () => {
                 returnValue *= filteredAvailableModelsGrouped.value.filter(el => el?.label !== "Extra").length;
             }
         }
+        if(multiControlTypeSelect.value === "Enabled") 
+        {
+            returnValue *= selectedControlTypeMultiple.value.length || 0;
+        }
         returnValue *= (params.value.n || 1);
         return returnValue;
     })
@@ -232,17 +240,12 @@ export const useGeneratorStore = defineStore("generator", () => {
     const kudosCost = computed(() => {
         const result = Math.pow(((params.value.width as number) * (params.value.height as number)) - (64*64), 1.75) / Math.pow((1024*1024) - (64*64), 1.75);
         const steps = getAccurateSteps();
-        console.log(steps);
-
         let kudos = Math.round((((0.1232 * steps) + result * (0.1232 * steps * 8.75))) * 100) / 100;
-
         (params.value.post_processing || []).forEach( el => {
             kudos = Math.round((kudos * 1.2) * 100) / 100;
         });
-        if(generatorType.value == "ControlNet"){
+        if(generatorType.value == "ControlNet")
             kudos = Math.round((kudos * 3) * 100) / 100;
-        }
-        console.log(kudos);
         return kudos * (totalImageCount.value || 1);
     })
 
@@ -341,6 +344,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         for (let i = 0; i < requestCount; i++) {
             const selectCurrentItem = (arr: any[]) => arr[i % arr.length];
             const currentModel = multiModelSelect.value === "Enabled" ? selectCurrentItem(selectedModelMultiple.value) : selectCurrentItem(model);
+            const currentControlType = multiControlTypeSelect.value === "Enabled" ? selectCurrentItem(selectedControlTypeMultiple.value) : params.value.control_type;
             const currentPrompt = selectCurrentItem(newPrompts);
             const currentSampler = currentModel.includes("stable_diffusion_2.0") ? "dpmsolver" : params.value.sampler_name
             for (let iN = 0; iN < (params.value.n || 1); iN++) {
@@ -356,7 +360,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                         post_processing: params.value.post_processing || [],
                         sampler_name: currentSampler,
                         n: 1,
-                        control_type: type === "ControlNet" ? params.value.control_type : undefined,
+                        control_type: type === "ControlNet" ? currentControlType : undefined,
                     },
                     nsfw: nsfw.value === "Enabled",
                     censor_nsfw: nsfw.value === "Censored",
@@ -892,7 +896,9 @@ export const useGeneratorStore = defineStore("generator", () => {
         cancelled,
         selectedModel,
         selectedModelMultiple,
+        selectedControlTypeMultiple,
         multiModelSelect,
+        multiControlTypeSelect,
         negativePrompt,
         generating,
         modelsData,
