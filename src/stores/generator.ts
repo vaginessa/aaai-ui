@@ -302,6 +302,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (type === "Rating") return [];
         if (prompt.value === "") return generationFailed("Failed to generate: No prompt submitted.");
         if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed("Failed to generate: No model selected.");
+        if (multiControlTypeSelect.value === "Enabled" && selectedControlTypeMultiple.value.length === 0 && generatorType.value === "ControlNet") return generationFailed("Failed to generate: No control type selected.");
 
         MersenneTwister(undefined);
 
