@@ -94,22 +94,22 @@ export const useWorkerStore = defineStore("workers", () => {
     let MaxPixels = 0;
     let LastModel = "";
 
-    async function getMaximumPixel() {
+    function getMaximumPixel() {
         if (LastModel !== (useGeneratorStore().selectedModel || "")) {
-            await getAllWorkersWithModel((useGeneratorStore().selectedModel || ""));
+            getAllWorkersWithModel((useGeneratorStore().selectedModel || ""));
             LastModel = (useGeneratorStore().selectedModel || "");
         }
         MaxPixels = 0;
         CurrentModelWorkers.forEach(el => {
-            MaxPixels = el.max_pixels || 0 > MaxPixels ? el.max_pixels || 0 : MaxPixels;
+            MaxPixels = (el.max_pixels || 0) > MaxPixels ? (el.max_pixels || 0) : MaxPixels;
         });
     }
 
     let CurrentModelWorkers: WorkerDetailsStable[] = [];
 
-    async function getAllWorkersWithModel(modelName: string) {
+    function getAllWorkersWithModel(modelName: string) {
         if(workers.value.length === 0) 
-            await updateWorkers();
+            updateWorkers();
         CurrentModelWorkers = [];
         workers.value.forEach(element => {
             element.models?.forEach(ml => {
@@ -128,19 +128,23 @@ export const useWorkerStore = defineStore("workers", () => {
         updateTeams();
     }
 
-    /**
+    /** <>
      * Updates the current list of workers
      * */ 
-    async function updateWorkers() {
-        const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers`);
-        const resJSON: WorkerDetailsStable[] = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to update workers")) return;
-        if (DEBUG_MODE) console.log("Updated workers!", resJSON)
-        workers.value = [];
-        resJSON.forEach(el => {
-            if(el.type == "image") {
-                workers.value.push(el);
-            }
+    function updateWorkers() {
+        fetch(`${BASE_URL_STABLE}/api/v2/workers`).then(response => {
+            response.json().then(resJSON => {
+                if (!validateResponse(response, resJSON, 200, "Failed to update workers")) return;
+                if (DEBUG_MODE) console.log("Updated workers!", resJSON)
+                workers.value = [];
+                (resJSON as WorkerDetailsStable[]).forEach(el => {
+                    if(el.type == "image") {
+                        workers.value.push(el);
+                    }
+                });
+                getAllWorkersWithModel((useGeneratorStore().selectedModel || ""));
+                getMaximumPixel();
+            });
         });
     }
 

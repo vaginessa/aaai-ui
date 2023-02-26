@@ -66,7 +66,6 @@ useIntersectionObserver(
                 indicator-position="none"
                 v-if="model.showcases"
                 :arrow="model.showcases.length === 1 ? 'never' : 'always'"
-                v-loading=""
             >
                 <el-carousel-item v-for="showcase in model.showcases" :key="showcase">
                     <el-image :src="showcase">
