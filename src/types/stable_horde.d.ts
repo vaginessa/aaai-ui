@@ -388,74 +388,69 @@ export interface SubmitInput {
 }
 
 export type UserDetailsStable = UserDetails & {
-  kudos_details?: UserKudosDetails;
-  usage?: UsageDetailsStable;
   contributions?: ContributionsDetailsStable;
+  kudos_details?: UserKudosDetails;
+  records?: UserRecords;
+  usage?: UsageDetailsStable;
 };
 
 export interface UserDetails {
-  /** The user's unique Username. It is a combination of their chosen alias plus their ID. */
-  username?: string;
-  /** The user unique ID. It is always an integer. */
-  id?: number;
-  /** The amount of Kudos this user has. The amount of Kudos determines the priority when requesting image generations. */
-  kudos?: number;
-  /** (Privileged) The amount of Evaluating Kudos this untrusted user has from generations and uptime. When this number reaches a prespecified threshold, they automatically become trusted. */
-  evaluating_kudos?: number;
-  /** How many concurrent generations this user may request. */
+  account_age?: number;
   concurrency?: number;
-  /** Whether this user has been invited to join a worker to the horde and how many of them. When 0, this user cannot add (new) workers to the horde. */
-  worker_invited?: number;
-  /**
-   * This user is a Horde moderator.
-   * @example false
-   */
+  flagged?: boolean;
+  id?: number;
+  kudos?: number;
   moderator?: boolean;
-  kudos_details?: UserKudosDetails;
-  /** How many workers this user has created (active or inactive) */
+  pseudonymous?: boolean;
+  trusted?: boolean;
+  username?: string;
   worker_count?: number;
   worker_ids?: string[];
-  monthly_kudos?: MonthlyKudos;
-  /**
-   * This user is a trusted member of the Horde.
-   * @example false
-   */
-  trusted?: boolean;
-  /**
-   * (Privileged) How much suspicion this user has accumulated
-   * @example 0
-   */
-  suspicious?: number;
-  /**
-   * If true, this user has not registered using an oauth service.
-   * @example false
-   */
-  pseudonymous?: boolean;
-  /**
-   * (Privileged) Contact details for the horde admins to reach the user in case of emergency.
-   * @example email@example.com
-   */
-  contact?: string;
-  /**
-   * How many seconds since this account was created
-   * @example 60
-   */
-  account_age?: number;
+  worker_invited?: number;
+}
+
+export interface UserRecords {
+  contributions?: UserRecordsContributions;
+  fulfillment?: UserRecordsFulfillment;
+  request?: UserRecordsRequest;
+  usage?: UserRecordsUsage;
+}
+
+export interface UserRecordsContributions {
+  megapixelsteps?: number;
+  tokens?: number;
+}
+
+export interface UserRecordsFulfillment {
+  image?: number;
+  interrogation?: number;
+  text?: number;
+}
+
+export interface UserRecordsRequest {
+  image?: number;
+  interrogation?: number;
+  text?: number;
+}
+
+export interface UserRecordsUsage {
+  megapixelsteps?: number;
+  tokens?: number;
 }
 
 export interface UserKudosDetails {
   /** The ammount of Kudos accumulated or used for generating images. */
   accumulated?: number;
-  /** The amount of Kudos this user has given to other users. */
-  gifted?: number;
   /** The amount of Kudos this user has been given by the Horde admins. */
   admin?: number;
+  /** The amount of Kudos this user has been awarded from things like rating images. */
+  awarded?: number;
+  /** The amount of Kudos this user has given to other users. */
+  gifted?: number;
   /** The amount of Kudos this user has been given by other users. */
   received?: number;
   /** The amount of Kudos this user has received from recurring rewards. */
   recurring?: number;
-  /** The amount of Kudos this user has been awarded from things like rating images. */
-  awarded?: number;
 }
 
 export interface MonthlyKudos {
