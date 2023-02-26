@@ -227,7 +227,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                 returnValue *= filteredAvailableModelsGrouped.value.filter(el => el?.label !== "Extra").length;
             }
         }
-        if(multiControlTypeSelect.value === "Enabled") 
+        if(generatorType.value === 'ControlNet' && multiControlTypeSelect.value === "Enabled") 
         {
             returnValue *= selectedControlTypeMultiple.value.length || 0;
         }
