@@ -202,8 +202,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         return mergedWaitData;
     });
 
-    const minDimensions = ref(64);
-    const maxDimensions = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 3072 : 1024);
     const minImages = ref(1);
     const maxImages = ref(20);
     const minSteps = ref(1);
@@ -901,8 +899,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         generating,
         modelsData,
         negativePromptLibrary,
-        minDimensions,
-        maxDimensions,
         minImages,
         maxImages,
         minSteps,

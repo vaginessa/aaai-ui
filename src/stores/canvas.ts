@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { computed, ref, toRefs } from "vue";
 import { useGeneratorStore } from "./generator";
 import { fabric } from "fabric";
+import { useWorkerStore } from "./workers";
 
 export const useCanvasStore = defineStore("canvas", () => {
     interface ICanvasParams {
@@ -219,19 +220,18 @@ export const useCanvasStore = defineStore("canvas", () => {
 
     function newImage(image: fabric.Image) {
         const store = useGeneratorStore();
+        const workerStore = useWorkerStore();
         resetCanvas();
         image.selectable = false;
         width.value = image.width as number;
         height.value = image.height as number;
 
-        if (width.value > store.maxDimensions || height.value > store.maxDimensions) {
-            const { newHeight, newWidth } = scaleImageTo(image, width.value, height.value, store.maxDimensions);
+        if (width.value > workerStore.maxWidth || height.value > workerStore.maxHeight) {
+            const { newHeight, newWidth } = scaleImageTo(image, width.value, height.value, workerStore.maxWidth >= workerStore.maxHeight ? workerStore.maxWidth : workerStore.maxHeight );
             width.value = newWidth;
             height.value = newHeight;
-        }
-
-        if (width.value < store.minDimensions || height.value < store.minDimensions) {
-            const { newHeight, newWidth } = scaleImageTo(image, width.value, height.value, store.minDimensions);
+        } else if (width.value < workerStore.minWidth || height.value < workerStore.minHeight) {
+            const { newHeight, newWidth } = scaleImageTo(image, width.value, height.value, workerStore.minWidth <= workerStore.minHeight ? workerStore.minWidth : workerStore.minHeight);
             width.value = newWidth;
             height.value = newHeight;
         }

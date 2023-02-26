@@ -4,7 +4,6 @@ import { useLocalStorage } from '@vueuse/core'
 import { computed, ref } from "vue";
 import { useGeneratorStore, type IModelData } from "./generator";
 import { POLL_WORKERS_INTERVAL, DEBUG_MODE } from "@/constants";
-import { useOptionsStore } from "./options";
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
 
@@ -42,19 +41,85 @@ export const useWorkerStore = defineStore("workers", () => {
         return options;
     });
 
-    function getAllWorkersWithModel(modelName: string) {
+    const minHeight = ref(64);
+    const maxHeight = computed(() => {
+        let currentWidth = (useGeneratorStore().params.width || 64);
+        let currentHeight = (useGeneratorStore().params.height || 64);
+        let testPixel = currentWidth * currentHeight;
+        getMaximumPixel();
+        let maxHeight = currentHeight;
+        let iteration = 0;
+        if (MaxPixels == 0 || MaxPixels == testPixel) {
+            return maxHeight;
+        } else if (MaxPixels < testPixel) {
+            while(MaxPixels < testPixel) {
+                testPixel = currentWidth * (currentHeight + --iteration * 64);
+            }
+            useGeneratorStore().params.height = (currentHeight + iteration * 64);
+            maxHeight = useGeneratorStore().params.height || 64;
+        } else if (MaxPixels > testPixel) {
+            while(MaxPixels >= testPixel) {
+                testPixel = currentWidth * (currentHeight + ++iteration * 64);
+            }
+            maxHeight = currentHeight + --iteration * 64;
+        }
+        return maxHeight;
+    });
+
+    const minWidth = ref(64);
+    const maxWidth = computed(() => {
+        let currentWidth = (useGeneratorStore().params.width || 64);
+        let currentHeight = (useGeneratorStore().params.height || 64);
+        let testPixel = currentWidth * currentHeight;
+        getMaximumPixel();
+        let maxWidth = currentWidth;
+        let iteration = 0;
+        if (MaxPixels == 0 || MaxPixels == testPixel) {
+            return maxWidth;
+        } else if (MaxPixels < testPixel) {
+            while(MaxPixels < testPixel) {
+                testPixel = (currentWidth + --iteration * 64) * currentHeight;
+            }
+            useGeneratorStore().params.width = (currentWidth + iteration * 64);
+            maxWidth = useGeneratorStore().params.width || 64;
+        } else if (MaxPixels > testPixel) {
+            while(MaxPixels >= testPixel) {
+                testPixel = (currentWidth + ++iteration * 64) * currentHeight;
+            }
+            maxWidth = currentWidth + --iteration * 64;
+        }
+        return maxWidth;
+    });
+
+    let MaxPixels = 0;
+    let LastModel = "";
+
+    async function getMaximumPixel() {
+        if (LastModel !== (useGeneratorStore().selectedModel || "")) {
+            await getAllWorkersWithModel((useGeneratorStore().selectedModel || ""));
+            LastModel = (useGeneratorStore().selectedModel || "");
+        }
+        MaxPixels = 0;
+        CurrentModelWorkers.forEach(el => {
+            MaxPixels = el.max_pixels || 0 > MaxPixels ? el.max_pixels || 0 : MaxPixels;
+        });
+    }
+
+    let CurrentModelWorkers: WorkerDetailsStable[] = [];
+
+    async function getAllWorkersWithModel(modelName: string) {
         if(workers.value.length === 0) 
-            updateWorkers();
-        let worker: WorkerDetailsStable[] = [];
+            await updateWorkers();
+        CurrentModelWorkers = [];
         workers.value.forEach(element => {
             element.models?.forEach(ml => {
                 if (ml == modelName) {
-                    worker.push(element);
+                    CurrentModelWorkers.push(element);
                     return;
                 }
             });
         });
-        return worker;
+        return CurrentModelWorkers;
     }
     
     function updateStore() {
@@ -173,6 +238,10 @@ export const useWorkerStore = defineStore("workers", () => {
         sortedTeams,
         sortedModels,
         sortOptions,
+        minHeight,
+        maxHeight,
+        minWidth,
+        maxWidth,
         // Actions
         updateWorkers,
         getAllWorkersWithModel
