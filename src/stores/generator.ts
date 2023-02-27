@@ -875,6 +875,11 @@ export const useGeneratorStore = defineStore("generator", () => {
     updateStyles()
     setInterval(updateAvailableModels, POLL_MODELS_INTERVAL * 1000)
     setInterval(updateStyles, POLL_STYLES_INTERVAL * 1000)
+    
+    const minWidth = ref(64);
+    const maxWidth = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 3072 : 1024);
+    const minHeight = ref(64);
+    const maxHeight = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 3072 : 1024);
 
     return {
         // Constants
@@ -915,6 +920,10 @@ export const useGeneratorStore = defineStore("generator", () => {
         promptHistory,
         styles,
         availableModelsGrouped,
+        minWidth,
+        maxWidth,
+        minHeight,
+        maxHeight,
         // Computed
         filteredAvailableModelsGrouped,
         kudosCost,
