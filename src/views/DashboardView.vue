@@ -60,21 +60,33 @@ const signedIn = computed(() => optionsStore.apiKey != '0000000000' && optionsSt
                 <div class="api-key-required"><el-icon :size="30" style="margin-right: 10px"><Lock /></el-icon>User statistics requires an API key</div>
             </div>
             <el-row :gutter="breakLabels ? 0 : 20" justify="space-around" style="margin-bottom: 2rem;">
+                <el-col :span="spanAmount" class="label">
+                    <el-card style="margin-bottom: 10px;">
+                        <template #header>
+                            <strong>Horde Performance</strong>
+                        </template>
+                        <div>There are <strong>{{dashStore.performance.queued_requests}}</strong> queued requests (<strong>{{dashStore.performance.queued_megapixelsteps}}</strong> MPS) with <strong>{{dashStore.performance.worker_count}}</strong> workers (<strong>{{dashStore.performance.thread_count}}</strong> threads).</div>
+                        <div>There are <strong>{{dashStore.performance.queued_forms}}</strong> queued interrogation requests with <strong>{{dashStore.performance.interrogator_count }}</strong> interrogation workers (<strong>{{dashStore.performance.interrogator_thread_count}}</strong> threads).</div>
+                        <div>In the past minute, there have been <strong>{{dashStore.performance.past_minute_megapixelsteps}}</strong> MPS processed.</div>
+                    </el-card>
+                </el-col>
+                <el-col :span="spanAmount" class="label">
+                    <el-card v-if="signedIn">
+                        <template #header><strong>Your Workers</strong></template>
+                        <div class="user-workers" v-if="dashStore.userWorkers.length !== 0">
+                            <WorkerEditor
+                                v-for="worker in dashStore.userWorkers"
+                                :key="worker.id"
+                                :worker="worker"
+                            />
+                        </div>
+                        <div v-else><el-empty description="No Workers Found" /></div>
+                    </el-card>
+                    <div v-else>
+                        <div class="api-key-required"><el-icon :size="30" style="margin-right: 10px"><Lock /></el-icon>Modifying/viewing user workers requires an API key</div>
+                    </div>
+                </el-col>
             </el-row>
-            <el-card v-if="signedIn">
-                <template #header><strong>Your Workers</strong></template>
-                <div class="user-workers" v-if="dashStore.userWorkers.length !== 0">
-                    <WorkerEditor
-                        v-for="worker in dashStore.userWorkers"
-                        :key="worker.id"
-                        :worker="worker"
-                    />
-                </div>
-                <div v-else><el-empty description="No Workers Found" /></div>
-            </el-card>
-            <div v-else>
-                <div class="api-key-required"><el-icon :size="30" style="margin-right: 10px"><Lock /></el-icon>Modifying/viewing user workers requires an API key</div>
-            </div>
         </div>
     </div>
 </template>
