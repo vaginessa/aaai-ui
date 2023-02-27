@@ -68,6 +68,7 @@ export type ICurrentGeneration = GenerationInput & {
     jobId: string;
     gathered: boolean;
     waitData?: RequestStatusCheck;
+    started?: number;
 }
 
 interface ITypeParams {
@@ -383,6 +384,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                 ...paramsCached[i],
                 jobId: "",
                 gathered: false,
+                started: 0,
             })
         }
 
@@ -419,6 +421,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                     const resJSON = await fetchNewID(queuedImage);
                     if (!resJSON) return generationFailed();
                     queuedImage.jobId = resJSON.id as string;
+                    queuedImage.started = performance.now() / 1000;
                 }
     
                 const status = await checkImage(queuedImage.jobId);
@@ -426,7 +429,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                 if (status.faulted) return generationFailed("Failed to generate: Generation faulted.");
                 if (status.is_possible === false) return generationFailed("Failed to generate: Generation not possible.");
                 queuedImage.waitData = status;
-    
+
                 if (status.done) {
                     const finalImages = await getImageStatus(queuedImage.jobId);
                     if (!finalImages) return generationFailed();
@@ -435,6 +438,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                 }
                 
                 await sleep(500);
+    
                 const t1 = performance.now() / 1000;
                 secondsElapsed += t1 - t0;
 
@@ -663,6 +667,8 @@ export const useGeneratorStore = defineStore("generator", () => {
                     tiling: params?.tiling,
                     starred: 0,
                     rated: 0,
+                    control_net: params?.control_type?.toString(),
+                    generation_time: (performance.now() / 1000) - (image.started || 0)
                 }
             })
         )

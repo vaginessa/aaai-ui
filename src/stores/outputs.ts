@@ -47,6 +47,8 @@ export interface ImageData {
     rated?: 1 | 0;
     sharedExternally?: boolean;
     hires_fix?: boolean;
+    generation_time?: number;
+    control_net?: string;
 }
 
 export const useOutputStore = defineStore("outputs", () => {
