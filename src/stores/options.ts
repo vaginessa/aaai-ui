@@ -7,6 +7,7 @@ import type { WorkerDetailsStable } from "@/types/stable_horde";
 
 type IToggle = "Enabled" | "Disabled";
 type IModeToggle = "Whitelist" | "Blacklist";
+type IPictureType = "WEBP" | "PNG" | "JPG";
 
 export const useOptionsStore = defineStore("options", () => {
     const options = useLocalStorage("options", ref({
@@ -25,6 +26,7 @@ export const useOptionsStore = defineStore("options", () => {
     const useBeta = useLocalStorage<IToggle>("useBeta", "Disabled");
     const useWorkers = useLocalStorage<String[]>("usedWorkers",[]);
     const workerListMode = useLocalStorage<IModeToggle>("workerListMode", "Whitelist"); 
+    const pictureDownloadType = useLocalStorage<IPictureType>("downloadType", "JPG");
 
     const workerStore = useWorkerStore();
 
@@ -94,6 +96,7 @@ export const useOptionsStore = defineStore("options", () => {
         useWorkers,
         workerListMode,
         shareWithLaion,
+        pictureDownloadType,
         // Computed
         getWokersToUse,
         // Actions

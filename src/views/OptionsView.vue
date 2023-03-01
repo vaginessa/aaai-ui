@@ -55,6 +55,8 @@ const options: ColorModeOption[] = [
     }
 ]
 
+const PictureTypes = ["WEBP", "PNG", "JPG"];
+
 const fileList = ref([]);
 const upload = ref();
 
@@ -102,6 +104,7 @@ async function bulkDownload() {
                 <form-slider label="Images Per Page" prop="pageSize" v-model="store.pageSize" :min="10" :max="50" :step="5" :disabled="store.pageless === 'Enabled'" />
                 <form-radio  label="Pageless Format" prop="pageless" v-model="store.pageless" :options="['Enabled', 'Disabled']" />
                 <form-radio  label="Carousel Auto Cycle" prop="autoCarousel" v-model="store.autoCarousel" :options="['Enabled', 'Disabled']" />
+                <form-select label="Download Fileformat" prop="downloadFileFormat" v-model="store.pictureDownloadType" :options="PictureTypes" />
                 <el-form-item label="Export Images (ZIP File)">
                     <el-button :icon="Download" @click="bulkDownload()">Download {{outputsStore.outputsLength}} image(s)</el-button>
                 </el-form-item>

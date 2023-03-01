@@ -1,6 +1,8 @@
 import type { ImageData } from '@/stores/outputs'
 import { ElMessage } from 'element-plus';
 import JSZip from 'jszip';
+import Image from 'image-js';
+import { useOptionsStore } from '@/stores/options';
 
 export async function downloadMultipleWebp(outputs: ImageData[]) {
     const zip = new JSZip();
@@ -38,10 +40,37 @@ export async function downloadMultipleWebp(outputs: ImageData[]) {
     downloadLink.click();
 }
 
-export function downloadWebp(base64Data: string, fileName: string) {
-    const linkSource = `${base64Data}`;
-    const downloadLink = document.createElement("a");
-    downloadLink.href = linkSource;
-    downloadLink.download = fileName.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd() + ".webp"; // Only get first 128 characters so we don't break the max file name limit
-    downloadLink.click();
+export async function downloadImage(base64Data: string, fileName: string) {    
+    const store = useOptionsStore();
+    Image.load(base64Data).then(function (image) {
+
+        let newFileName = fileName.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd(); // Only get first 128 characters so we don't break the max file name limit
+
+        const downloadLink = document.createElement("a");
+
+        if (store.pictureDownloadType == "PNG") 
+        {
+            newFileName += ".png";
+            downloadLink.href = image.toDataURL("image/png");
+        }/* Only Image Depth of 1 is supported... is it worth it?
+        else if (store.pictureDownloadType == "BMP")
+        {
+            newFileName += ".bmp";
+            downloadLink.href = image.toDataURL("image/bmp");
+        }*/
+        else if (store.pictureDownloadType == "JPG")
+        {
+            newFileName += ".jpg";
+            downloadLink.href = image.toDataURL("image/jpg");
+        }
+        else if (store.pictureDownloadType == "WEBP")
+        {
+            newFileName += ".webp";
+            downloadLink.href = image.toDataURL("image/webp");
+        }
+        
+        downloadLink.download = newFileName; 
+        downloadLink.click();
+    });
+
 }
