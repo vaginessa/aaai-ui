@@ -204,7 +204,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     });
 
     const minImages = ref(1);
-    const maxImages = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 500 : 30);
+    const maxImages = ref(50);
     const minSteps = ref(1);
     const maxSteps = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 500 : 50);
     const minCfgScale = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? -40 : 1);
@@ -245,8 +245,24 @@ export const useGeneratorStore = defineStore("generator", () => {
         });
         if(generatorType.value == "ControlNet")
             kudos = Math.round((kudos * 3) * 100) / 100;
+        kudos += countParentheses();
         return kudos * (totalImageCount.value || 1);
     })
+
+    function countParentheses() {
+        const chars = [...prompt.value];
+        let count = 0;
+        let open = false;
+        chars.forEach((c, i) => {
+            if(c == "(") {
+                open = true;
+            } else if (c == ")" && open) {
+                open = false;
+                count++;
+            }
+        });
+        return count;
+    }
 
     function getAccurateSteps() {
         const { sourceImage, maskImage, sourceProcessing } = getImageProps(generatorType.value);
@@ -404,7 +420,7 @@ export const useGeneratorStore = defineStore("generator", () => {
             return Math.min(maxRequests, MAX_PARALLEL_REQUESTS);
         }
 
-
+        let requestRunning = 0;
         // Loop until queue is done or generation is cancelled
         let secondsElapsed = 0;
         while (!queue.value.every(el => el.gathered) && !cancelled.value) {
@@ -417,7 +433,8 @@ export const useGeneratorStore = defineStore("generator", () => {
 
                 const t0 = performance.now() / 1000;
 
-                if (!queuedImage.jobId) {
+                if (!queuedImage.jobId && requestRunning <= 25) {
+                    requestRunning++;
                     const resJSON = await fetchNewID(queuedImage);
                     if (!resJSON) return generationFailed();
                     queuedImage.jobId = resJSON.id as string;
@@ -434,7 +451,10 @@ export const useGeneratorStore = defineStore("generator", () => {
                     const finalImages = await getImageStatus(queuedImage.jobId);
                     if (!finalImages) return generationFailed();
                     processImages(finalImages.map(image => ({...image, ...queuedImage})))
-                        .then(() => queuedImage.gathered = true);
+                        .then(() => {
+                            queuedImage.gathered = true; 
+                            requestRunning--;
+                        });
                 }
                 
                 await sleep(500);
