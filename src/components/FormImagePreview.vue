@@ -17,9 +17,9 @@ const optionsStore = useOptionsStore();
     <div class="main">
         <el-button @click="store.resetStore()">Reset</el-button>
         <el-button
-            v-if="!store.generating"
             type="primary"
-            style="width: 80%;"
+            :disabled="store.generating"
+            style="width: 60%;"
             @click="store.generateImage(store.generatorType)"
         >
             Generate 
@@ -33,10 +33,10 @@ const optionsStore = useOptionsStore();
             </span>)
         </el-button>
         <el-button
-            v-if="store.generating"
-            type="danger"
-            style="width: 80%"
-            :disabled="store.cancelled"
+            :type="store.generating ? 'danger' : 'info'"
+            :plain="!store.generating"
+            style="width: 20%"
+            :disabled="store.cancelled || !store.generating"
             @click="store.cancelled = true"
         > Cancel
         </el-button>
