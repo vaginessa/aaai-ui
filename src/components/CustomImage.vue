@@ -48,9 +48,9 @@ const isSelected = computed(() => uiStore.selected.includes(props.imageData.id))
                 class="thumbnail"
                 :src="imageData.image"
                 @click="uiStore.activeModal = imageData.id"
-                fit="cover"
+                fit="contain"
                 loading="lazy"
-                :style="`${isSelected && 'opacity: 0.5'}`"
+                :style="`${isSelected && 'opacity: 0.5;'}`"
             />
             <div class="image-action">
                 <el-icon v-if="imageData.starred" class="starred-icon" :size="35" color="var(--el-color-warning)"><StarFilled /></el-icon>
@@ -74,6 +74,8 @@ const isSelected = computed(() => uiStore.selected.includes(props.imageData.id))
         right: 0px;
         width: 200px;
         height: 200px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 5px;
     }
 
     #content {
