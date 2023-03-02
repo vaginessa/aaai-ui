@@ -10,10 +10,11 @@ import {
     Plus,
     Delete,
     Check,
-    List,
-    Star,
-    DocumentAdd,
-    Document
+    Clock,
+    View,
+    FolderChecked,
+    FolderOpened,
+TrendCharts
 } from '@element-plus/icons-vue';
 import { useGeneratorStore } from '@/stores/generator';
 import FormInput from './FormInput.vue';
@@ -111,10 +112,10 @@ function showNsfwNotification(event) {
         </template>
         <template #inline>
             <el-tooltip content="Prompt History" placement="right">
-                <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="List"/>
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="Clock "/>
             </el-tooltip>
             <el-tooltip content="Prompt Styles" placement="right">
-                <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() => selectStyle = true" :icon="Star"/>
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() => selectStyle = true" :icon="TrendCharts"/>
             </el-tooltip>
         </template>
     </form-input>
@@ -195,10 +196,10 @@ function showNsfwNotification(event) {
     >
         <template #inline>
             <el-tooltip content="Add Negative Prompt" placement="right">
-                <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => store.pushToNegativeLibrary(store.negativePrompt)" :icon="DocumentAdd"/>
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => store.pushToNegativeLibrary(store.negativePrompt)" :icon="FolderChecked"/>
             </el-tooltip>
             <el-tooltip content="Negative Prompts" placement="right">
-                <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() =>  negativePromptLibrary = true" :icon="Document"/>
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() =>  negativePromptLibrary = true" :icon="FolderOpened"/>
             </el-tooltip>
         </template>
     </form-input>

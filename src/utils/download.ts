@@ -5,6 +5,7 @@ import Image from 'image-js';
 import { useOptionsStore } from '@/stores/options';
 
 export async function downloadMultipleWebp(outputs: ImageData[]) {
+    const optionStore = useOptionsStore();
     const zip = new JSZip();
 
     ElMessage({
@@ -17,17 +18,40 @@ export async function downloadMultipleWebp(outputs: ImageData[]) {
         const {image, id, ...jsonData} = outputs[i];
         // Make a valid file name, and only get first 128 characters so we don't break the max file name limit
         const fileName = `${i}-${outputs[i].seed}-${outputs[i].prompt}`.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd();
-        // Create webp file
-        zip.file(
-            fileName + ".webp",
-            image.split(",")[1], // Get base64 from data url
-            { base64: true }
-        );
-        // Create JSON file
-        zip.file(
-            fileName + ".json",
-            JSON.stringify(jsonData, undefined, 4) // Stringify JSON with pretty printing
-        );
+
+        // Create image file
+        await Image.load(image).then(function (image) {
+            if (optionStore.pictureDownloadType == "PNG") 
+            {
+                zip.file(
+                    fileName + ".png",
+                    image.toBlob("image/png", 85)
+                );
+            }
+            else if (optionStore.pictureDownloadType == "JPG")
+            {
+                zip.file(
+                    fileName + ".jpeg",
+                    image.toBlob("image/jpeg", 85)
+                );
+            }
+            else if (optionStore.pictureDownloadType == "WEBP")
+            {
+                zip.file(
+                    fileName + ".webp",
+                    image.toBase64("image/webp"),
+                    { base64: true }
+                );
+            }
+        });
+        
+        if (optionStore.zipMetaData == "Enabled") {
+            // Create JSON file
+            zip.file(
+                fileName + ".json",
+                JSON.stringify(jsonData, undefined, 4) // Stringify JSON with pretty printing
+            );
+        }
     }
 
     const zipFile = await zip.generateAsync({
@@ -46,31 +70,40 @@ export async function downloadImage(base64Data: string, fileName: string) {
 
         let newFileName = fileName.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd(); // Only get first 128 characters so we don't break the max file name limit
 
-        const downloadLink = document.createElement("a");
-
         if (store.pictureDownloadType == "PNG") 
         {
+            const downloadLink = document.createElement("a");
             newFileName += ".png";
             downloadLink.href = image.toDataURL("image/png");
-        }/* Only Image Depth of 1 is supported... is it worth it?
-        else if (store.pictureDownloadType == "BMP")
-        {
-            newFileName += ".bmp";
-            downloadLink.href = image.toDataURL("image/bmp");
-        }*/
+            downloadLink.download = newFileName; 
+            downloadLink.click();
+        }
         else if (store.pictureDownloadType == "JPG")
         {
-            newFileName += ".jpg";
-            downloadLink.href = image.toDataURL("image/jpg");
+            newFileName += ".jpeg";
+            
+            Promise.resolve(image.toBlob("image/jpeg", 85)).then(data => {
+                const objectUrl: string = URL.createObjectURL(data);
+                const a: HTMLAnchorElement = document.createElement('a') as HTMLAnchorElement;
+            
+                a.href = objectUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();        
+            
+                document.body.removeChild(a);
+                URL.revokeObjectURL(objectUrl);
+            });
+
         }
         else if (store.pictureDownloadType == "WEBP")
         {
+            const downloadLink = document.createElement("a");
             newFileName += ".webp";
             downloadLink.href = image.toDataURL("image/webp");
+            downloadLink.download = newFileName; 
+            downloadLink.click();
         }
-        
-        downloadLink.download = newFileName; 
-        downloadLink.click();
     });
 
 }

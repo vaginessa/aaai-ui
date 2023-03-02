@@ -23,6 +23,7 @@ export const useOptionsStore = defineStore("options", () => {
     const allowLargerParams = useLocalStorage<IToggle>("allowLargerParams", "Disabled");
     const shareWithLaion = useLocalStorage<IToggle>("shareWithLaion", "Disabled");
     const autoCarousel = useLocalStorage<IToggle>("autoCarousel", "Enabled");
+    const zipMetaData = useLocalStorage<IToggle>("zipMetaData", "Enabled");
     const useBeta = useLocalStorage<IToggle>("useBeta", "Disabled");
     const useWorkers = useLocalStorage<String[]>("usedWorkers",[]);
     const workerListMode = useLocalStorage<IModeToggle>("workerListMode", "Whitelist"); 
@@ -92,6 +93,7 @@ export const useOptionsStore = defineStore("options", () => {
         apiKey,
         allowLargerParams,
         autoCarousel,
+        zipMetaData,
         useBeta,
         useWorkers,
         workerListMode,
