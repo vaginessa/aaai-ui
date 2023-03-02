@@ -54,36 +54,32 @@ function onDimensionsChange() {
             @submit.prevent
         >
             <div class="sidebar">
-                <el-collapse v-model="uiStore.activeCollapse">
-                    <el-collapse-item title="Generation Options" name="2">
-                        <form-prompt-input />
-                        <FormSeed />
-                        <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   info="k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast."/>
-                        <form-slider label="Batch Size"         prop="batchSize"      v-model="store.params.n"                  :min="store.minImages"     :max="store.maxImages" />
-                        <form-slider label="Steps"              prop="steps"          v-model="store.params.steps"              :min="store.minSteps"      :max="store.maxSteps"      info="Keep step count between 30 to 50 for optimal generation times. Coherence typically peaks between 60 and 90 steps, with a trade-off in speed." />
-                        <form-slider label="Width"              prop="width"          v-model="store.params.width"              :min="store.minWidth"      :max="store.maxWidth" :step="64"   :change="onDimensionsChange" />
-                        <form-slider label="Height"             prop="height"         v-model="store.params.height"             :min="store.minHeight"     :max="store.maxHeight" :step="64"   :change="onDimensionsChange" />
-                        <form-slider label="Guidance"           prop="cfgScale"       v-model="store.params.cfg_scale"          :min="store.minCfgScale"   :max="store.maxCfgScale"   :step="0.5"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
-                        <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
-                        <form-slider label="Init Strength"      prop="denoise"        v-model="store.params.denoising_strength" :min="store.minDenoise"    :max="store.maxDenoise"    :step="0.01" info="The final image will diverge from the starting image at higher values." />
-                        <form-model-select />
-                        <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                        <el-row>
-                            <el-col :span="12" :xs="24">
-                                <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
-                            </el-col>
-                            <el-col :span="12" :xs="24">
-                                <form-on-off-button prop="nsfw" label="NSFW" :icon-on="Check" :icon-off="Close" v-model="store.nsfw" info="Allow creation of potential nsfw material." />
-                            </el-col>
-                            <el-col :span="12" :xs="24">
-                                <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" info="If nsfw material is detected should it be censored." :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
-                            </el-col>
-                            <el-col :span="12" :xs="24">
-                                <form-on-off-button prop="trusted_worker" label="Trusted Worker" :icon-on="Check" :icon-off="Close" v-model="store.trustedOnly" info="Only let trusted workers process my request." />
-                            </el-col>
-                        </el-row>
-                    </el-collapse-item>
-                </el-collapse>
+                <form-prompt-input />
+                <FormSeed />
+                <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   info="k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast."/>
+                <form-slider label="Batch Size"         prop="batchSize"      v-model="store.params.n"                  :min="store.minImages"     :max="store.maxImages" />
+                <form-slider label="Steps"              prop="steps"          v-model="store.params.steps"              :min="store.minSteps"      :max="store.maxSteps"      info="Keep step count between 30 to 50 for optimal generation times. Coherence typically peaks between 60 and 90 steps, with a trade-off in speed." />
+                <form-slider label="Width"              prop="width"          v-model="store.params.width"              :min="store.minWidth"      :max="store.maxWidth" :step="64"   :change="onDimensionsChange" />
+                <form-slider label="Height"             prop="height"         v-model="store.params.height"             :min="store.minHeight"     :max="store.maxHeight" :step="64"   :change="onDimensionsChange" />
+                <form-slider label="Guidance"           prop="cfgScale"       v-model="store.params.cfg_scale"          :min="store.minCfgScale"   :max="store.maxCfgScale"   :step="0.5"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
+                <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
+                <form-slider label="Init Strength"      prop="denoise"        v-model="store.params.denoising_strength" :min="store.minDenoise"    :max="store.maxDenoise"    :step="0.01" info="The final image will diverge from the starting image at higher values." />
+                <form-model-select />
+                <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
+                <el-row>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
+                    </el-col>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="nsfw" label="NSFW" :icon-on="Check" :icon-off="Close" v-model="store.nsfw" info="Allow creation of potential nsfw material." />
+                    </el-col>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" info="If nsfw material is detected should it be censored." :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
+                    </el-col>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="trusted_worker" label="Trusted Worker" :icon-on="Check" :icon-off="Close" v-model="store.trustedOnly" info="Only let trusted workers process my request." />
+                    </el-col>
+                </el-row>
             </div>
             <FormImagePreview />
         </el-form>
