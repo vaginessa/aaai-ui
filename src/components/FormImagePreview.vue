@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import CustomCanvas from '../components/CustomCanvas.vue';
 import ImageProgress from '../components/ImageProgress.vue';
 import GeneratedCarousel from '../components/GeneratedCarousel.vue';
@@ -7,7 +6,6 @@ import { useUIStore } from '@/stores/ui';
 import { useGeneratorStore } from '@/stores/generator';
 import { useOptionsStore } from '@/stores/options';
 import { ElButton, ElCard, vLoading } from 'element-plus';
-import { dots } from "@/constants";
 const uiStore = useUIStore();
 const store = useGeneratorStore();
 const optionsStore = useOptionsStore();
