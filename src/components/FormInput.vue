@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import {
     ElFormItem,
-    ElInput
+    ElInput,
+    ElRow,
+    ElCol,
 } from 'element-plus';
 import FormLabel from './FormLabel.vue';
 
@@ -34,14 +36,20 @@ function onChanged(value: string) {
                 <slot name="label">{{label}}</slot>
             </FormLabel>
         </template>
-        <el-input
-            :model-value="modelValue"
-            :autosize="autosize"
-            :resize="resize"
-            @input="onChanged"
-            :type="type"
-            :placeholder="placeholder"
-        ><template #append><slot name="append" /></template></el-input>
-        <slot name="inline" />
+        <el-row style="width: 100%;">
+            <el-col :span="21">
+                <el-input
+                    :model-value="modelValue"
+                    :autosize="autosize"
+                    :resize="resize"
+                    @input="onChanged"
+                    :type="type"
+                    :placeholder="placeholder"
+                ><template #append><slot name="append" /></template></el-input>
+            </el-col>
+            <el-col :span="3">
+                <slot name="inline" />
+            </el-col>
+        </el-row>
     </el-form-item>
 </template>
