@@ -41,6 +41,42 @@ function onDimensionsChange() {
     canvasStore.showCropPreview = true;
     canvasStore.updateCropPreview();
 }
+
+function getAspectRatio(isWidth: boolean) {
+    let width = (store.params.width || 1);
+    let height = (store.params.height || 1);
+    let dividend = 0;
+    let divisor = 0;
+    if(width == height) {
+        return "(1:1)";
+    } else {
+        if(height>width) {
+            dividend = height;
+            divisor = width;
+        }
+        if(width>height) {
+            dividend = width;
+            divisor = height;
+        }
+        var gcd = -1;
+        let remainder = 0;
+        while(gcd == -1){
+            remainder = dividend % divisor;
+            if(remainder == 0) {
+                gcd = divisor;
+            } else {
+                dividend = divisor;
+                divisor = remainder;
+            }
+        }
+        var hr = width / gcd;
+        var vr = height / gcd;
+        if(isWidth)
+            return "(" + hr.toFixed(0) + ":" + vr.toFixed(0) + ")";
+        else
+            return "(" + vr.toFixed(0) + ":" + hr.toFixed(0) + ")";
+    }
+}
 </script>
 
 
@@ -59,8 +95,8 @@ function onDimensionsChange() {
                 <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   info="k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast."/>
                 <form-slider label="Batch Size"         prop="batchSize"      v-model="store.params.n"                  :min="store.minImages"     :max="store.maxImages" />
                 <form-slider label="Steps"              prop="steps"          v-model="store.params.steps"              :min="store.minSteps"      :max="store.maxSteps"      info="Keep step count between 30 to 50 for optimal generation times. Coherence typically peaks between 60 and 90 steps, with a trade-off in speed." />
-                <form-slider label="Width"              prop="width"          v-model="store.params.width"              :min="store.minWidth"      :max="store.maxWidth" :step="64"   :change="onDimensionsChange" />
-                <form-slider label="Height"             prop="height"         v-model="store.params.height"             :min="store.minHeight"     :max="store.maxHeight" :step="64"   :change="onDimensionsChange" />
+                <form-slider :label="`Width ` + getAspectRatio(false)"              prop="width"          v-model="store.params.width"              :min="store.minWidth"      :max="store.maxWidth" :step="64"   :change="onDimensionsChange" />
+                <form-slider :label="`Height ` + getAspectRatio(true)"              prop="height"         v-model="store.params.height"             :min="store.minHeight"     :max="store.maxHeight" :step="64"   :change="onDimensionsChange" />
                 <form-slider label="Guidance"           prop="cfgScale"       v-model="store.params.cfg_scale"          :min="store.minCfgScale"   :max="store.maxCfgScale"   :step="0.5"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
                 <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
                 <form-slider label="Init Strength"      prop="denoise"        v-model="store.params.denoising_strength" :min="store.minDenoise"    :max="store.maxDenoise"    :step="0.01" info="The final image will diverge from the starting image at higher values." />
