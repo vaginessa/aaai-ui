@@ -869,7 +869,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     function pushToPromptHistory(prompt: string) {
         if (promptHistory.value.findIndex(el => el.prompt === prompt) !== -1) return;
         if (promptHistory.value.length >= 10 + promptHistory.value.filter(el => el.starred).length) {
-            const unstarredHistory = promptHistory.value.filter(el => !el.starred);
+            const unstarredHistory = promptHistory.value.filter(el => !el.starred).sort((a,b) => b.timestamp - a.timestamp);
             const lastUnstarredIndex = promptHistory.value.findIndex(el => el === unstarredHistory[unstarredHistory.length - 1]);
             promptHistory.value.splice(lastUnstarredIndex, 1);
         }
