@@ -131,7 +131,27 @@ export const useGeneratorStore = defineStore("generator", () => {
                 filtered = availableModelsGrouped.value.filter(mg => mg.label !== "inpainting");
             } else {
                 filtered = availableModelsGrouped.value;
-                
+                if (generatorType.value === "ControlNet") {
+                    filtered.forEach(el => el.options = el.options.filter(
+                        md =>   md.value !== "stable_diffusion_2.1" && 
+                                md.value !== "stable_diffusion_2.1_512" && 
+                                md.value !== "stable_diffusion_2.0" && 
+                                md.value !== "stable_diffusion_2.0_512" && 
+                                md.value !== "Stable Diffusion 2 Depth" && 
+                                md.value !== "Graphic-Art" && 
+                                md.value !== "Illuminati Diffusion" && 
+                                md.value !== "A to Zovya RPG" && 
+                                md.value !== "Waifu Diffusion Beta" && 
+                                md.value !== "PRMJ" && 
+                                md.value !== "Vector Art" && 
+                                md.value !== "Pulp Vector Art" && 
+                                md.value !== "Pokemon3D" && 
+                                md.value !== "CharHelper" && 
+                                md.value !== "Concept Sheet" && 
+                                md.value !== "Ultraskin" && 
+                                md.value !== "Future Diffusion" 
+                    ));
+                }
                 filtered.forEach(el => el.options = el.options.filter(
                     md => md.value !== "pix2pix" && md.value !== "stable_diffusion_inpainting" 
                 ));
