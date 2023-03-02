@@ -170,11 +170,68 @@ export const useWorkerStore = defineStore("workers", () => {
         })
     }
 
+    function sortModelArrayByName(descending = true, data: IModelData[])
+    {
+        return [...data].sort((a, b) => {
+            if ( (a.name || "") < (b.name || "") ){
+                if (descending)
+                    return -1;
+                else
+                    return 1;
+            }
+            if ( (a.name || "") > (b.name || "") ){
+                if (descending)
+                    return 1;
+                else
+                    return -1;
+            }
+            return 0;
+        })
+    }
+
+    function sortTeamsArrayByName(descending = true, data: TeamDetailsStable[])
+    {
+        return [...data].sort((a, b) => {
+            if ( (a.name || "") < (b.name || "") ){
+                if (descending)
+                    return -1;
+                else
+                    return 1;
+            }
+            if ( (a.name || "") > (b.name || "") ){
+                if (descending)
+                    return 1;
+                else
+                    return -1;
+            }
+            return 0;
+        })
+    }
+
+    function sortWorkersArrayByName(descending = true, data: WorkerDetailsStable[])
+    {
+        return [...data].sort((a, b) => {
+            if ( (a.name || "") < (b.name || "") ){
+                if (descending)
+                    return -1;
+                else
+                    return 1;
+            }
+            if ( (a.name || "") > (b.name || "") ){
+                if (descending)
+                    return 1;
+                else
+                    return -1;
+            }
+            return 0;
+        })
+    }
+
     function sortWorkersBy(sortType: SortOptions, descending = true, data: WorkerDetailsStable[]) {
         // Spread into new array to prevent mutations
         let value: typeof data = [...data];
 
-        if (sortType == "Name") value = sortArray("name", descending, data);
+        if (sortType == "Name") value = sortWorkersArrayByName(descending, data);
         if (sortType == "Info" || sortType == "Default") value = sortArray("info", descending, data);
         if (sortType == "Uptime") value = sortArray("uptime", descending, data);
         if (sortType == "MPS") value = sortArray("megapixelsteps_generated", descending, data);
@@ -196,7 +253,7 @@ export const useWorkerStore = defineStore("workers", () => {
         // Spread into new array to prevent mutations
         let value: typeof data = [...data];
 
-        if (sortType == "Name") value = sortArray("name", descending, data);
+        if (sortType == "Name") value = sortTeamsArrayByName(descending, data);
         if (sortType == "Info") value = sortArray("info", descending, data);
         if (sortType == "Uptime") value = sortArray("uptime", descending, data);
         if (sortType == "MPS") value = sortArray("contributions", descending, data);
@@ -215,7 +272,7 @@ export const useWorkerStore = defineStore("workers", () => {
             value = sortArray("count", descending, data);
             value = sortArray("queued", descending, value);
         }
-        if (sortType == "Name") value = sortArray("name", descending, data);
+        if (sortType == "Name") value = sortModelArrayByName(descending, data);
         if (sortType == "Info") value = sortArray("description", descending, data);
         if (sortType == "Queued") value = sortArray("queued", descending, data);
         if (sortType == "Speed") value = sortArray("performance", descending, data);
