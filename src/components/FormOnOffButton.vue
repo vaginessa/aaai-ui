@@ -38,7 +38,7 @@ function onClicked(value: string | number | boolean) {
         </template>
         <el-button v-if="modelValue === true && disabled !== true" :disabled="disabled" :icon="iconOn" type="success" @click="() => { onClicked(false); }" />
         <el-tooltip v-else-if="disabled === true" :content="disabled_info" placement="top">
-            <el-button :icon="iconOff" type="danger" @click="() => { onClicked(true); }" />
+            <el-button :icon="iconOff" type="danger" />
         </el-tooltip>
         <el-button v-else :icon="iconOff" @click="() => { onClicked(true); }" />
         <slot name="inline" />

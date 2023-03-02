@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ElForm, ElCollapseItem, ElCollapse } from 'element-plus';
+import { ElForm, ElCollapseItem, ElCollapse, ElRow, ElCol } from 'element-plus';
 import FormSlider from '../components/FormSlider.vue';
-import FormRadio from '../components/FormRadio.vue';
 import FormModelSelect from '../components/FormModelSelect.vue';
 import FormSelect from '../components/FormSelect.vue';
 import FormSeed from '../components/FormSeed.vue';
@@ -69,9 +68,20 @@ function onDimensionsChange() {
                         <form-slider label="Init Strength"      prop="denoise"        v-model="store.params.denoising_strength" :min="store.minDenoise"    :max="store.maxDenoise"    :step="0.01" info="The final image will diverge from the starting image at higher values." />
                         <form-model-select />
                         <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                        <form-on-off-button label="Karras"      prop="karras"         v-model="store.params.karras" :icon-on="Check" :icon-off="Close"  info="Improves image generation while requiring fewer steps. Mostly magic!" />
-                        <form-radio  label="NSFW"               prop="nsfw"           v-model="store.nsfw"                      :options="['Enabled', 'Disabled', 'Censored']" />
-                        <form-radio  label="Worker Type"        prop="trusted"        v-model="store.trustedOnly"               :options="['All Workers', 'Trusted Only']" />
+                        <el-row>
+                            <el-col :span="12" :xs="24">
+                                <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
+                            </el-col>
+                            <el-col :span="12" :xs="24">
+                                <form-on-off-button prop="nsfw" label="NSFW" :icon-on="Check" :icon-off="Close" v-model="store.nsfw" info="Allow creation of potential nsfw material." />
+                            </el-col>
+                            <el-col :span="12" :xs="24">
+                                <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" info="If nsfw material is detected should it be censored." :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
+                            </el-col>
+                            <el-col :span="12" :xs="24">
+                                <form-on-off-button prop="trusted_worker" label="Trusted Worker" :icon-on="Check" :icon-off="Close" v-model="store.trustedOnly" info="Only let trusted workers process my request." />
+                            </el-col>
+                        </el-row>
                     </el-collapse-item>
                 </el-collapse>
             </div>

@@ -84,8 +84,6 @@ interface IPromptHistory {
 }
 
 type IGeneratorType = 'Text2Img' | 'Img2Img' | 'Inpainting' | 'ControlNet' | 'Rating'
-type INSFW = "Enabled" | "Disabled" | "Censored"
-type ITrustedOnly = "All Workers" | "Trusted Only"
 type IMultiModel = "Enabled" | "Disabled"
 type IGroupedModel ={ label: string; options: {label: string; value: string;}[] }[];
 
@@ -97,8 +95,9 @@ export const useGeneratorStore = defineStore("generator", () => {
     const negativePrompt = useLocalStorage("lastNegativePrompt", "")
     const negativePromptLibrary = useLocalStorage<string[]>("negativeLibrary", []);
     const params = useLocalStorage<ModelGenerationInputStable>("params", getDefaultStore());
-    const nsfw   = useLocalStorage<INSFW>("nsfw", "Enabled");
-    const trustedOnly = useLocalStorage<ITrustedOnly>("trustedOnly", "All Workers");
+    const nsfw   = useLocalStorage<boolean>("nsfw", true);
+    const censor_nsfw   = useLocalStorage<boolean>("censorNsfw", false);
+    const trustedOnly = useLocalStorage<boolean>("trustedOnly", false);
 
     const availablePostProcessors: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[] = ["GFPGAN", "RealESRGAN_x4plus", "CodeFormers"];
 
@@ -375,9 +374,9 @@ export const useGeneratorStore = defineStore("generator", () => {
                         n: 1,
                         control_type: type === "ControlNet" ? currentControlType : undefined,
                     },
-                    nsfw: nsfw.value === "Enabled",
-                    censor_nsfw: nsfw.value === "Censored",
-                    trusted_workers: trustedOnly.value === "Trusted Only",
+                    nsfw: nsfw.value || true,
+                    censor_nsfw: !(nsfw.value || true) ? false : censor_nsfw.value,
+                    trusted_workers: trustedOnly.value || false,
                     source_image: sourceImage?.split(",")[1],
                     source_mask: maskImage,
                     source_processing: sourceProcessing,
@@ -544,8 +543,8 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (data.steps)           params.value.steps = validateParam("steps", data.steps, maxSteps.value, defaults.steps as number);
         if (data.cfg_scale)       params.value.cfg_scale = data.cfg_scale;
         if (data.clip_skip)       params.value.clip_skip = data.clip_skip;
-        if (data.width)           params.value.width = validateParam("width", data.width, maxDimensions.value, defaults.width as number);
-        if (data.height)          params.value.height = validateParam("height", data.height, maxDimensions.value, defaults.height as number);
+        if (data.width)           params.value.width = validateParam("width", data.width, maxWidth.value, defaults.width as number);
+        if (data.height)          params.value.height = validateParam("height", data.height, maxHeight.value, defaults.height as number);
         if (data.seed)            params.value.seed = data.seed;
         if (data.karras)          params.value.karras = data.karras;
         if (data.post_processing) params.value.post_processing = data.post_processing as typeof availablePostProcessors;
@@ -833,9 +832,8 @@ export const useGeneratorStore = defineStore("generator", () => {
         availableModelsGrouped.value = [];
         modelsData.value.forEach((model) => {
             if(
-                nsfw.value == "Enabled" ||
-                nsfw.value == "Censored" ||
-                nsfw.value == "Disabled" && model.nsfw == false
+                nsfw.value ||
+                !nsfw.value && model.nsfw == false
                 )
             {
                 let restModel = resJSON.find(el => el.name == model.name);
@@ -917,6 +915,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         params,
         images,
         nsfw,
+        censor_nsfw,
         trustedOnly,
         inpainting,
         img2img,
