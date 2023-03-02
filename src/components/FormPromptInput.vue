@@ -110,8 +110,12 @@ function showNsfwNotification(event) {
             </el-tooltip>
         </template>
         <template #inline>
-            <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="List"/>
-            <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() => selectStyle = true" :icon="Star"/>
+            <el-tooltip content="Prompt History" placement="right">
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="List"/>
+            </el-tooltip>
+            <el-tooltip content="Prompt Styles" placement="right">
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() => selectStyle = true" :icon="Star"/>
+            </el-tooltip>
         </template>
     </form-input>
     <DialogList
@@ -190,8 +194,12 @@ function showNsfwNotification(event) {
         label-position="top"
     >
         <template #inline>
-            <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => store.pushToNegativeLibrary(store.negativePrompt)" :icon="DocumentAdd"/>
-            <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() =>  negativePromptLibrary = true" :icon="Document"/>
+            <el-tooltip content="Add Negative Prompt" placement="right">
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => store.pushToNegativeLibrary(store.negativePrompt)" :icon="DocumentAdd"/>
+            </el-tooltip>
+            <el-tooltip content="Negative Prompts" placement="right">
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() =>  negativePromptLibrary = true" :icon="Document"/>
+            </el-tooltip>
         </template>
     </form-input>
     <DialogList
