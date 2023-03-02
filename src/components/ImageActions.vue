@@ -15,6 +15,7 @@ import {
     ElMessage,
     ElMessageBox,
     ElDialog,
+    ElTooltip
 } from 'element-plus';
 import { deflateRaw } from 'pako';
 import { downloadImage } from '@/utils/download'
@@ -108,10 +109,18 @@ const ratingDialog = ref(false);
 </script>
 
 <template>
-    <el-button @click="confirmDelete" type="danger" :icon="Delete" plain>Delete</el-button>
-    <el-button @click="downloadImage(imageData, `${imageData.seed}-${imageData.prompt}`)" type="success" :icon="Download" plain>Download</el-button>
-    <el-button v-if="!imageData.starred" @click="outputStore.toggleStarred(imageData.id)" type="warning" :icon="Star" plain>Favourite</el-button>
-    <el-button v-if="imageData.starred" @click="outputStore.toggleStarred(imageData.id)" type="warning" :icon="StarFilled" plain>Unfavourite</el-button>
+    <el-tooltip content="Delete" placement="top">
+        <el-button @click="confirmDelete" type="danger" :icon="Delete" plain/>
+    </el-tooltip>
+    <el-tooltip content="Download" placement="top">
+        <el-button @click="downloadImage(imageData, `${imageData.seed}-${imageData.prompt}`)" type="success" :icon="Download" plain />
+    </el-tooltip>
+    <el-tooltip v-if="!imageData.starred" content="Favourite" placement="top">
+        <el-button v-if="!imageData.starred" @click="outputStore.toggleStarred(imageData.id)" type="warning" :icon="Star" plain />
+    </el-tooltip>    
+    <el-tooltip v-if="imageData.starred" content="Unfavourite" placement="top">
+        <el-button v-if="imageData.starred" @click="outputStore.toggleStarred(imageData.id)" type="warning" :icon="StarFilled" plain />
+    </el-tooltip>
     <el-button @click="store.generateText2Img(imageData)" type="success" :icon="Refresh" plain>Text2img</el-button>
     <el-button @click="store.generateImg2Img(imageData.image)" type="success" :icon="Refresh" plain>Img2img</el-button>
     <el-button @click="store.generateInpainting(imageData.image)" type="success" :icon="Refresh" plain>Inpainting</el-button>
