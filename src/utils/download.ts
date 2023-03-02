@@ -64,9 +64,11 @@ export async function downloadMultipleWebp(outputs: ImageData[]) {
     downloadLink.click();
 }
 
-export async function downloadImage(base64Data: string, fileName: string) {    
+export async function downloadImage(output: ImageData, fileName: string) {    
     const store = useOptionsStore();
-    Image.load(base64Data).then(function (image) {
+    const {image, id, ...jsonData} = output;
+
+    Image.load(image).then(function (imageFile) {
 
         let newFileName = fileName.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd(); // Only get first 128 characters so we don't break the max file name limit
 
@@ -74,20 +76,19 @@ export async function downloadImage(base64Data: string, fileName: string) {
         {
             const downloadLink = document.createElement("a");
             newFileName += ".png";
-            downloadLink.href = image.toDataURL("image/png");
+            downloadLink.href = imageFile.toDataURL("image/png");
             downloadLink.download = newFileName; 
             downloadLink.click();
         }
         else if (store.pictureDownloadType == "JPG")
-        {
-            newFileName += ".jpeg";
-            
-            Promise.resolve(image.toBlob("image/jpeg", 85)).then(data => {
+        {            
+            Promise.resolve(imageFile.toBlob("image/jpeg", 85)).then(data => {
                 const objectUrl: string = URL.createObjectURL(data);
                 const a: HTMLAnchorElement = document.createElement('a') as HTMLAnchorElement;
-            
+                const imageFileName = newFileName + ".jpeg";
+
                 a.href = objectUrl;
-                a.download = fileName;
+                a.download = imageFileName;
                 document.body.appendChild(a);
                 a.click();        
             
@@ -100,9 +101,24 @@ export async function downloadImage(base64Data: string, fileName: string) {
         {
             const downloadLink = document.createElement("a");
             newFileName += ".webp";
-            downloadLink.href = image.toDataURL("image/webp");
+            downloadLink.href = imageFile.toDataURL("image/webp");
             downloadLink.download = newFileName; 
             downloadLink.click();
+        }
+        
+        if (store.zipMetaData == "Enabled") {
+            const blob: Blob = new Blob([JSON.stringify(jsonData, undefined, 4)], {type: 'text/json'});
+            const jsonFileName = newFileName + ".json";
+            const objectUrl: string = URL.createObjectURL(blob);
+            const a: HTMLAnchorElement = document.createElement('a') as HTMLAnchorElement;
+        
+            a.href = objectUrl;
+            a.download = jsonFileName;
+            document.body.appendChild(a);
+            a.click();        
+        
+            document.body.removeChild(a);
+            URL.revokeObjectURL(objectUrl);
         }
     });
 

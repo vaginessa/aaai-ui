@@ -105,7 +105,7 @@ async function bulkDownload() {
                 <form-radio  label="Pageless Format" prop="pageless" v-model="store.pageless" :options="['Enabled', 'Disabled']" />
                 <form-radio  label="Carousel Auto Cycle" prop="autoCarousel" v-model="store.autoCarousel" :options="['Enabled', 'Disabled']" />
                 <form-select label="Download Fileformat" prop="downloadFileFormat" v-model="store.pictureDownloadType" :options="PictureTypes" />
-                <form-radio  label="Include Meta Data in ZIP" prop="zipMetaData" v-model="store.zipMetaData" :options="['Enabled', 'Disabled']" info="Include a JSON file for every Images that contains the generation settings." />
+                <form-radio  label="Download Meta Data" prop="zipMetaData" v-model="store.zipMetaData" :options="['Enabled', 'Disabled']" info="Downloads or Zips a JSON file with generation settings to every images." />
                 <el-form-item label="Export Images (ZIP File)">
                     <el-button :icon="Download" @click="bulkDownload()">Download {{outputsStore.outputsLength}} image(s)</el-button>
                 </el-form-item>
