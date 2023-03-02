@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useCanvasStore } from '@/stores/canvas';
 import { onMounted, ref } from 'vue';
-import { ElUpload, ElIcon, ElButton, ElForm, ElColorPicker, type UploadFile, type UploadRawFile } from 'element-plus';
+import { ElUpload, ElIcon, ElButton, ElForm, ElColorPicker, type UploadFile, type UploadRawFile, ElInput, ElRow, ElCol, ElMessage } from 'element-plus';
 import { UploadFilled, Delete, Download, EditPen, Close, RefreshRight, RefreshLeft  } from '@element-plus/icons-vue';
 import { fabric } from 'fabric';
 import { useGeneratorStore } from '@/stores/generator';
@@ -10,6 +10,7 @@ import BrushFilled from './icons/BrushFilled.vue';
 import FormSlider from './FormSlider.vue';
 import { useUIStore } from '@/stores/ui';
 import { convertToBase64 } from '@/utils/base64';
+import { Image } from "image-js";
 
 const store = useGeneratorStore();
 const uiStore = useUIStore();
@@ -38,6 +39,44 @@ onMounted(() => {
     canvasStore.createNewCanvas("canvas");
     store.currentImageProps.sourceImage && fabric.Image.fromURL(store.currentImageProps.sourceImage, canvasStore.newImage);
 })
+
+const WebURL = ref("");
+
+async function isValidUrl(urlString: string) {
+    var inputElement = document.createElement('input');
+    inputElement.type = 'url';
+    inputElement.value = urlString;
+    if (!inputElement.checkValidity()) {
+        return false;
+    } else {
+        const res = await fetch(urlString);
+        const buff = await res.blob();
+        return buff.type.startsWith('image/');
+    }   
+} 
+
+function getWebImage() {
+    try {
+        isValidUrl(WebURL.value).then(validUrl => {
+            if(!validUrl) 
+                throw new Error("Invalid URL!");
+            Image.load(WebURL.value || "").then(imgData => {
+                Promise.resolve(imgData.toBase64("image/webp")).then(data => {
+                    store.currentImageProps.sourceImage = data;
+                    canvasStore.drawing = false;
+                    fabric.Image.fromURL("data:image/webp;base64," + data, canvasStore.newImage);
+                });
+            });
+        });
+    } catch(e) {
+        console.log(e);
+        ElMessage({
+            message: `Could not retrive image "${(WebURL.value || "")}" ...`,
+            type: 'error',
+        });
+        WebURL.value = "";
+    }
+}
 </script>
 
 <template>
@@ -54,12 +93,21 @@ onMounted(() => {
         <div>Drop file here OR <em>click to upload</em></div>
         <template #tip>
             <div v-if="store.generatorType === 'Img2Img' || store.generatorType === 'ControlNet'">
-                <div class="center-horizontal" style="margin-top: 5px;">OR</div>
+                <div class="center-horizontal" style="margin-top: 5px;">OR </div>
                 <div
                     class="center-both"
                     style="cursor: pointer; text-decoration: underline; font-size: 1rem"
                     @click="canvasStore.newBlankImage(store.params.height || 512, store.params.width || 512)"
                 ><el-icon :size="20" style="margin-right: 2px"><BrushFilled /></el-icon>draw something</div>
+                <div class="center-horizontal" style="margin-top: 5px;">or Input a Link</div> 
+                <el-row>
+                    <el-col :span="22">
+                        <el-input v-model="WebURL" clearable />
+                    </el-col>
+                    <el-col :span="2">
+                        <el-button @click="getWebImage()" :icon="Download" plain />
+                    </el-col>
+                </el-row>
             </div>
         </template>
     </el-upload>
