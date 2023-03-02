@@ -25,7 +25,7 @@ const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
 
 const uiStore = useUIStore();
-useOptionsStore();
+const optionStore = useOptionsStore();
 
 const route  = useRoute();
 const menuRef = ref();
@@ -46,12 +46,13 @@ watch(
         :class="isMobile ? 'mobile-menu' : 'menu'"
         ref="menuRef"
     >
-        <el-menu-item class="remove-item-styling center-vertical" v-if="!isMobile">
+        <el-menu-item index="/dashboard" class="center-vertical" v-if="!isMobile">
             <template #title>
-                <div style="font-size: 20px;">AAAI UI</div>
+                <div v-if="optionStore.options.colorMode == 'light'" style="font-size: 20px;"><img src="/assets/logo.png" style="max-height:35px;margin-bottom: 10px;"/></div>
+                <div v-else style="font-size: 20px;"><img src="/assets/logo_w.png" style="max-height:35px;margin-bottom: 10px;"/></div>
             </template>
         </el-menu-item>
-        <MainMenuItem :isMobile="isMobile" index="/dashboard">
+        <MainMenuItem :isMobile="isMobile" index="/dashboard" v-if="isMobile">
             <template #icon><el-icon><home-filled /></el-icon></template>
             <template #title>Dashboard</template>
         </MainMenuItem>
