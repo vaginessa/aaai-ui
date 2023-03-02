@@ -77,13 +77,13 @@ function onDimensionsChange() {
                         <form-on-off-button prop="hirex_fix" label="Hires Fix" :icon-on="Check" :icon-off="Close" v-model="store.params.hires_fix" info="Improves image generation, generation im multiples passe with lower resolution at start!" :disabled="(store.params.width || 0) > 512 && (store.params.height || 0) > 512 ? false : true" disabled_info="You need to have an image that is at least 576x576!" />
                     </el-col>
                     <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="trusted_worker" label="Trusted Worker" :icon-on="Check" :icon-off="Close" v-model="store.trustedOnly" info="Only let trusted workers process my request." />
+                    </el-col>
+                    <el-col :span="12" :xs="24">
                         <form-on-off-button prop="nsfw" label="NSFW" :icon-on="Check" :icon-off="Close" v-model="store.nsfw" info="Allow creation of potential nsfw material." />
                     </el-col>
                     <el-col :span="12" :xs="24">
                         <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" info="If nsfw material is detected should it be censored." :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
-                    </el-col>
-                    <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="trusted_worker" label="Trusted Worker" :icon-on="Check" :icon-off="Close" v-model="store.trustedOnly" info="Only let trusted workers process my request." />
                     </el-col>
                 </el-row>
             </div>
