@@ -63,7 +63,7 @@ export const useRatingStore = defineStore("rating", () => {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                "Client-Agent": "StableUI:1.0:(discord)aqualxx#5004",
+                "Client-Agent": "AiiiUI:1.0:HordeUI",
                 apikey: optionsStore.apiKey,
             },
             body: JSON.stringify(currentRating),
@@ -80,7 +80,7 @@ export const useRatingStore = defineStore("rating", () => {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                "Client-Agent": "StableUI:1.0:(discord)aqualxx#5004",
+                "Client-Agent": "AiiiUI:1.0:HordeUI",
                 apikey: optionsStore.apiKey,
             },
             body: JSON.stringify({
