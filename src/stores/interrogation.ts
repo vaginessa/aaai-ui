@@ -1,10 +1,10 @@
-import { CLIENT_AGENT } from "@/constants";
 import type { RequestInterrogationResponse, ModelInterrogationInputStable, InterrogationStatus } from "@/types/stable_horde";
 import { validateResponse } from "@/utils/validate";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useOptionsStore } from "./options";
 import { useUIStore } from "./ui";
+import { BASE_URL_STABLE } from "@/constants";
 
 function sleep(ms: number) {
     return new Promise(res=>setTimeout(res, ms));
@@ -37,11 +37,11 @@ export const useInterrogationStore = defineStore("interrogate", () => {
         const forms = selectedForms.value;
         if (!source_image) return onError("Failed to get interrogation ID: No image supplied.");
         interrogating.value = true;
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/interrogate/async`, {
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/interrogate/async`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                "Client-Agent": CLIENT_AGENT,
+                "Client-Agent": "AAAIUI:1.0:Discord Sgt. Chaos#0812",
                 apikey: optionsStore.apiKey,
             },
             body: JSON.stringify(<ModelInterrogationInputStable>{
@@ -73,10 +73,10 @@ export const useInterrogationStore = defineStore("interrogate", () => {
     async function getInterrogationStatus() {
         const optionsStore = useOptionsStore();
         interrogating.value = true;
-        const response = await fetch(`${optionsStore.baseURL}/api/v2/interrogate/status/${currentInterrogation.value.id}`, {
+        const response = await fetch(`${BASE_URL_STABLE}/api/v2/interrogate/status/${currentInterrogation.value.id}`, {
             headers: {
                 'Content-Type': 'application/json',
-                "Client-Agent": CLIENT_AGENT,
+                "Client-Agent": "AAAIUI:1.0:Discord Sgt. Chaos#0812",
             }
         });
         const json: InterrogationStatus = await response.json();
