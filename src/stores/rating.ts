@@ -7,6 +7,7 @@ import { ref } from "vue";
 import { useOptionsStore } from "./options";
 import { useUIStore } from "./ui";
 import { BASE_URL_STABLE } from "@/constants";
+import { ElMessage } from 'element-plus';
 
 export const useRatingStore = defineStore("rating", () => {
     const currentRatingInfo = ref<DatasetImagePopResponse>({});
@@ -24,11 +25,32 @@ export const useRatingStore = defineStore("rating", () => {
     async function getNewRating() {
         const optionsStore = useOptionsStore();
         submitted.value = true;
-        const response = await fetch("https://ratings.aihorde.net/api/v1/rating/new", {
+        let response = await fetch("https://ratings.aihorde.net/api/v1/rating/new", {
             headers: {
                 apikey: optionsStore.apiKey,
             }
         });
+
+        let retryCount = 0;
+        while(response.status != 200 && retryCount < 6)
+        {
+            if(retryCount > 5) 
+            {
+                ElMessage({
+                    message: `Unable to get new Rating Image...`,
+                    type: 'info',
+                })
+                return null;
+            }
+
+            response = await fetch("https://ratings.aihorde.net/api/v1/rating/new", {
+                headers: {
+                    apikey: optionsStore.apiKey,
+                }
+            });
+            retryCount++;
+        }
+
         const json: DatasetImagePopResponse = await response.json();
         if (!validateResponse(response, json, 200, "Failed to get rating", onInvalidResponse)) return;
         submitted.value = false;
