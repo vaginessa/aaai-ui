@@ -21,12 +21,12 @@ const emit = defineEmits<{
 
 const artifactDescriptions = [
     null,
-    "Significant",
-    "Major",
-    "Noticeable",
-    "Minor",
-    "Hardly Recognizable",
-    "No Flaws",
+    "Complete Mess",
+    "Serious Issues",
+    "Minor Issues",
+    "Noticeable Flaws",
+    "Small Errors",
+    "Flawless",
 ]
 
 const imageDescriptions = [
