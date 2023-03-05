@@ -8,7 +8,6 @@ import { useOptionsStore } from "./options";
 import { useUIStore } from "./ui";
 import { BASE_URL_STABLE } from "@/constants";
 import { ElMessage } from 'element-plus';
-import { delay } from "rxjs";
 
 export const useRatingStore = defineStore("rating", () => {
     const currentRatingInfo = ref<DatasetImagePopResponse>({});
@@ -38,7 +37,7 @@ export const useRatingStore = defineStore("rating", () => {
             if(retryCount > 5) 
             {
                 ElMessage({
-                    message: `Unable to get new Horde Rating...`,
+                    message: `Unable to get new Horde Rating Image...`,
                     type: 'info',
                 })
                 return;
@@ -49,31 +48,11 @@ export const useRatingStore = defineStore("rating", () => {
                 }
             });
             retryCount++;
-            delay(100);
+            await new Promise(f => setTimeout(f, 500));
         }
 
         const json: DatasetImagePopResponse = await response.json();
-
-        let imgResponse = await fetch(json.url || "");
-        
-        let imageRetryCount = 0;
-        while(imgResponse.status != 200)
-        {
-            if(imageRetryCount > 5) 
-            {
-                ElMessage({
-                    message: `Unable to get new Horde Image...`,
-                    type: 'info',
-                })
-                return;
-            }
-            imgResponse = await fetch(json.url || "");
-            imageRetryCount++;
-            delay(100);
-        }
-
         if (!validateResponse(response, json, 200, "Failed to get rating", onInvalidResponse)) return;
-        if (!validateResponse(imgResponse, json, 200, "Failed to get rating", onInvalidResponse)) return;
         submitted.value = false;
         return json;
     }
