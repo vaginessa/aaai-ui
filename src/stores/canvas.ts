@@ -1,87 +1,41 @@
 import { defineStore } from "pinia";
-import { computed, ref, toRefs } from "vue";
+import { ref } from "vue";
 import { useGeneratorStore } from "./generator";
 import { fabric } from "fabric";
-import { useWorkerStore } from "./workers";
+import { Image, encode } from "image-js";
+import { loadURL as base64Image, toBase64URL } from "../utils/base64"
+import { InterpolationType } from "image-js/lib/utils/interpolatePixel";
 
 export const useCanvasStore = defineStore("canvas", () => {
-    interface ICanvasParams {
-        canvas: fabric.Canvas | undefined;
-        brush: fabric.BaseBrush | undefined;
-        visibleImageLayer: fabric.Group | undefined;
-        imageLayer: fabric.Canvas | undefined;
-        visibleDrawLayer: fabric.Group | undefined;
-        drawLayer: fabric.Canvas | undefined;
-        cropPreviewLayer: fabric.Group | undefined;
-        maskPathColor: string;
-        maskBackgroundColor: string;
-        imageScale: number;
-        undoHistory: IHistory[];
-        redoHistory: IHistory[];
-        drawing: boolean;
-    }
 
-    const defaultCanvasParams = (): ICanvasParams => ({
-        canvas: undefined,
-        brush: undefined,
-        visibleImageLayer: undefined,
-        imageLayer: undefined,
-        visibleDrawLayer: undefined,
-        drawLayer: undefined,
-        cropPreviewLayer: undefined,
-        maskPathColor: "",
-        maskBackgroundColor: "",
-        imageScale: 1,
-        undoHistory: [],
-        redoHistory: [],
-        drawing: false, 
-    })
+    const gSotre = useGeneratorStore();
+    const imageStage = ref<"Scaling" | "Painting" | "PaintingMask">("Scaling");
 
-    const inpainting = ref<ICanvasParams>({
-        ...defaultCanvasParams(),
-        maskPathColor: "white",
-        maskBackgroundColor: "black",
-    });
+    const canvas = ref<fabric.Canvas>();
+    const originalBase64 = ref<string>();
+    const originalImage = ref<Image>();
+    const workingBase64 = ref<string>();
+    const workingImage = ref<Image>();
+    const canvasImage = ref<fabric.Object>();
+    const fixedImage = ref<fabric.Object>();
+    const maskObject = ref<fabric.Object>();
+    const maskLayer = ref<fabric.Canvas>();
+    const paintLayer = ref<fabric.Canvas>();
+    const canvasBorder = ref<fabric.Rect>();
+    const maskRect = ref<fabric.Rect>();
 
-    const img2img = ref<ICanvasParams>({
-        ...defaultCanvasParams(),
-        maskPathColor: "black",
-        maskBackgroundColor: "white",
-    });
-
-    const usingInpainting = computed(() => {
-        const store = useGeneratorStore();
-        return store.generatorType === "Inpainting";
-    })
-    
-    const imageProps = computed(() => usingInpainting.value ? inpainting.value : img2img.value);
-    const generatorImageProps = computed(() => useGeneratorStore().currentImageProps);
-
-    const {
-        canvas,
-        brush,
-        visibleImageLayer,
-        imageLayer,
-        visibleDrawLayer,
-        drawLayer,
-        cropPreviewLayer,
-        maskPathColor,
-        maskBackgroundColor,
-        imageScale,
-        undoHistory,
-        redoHistory,
-    } = toRefs(imageProps.value);
-
-    const drawing = computed({
-        get: () => imageProps.value.drawing && !usingInpainting.value,
-        set: (value) => imageProps.value.drawing = value
-    })
+    const erasing = ref(false);
+    const isDrawing = ref(false);
+    const undoHistory = ref<IHistory[]>();
+    const redoHistory = ref<IHistory[]>();
 
     const width = ref(512);
     const height = ref(512);
-    const erasing = ref(false);
+    const canvasImageScaleFactor = ref(1);
+    
+    const brush =  ref<fabric.BaseBrush>();
     const brushSize = ref(30);
-    const showCropPreview = ref(false);
+    const drawColor = ref("rgb(0, 0, 0, 1)");
     const outlineLayer  = new fabric.Circle({
         radius: brushSize.value,
         left: 0,
@@ -92,31 +46,16 @@ export const useCanvasStore = defineStore("canvas", () => {
         stroke: "red",
         strokeWidth: 3,
         opacity: 0,
+        evented: false,
     });
-    const switchToolText = ref("Erase");
-    const drawColor = ref("rgb(0, 0, 0, 1)");
+
+    const readyToSubmit = ref(false);
+    const whitePixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdj+P///38ACfsD/QVDRcoAAAAASUVORK5CYII=';
 
     interface IHistory {
         path: fabric.Path;
         drawPath?: fabric.Path;
         visibleDrawPath?: fabric.Path;
-    }
-
-    function updateCanvas() {
-        if (!canvas.value) return;
-        canvas.value.renderAll();
-    }
-
-    function flipErase() {
-        erasing.value = !erasing.value;
-        switchToolText.value = erasing.value ? "Draw" : "Erase";
-    }
-
-    function setBrush(color: string | null = null) {
-        if (!canvas.value) return;
-        brush.value = canvas.value.freeDrawingBrush;
-        brush.value.color = color || brush.value.color;
-        brush.value.width = brushSize.value;
     }
 
     interface pathCreateOptions {
@@ -125,314 +64,379 @@ export const useCanvasStore = defineStore("canvas", () => {
         draw?: boolean;
     }
 
-    async function pathCreate({history, erase = false, draw = false}: pathCreateOptions = {}) {
-        if (!history) return; 
-        if (!drawLayer.value) return;
-        if (!visibleDrawLayer.value) return;
-        if (!imageLayer.value) return;
-        if (!visibleImageLayer.value) return;
-        if (!canvas.value) return;
-
-        history.path.selectable = false;
-        history.path.opacity = 1;
-
-        history.drawPath  = await asyncClone(history.path) as fabric.Path;
-        history.visibleDrawPath = await asyncClone(history.path) as fabric.Path;
-
-        if (erase) {
-            history.visibleDrawPath.globalCompositeOperation = 'destination-out';
-            history.drawPath.stroke = maskBackgroundColor.value;
-        } else {
-            history.visibleDrawPath.globalCompositeOperation = 'source-over';
-            history.drawPath.stroke = draw ? drawColor.value : maskPathColor.value;
-        }
-        let scaledDrawPath = await asyncClone(history.drawPath) as fabric.Path;
-        scaledDrawPath = scaledDrawPath.scale(imageScale.value) as fabric.Path;
-        scaledDrawPath.left = (scaledDrawPath.left as number) + (history.drawPath.left as number) * (imageScale.value - 1);
-        scaledDrawPath.top = (scaledDrawPath.top as number) + (history.drawPath.top as number) * (imageScale.value - 1);
-        if (draw) {
-            imageLayer.value.add(scaledDrawPath);
-            visibleImageLayer.value.addWithUpdate(history.visibleDrawPath);
-        } else {
-            drawLayer.value.add(scaledDrawPath);
-            visibleDrawLayer.value.addWithUpdate(history.visibleDrawPath);
-        }
-
-        canvas.value.remove(history.path);
-        updateCanvas();
-    }
-
-    function redoAction() {
-        if (undoHistory.value.length === 0) return;
-        const path = undoHistory.value.pop() as IHistory;
-        pathCreate({history: path, erase: false, draw: drawing.value});
-        redoHistory.value.push(path);
-    }
-
-    function undoAction() {
-        if (redoHistory.value.length === 0) return;
-        if (!drawLayer.value) return;
-        if (!visibleDrawLayer.value) return;
-        if (!imageLayer.value) return;
-        if (!visibleImageLayer.value) return;
-        if (!canvas.value) return;
-        const path = redoHistory.value.pop() as IHistory;
-        undoHistory.value.push(path);
-        if (drawing.value) {
-            imageLayer.value.remove(path.drawPath as fabric.Path);
-            visibleImageLayer.value.remove(path.visibleDrawPath as fabric.Path);  
-        } else {
-            drawLayer.value.remove(path.drawPath as fabric.Path);
-            visibleDrawLayer.value.remove(path.visibleDrawPath as fabric.Path);  
-        }
-        delete path.drawPath; 
-        delete path.visibleDrawPath;
-        updateCanvas();
-    }
-
     function createNewCanvas(canvasElement: string) {
+        fabric.Object.prototype.transparentCorners = false;
         canvas.value = new fabric.Canvas(canvasElement, {
-            isDrawingMode: false,
+            backgroundColor: "rgba(12,12,12,0.8)",
             width: width.value,
             height: height.value,
-            backgroundColor: "white"
+            preserveObjectStacking: true
         });
         canvas.value.selection = false;
         canvas.value.freeDrawingCursor = "crosshair";
-        setBrush(maskPathColor.value);
+        
+        maskLayer.value = new fabric.Canvas(null);
+        maskLayer.value.selection = false;
+        maskLayer.value.backgroundColor = "black";
+        maskLayer.value.setHeight(height.value);
+        maskLayer.value.setWidth(width.value);
+        
+        paintLayer.value = new fabric.Canvas(null);
+        paintLayer.value.selection = false;
+        paintLayer.value.backgroundColor = "white";
+        paintLayer.value.setHeight(height.value);
+        paintLayer.value.setWidth(width.value);
+
+        maskObject.value = new fabric.Image("");
+        maskObject.value.width = width.value;
+        maskObject.value.height = height.value;
+
+        canvas.value.on("mouse:wheel", onMouseWheel);
         canvas.value.on("mouse:move", onMouseMove);
         canvas.value.on("path:created", onPathCreated);
-        updateCanvas();
     }
 
-    function scaleImageTo(image: fabric.Image, widthAmount: number, heightAmount: number, minDimensions: number) {
-        let newHeight = minDimensions;
-        let newWidth = minDimensions;
-        if (widthAmount > heightAmount) {
-            image.scaleToWidth(minDimensions);
-            newHeight = minDimensions * (height.value / width.value);
-        } else {
-            image.scaleToHeight(minDimensions);
-            newWidth = minDimensions * (width.value / height.value);
-        }
-        return { newHeight, newWidth };
-    }
-
-    function newImage(image: fabric.Image) {
-        const store = useGeneratorStore();
-        const workerStore = useWorkerStore();
-        resetCanvas();
-        image.selectable = false;
-        width.value = image.width as number;
-        height.value = image.height as number;
-
-        if (width.value > workerStore.maxWidth || height.value > workerStore.maxHeight) {
-            const { newHeight, newWidth } = scaleImageTo(image, width.value, height.value, workerStore.maxWidth >= workerStore.maxHeight ? workerStore.maxWidth : workerStore.maxHeight );
-            width.value = newWidth;
-            height.value = newHeight;
-        } else if (width.value < workerStore.minWidth || height.value < workerStore.minHeight) {
-            const { newHeight, newWidth } = scaleImageTo(image, width.value, height.value, workerStore.minWidth <= workerStore.minHeight ? workerStore.minWidth : workerStore.minHeight);
-            width.value = newWidth;
-            height.value = newHeight;
-        }
-
-        const visibleDimensions = 512;
-
-        image.cloneAsImage((clonedImage: fabric.Image) => {
-            // Scaling relative to the downsized visible image layer
-            if (width.value > height.value) {
-                imageScale.value = width.value / visibleDimensions;
-            } else {
-                imageScale.value = height.value / visibleDimensions;
-            }
-            imageLayer.value = makeInvisibleLayer({image: clonedImage, layerHeight: clonedImage.height, layerWidth: clonedImage.width});
-        })
-
-        image.cloneAsImage((clonedImage: fabric.Image) => {
+    function blankImage() {
+        var center = canvas.value?.getCenter();
+        // Create a 1x1 white pixel and resize
+        fabric.Image.fromURL(whitePixel, image => {
             if (!canvas.value) return;
-            if (width.value !== visibleDimensions || height.value !== visibleDimensions) {
-                const { newHeight, newWidth } = scaleImageTo(clonedImage, width.value, height.value, visibleDimensions);
-                width.value = newWidth;
-                height.value = newHeight;
-            }
-            canvas.value.setWidth(width.value);
-            canvas.value.setHeight(height.value);
-            canvas.value.isDrawingMode = true;
-    
-            visibleDrawLayer.value = makeNewLayer();
-            visibleImageLayer.value = makeNewLayer({image:clonedImage});
-            drawLayer.value = makeInvisibleLayer();
-            const scaledWidth = width.value * imageScale.value;
-            const scaledHeight = height.value * imageScale.value;
-            store.params.width = scaledWidth - (scaledWidth % 64);
-            store.params.height = scaledHeight - (scaledHeight % 64);
-            visibleDrawLayer.value.set("opacity", 0.8);
-            canvas.value.add(visibleImageLayer.value);
-            canvas.value.add(visibleDrawLayer.value);
+
+            image.scaleToWidth((gSotre.params.width || 512 ));
+            image.scaleToHeight((gSotre.params.height || 512 ));
+            workingBase64.value = image.toDataURL({ format: "webp" });
+            gSotre.currentImageProps.sourceImage = workingBase64.value;
+            isDrawing.value = true;
+            canvas.value.setBackgroundImage(workingBase64.value, canvas.value?.renderAll.bind(canvas.value),{
+                originX: 'center',
+                originY: 'center',
+                top: center?.top || 0,
+                left: center?.left || 0,
+            });
             canvas.value.add(outlineLayer);
-            showCropPreview.value = true;
-            updateCropPreview();
-            saveImages();
+            canvas.value.isDrawingMode = true;
+            imageStage.value = "Painting";
+        });
+    }
+
+    function RefreshRect() {
+        if(canvasBorder.value !== undefined) {
+            canvas.value?.remove(canvasBorder.value);
+            addBorder();
+        }
+    }
+
+    function addBorder() { 
+        let rectMaxRatioX = gSotre.maxHeight / (canvas.value?.width || 512); 
+        let rectMaxRatioY = gSotre.maxHeight / (canvas.value?.width || 512); 
+        let rectX = Math.round((gSotre.params.width || 1) / rectMaxRatioX);
+        let rectY = Math.round((gSotre.params.height || 1) / rectMaxRatioY);
+        let rectLeft = Math.round((width.value - rectX) / 2);
+        let rectTop = Math.round((height.value - rectY) / 2);
+        canvasBorder.value = new fabric.Rect({
+            width: rectX - 2,
+            height: rectY - 2,
+            top: rectTop + 1,
+            left: rectLeft + 1,
+            originX: "left",
+            originY: "top",
+            fill: "transparent",
+            hasControls: false,
+            stroke: 'red',
+            strokeWidth: 1,
+            lockMovementX: true,
+            lockMovementY: true,
+            selectable: false,
+            evented: false,
+        });
+        canvas.value?.add(canvasBorder.value);
+    }
+
+    function addImageObjectToCanvas(base64Images: string) {
+        originalBase64.value = base64Images;
+        base64Image(base64Images).then((img) => {
+            originalImage.value = img;
         })
+        fabric.Image.fromURL(base64Images, (oImg) => {
+            let canvasImageScaleFactor = 1;
+            let scaleFactorNeededX = 1;
+            let scaleFactorNeededY = 1;
+            if((oImg.width || 0) > width.value) scaleFactorNeededX = width.value / (oImg.width || 0);
+            if((oImg.height || 0) > height.value) scaleFactorNeededY = height.value / (oImg.height || 0);
+            if(scaleFactorNeededX < scaleFactorNeededY && scaleFactorNeededX < canvasImageScaleFactor) {
+                canvasImageScaleFactor = scaleFactorNeededX;
+            } else {
+                canvasImageScaleFactor = scaleFactorNeededY;
+            }
+            canvasImage.value = oImg.set({ 
+                left: (width.value / 2) - (((oImg.width || 0) / 2) * canvasImageScaleFactor), 
+                top: (height.value / 2) - (((oImg.height || 0) / 2) * canvasImageScaleFactor),
+                hasControls: false,
+                hasBorders: false,
+            }).scale(canvasImageScaleFactor);
+            canvas.value?.add(canvasImage.value);
+            addBorder();
+        });
+    }
+
+    function RemoveImage() {
+        if(canvas.value === undefined) return;
+
+        canvas.value.clear();
+
+        if(canvasImage.value !== undefined)
+            canvas.value.remove(canvasImage.value);
+        if(canvasBorder.value !== undefined)
+            canvas.value.remove(canvasBorder.value);
+        if(outlineLayer !== undefined)
+            canvas.value.remove(outlineLayer);
+        if(fixedImage.value !== undefined)
+            canvas.value?.remove(fixedImage.value);
+
+        gSotre.currentImageProps.sourceImage = undefined;
+
+        canvas.value?.setBackgroundImage(0, canvas.value?.renderAll.bind(canvas.value));
+        canvas.value?.setBackgroundColor("rgba(12,12,12,0.8)", canvas.value?.renderAll.bind(canvas.value));
+
+        canvas.value.isDrawingMode = false;
+        isDrawing.value = false;
+        
+        maskLayer.value = new fabric.Canvas(null);
+        maskLayer.value.selection = false;
+        maskLayer.value.backgroundColor = "black";
+        maskLayer.value.setHeight(height.value);
+        maskLayer.value.setWidth(width.value);
+        
+        paintLayer.value = new fabric.Canvas(null);
+        paintLayer.value.selection = false;
+        paintLayer.value.backgroundColor = "white";
+        paintLayer.value.setHeight(height.value);
+        paintLayer.value.setWidth(width.value);
+
+        maskObject.value = new fabric.Image("");
+        maskObject.value.width = width.value;
+        maskObject.value.height = height.value;
+    }
+
+    function AcceptImage() {
+        if(canvas.value === undefined) return;
+        var center = canvas.value.getCenter();
+        prepareImage().then(() => {
+            if(canvas.value !== undefined && canvasImage.value !== undefined && workingImage.value !== undefined && canvasBorder.value !== undefined && workingBase64.value !== undefined) {
+                imageStage.value = "PaintingMask";
+                canvas.value?.remove(canvasImage.value, canvasBorder.value);
+                
+                fabric.Image.fromURL(workingBase64.value, (oImg) => {
+                    if(canvas.value === undefined) return;
+                    
+                    let canvasImageScaleFactor = 1;
+                    let scaleFactorNeededX = 1;
+                    let scaleFactorNeededY = 1;
+                    if((oImg.width || 0) > width.value) scaleFactorNeededX = width.value / (oImg.width || 0);
+                    if((oImg.height || 0) > height.value) scaleFactorNeededY = height.value / (oImg.height || 0);
+                    if(scaleFactorNeededX < scaleFactorNeededY && scaleFactorNeededX < canvasImageScaleFactor) {
+                        canvasImageScaleFactor = scaleFactorNeededX;
+                    } else {
+                        canvasImageScaleFactor = scaleFactorNeededY;
+                    }
+
+                    fixedImage.value = oImg.set({ 
+                        left: (width.value / 2) - (((oImg.width || 0) / 2) * canvasImageScaleFactor), 
+                        top: (height.value / 2) - (((oImg.height || 0) / 2) * canvasImageScaleFactor),
+                        hasControls: false,
+                        hasBorders: false,
+                    }).scale(canvasImageScaleFactor);
+
+                    canvas.value.add(fixedImage.value);
+
+                    if(maskObject.value !== undefined)
+                        canvas.value.add(maskObject.value);
+
+                    canvas.value.add(outlineLayer);
+                    canvas.value.isDrawingMode = true;
+                });
+            }
+        });
     }
 
     function saveImages() {
-        const store = useGeneratorStore();
-        if (!imageLayer.value) return;
-        if (!drawLayer.value) return;
-        const cropX = imageLayer.value.getCenter().left - (store.params.width as number / 2);
-        const cropWidth = store.params.width;
-        const cropY = imageLayer.value.getCenter().top - (store.params.height as number / 2);
-        const cropHeight = store.params.height;
+        if (maskLayer.value === undefined) return;
+
+        readyToSubmit.value = false;
+
         const dataUrlOptions = {
             format: "webp",
-            left: cropX,
-            top: cropY,
-            width: cropWidth,
-            height: cropHeight
-        };
-        generatorImageProps.value.sourceImage = imageLayer.value.toDataURL(dataUrlOptions);
-        generatorImageProps.value.maskImage = redoHistory.value.length === 0 || drawing.value ? undefined : drawLayer.value.toDataURL(dataUrlOptions).split(",")[1];
-    }
-
-    let timeout: undefined | NodeJS.Timeout;
-
-    function updateCropPreview() {
-        if (!canvas.value) return;
-        const store = useGeneratorStore();
-        if (cropPreviewLayer.value) {
-            canvas.value.remove(cropPreviewLayer.value);
-            cropPreviewLayer.value = undefined;
-        }
-        if (!showCropPreview.value) return;
-        cropPreviewLayer.value = makeNewLayer({
-            layerWidth: (store.params.width as number) / imageScale.value,
-            layerHeight: (store.params.height as number) / imageScale.value,
-            fill: "rgba(100, 0, 0, 0.5)"
-        });
-        canvas.value.centerObject(cropPreviewLayer.value);
-        canvas.value.add(cropPreviewLayer.value);
-        if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            showCropPreview.value = false;
-            updateCropPreview();
-            timeout = undefined;
-        }, 5000)
-    }
-
-    interface ILayerParams {
-        image?: fabric.Image;
-        layerWidth?: number;
-        layerHeight?: number;
-        fill?: string;
-        abosolute?: boolean;
-    }
-
-    function newBlankImage(height: number, width: number) {
-        // Create a 1x1 white pixel and resize
-        const whitePixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdj+P///38ACfsD/QVDRcoAAAAASUVORK5CYII=';
-        fabric.Image.fromURL(whitePixel, image => {
-            image.set({ height, width });
-            const imageBase64 = image.toDataURL({ format: "webp" });
-            generatorImageProps.value.sourceImage = imageBase64;
-            drawing.value = true;
-            newImage(image);
-        })
-    }
-
-    function makeInvisibleLayer({image, layerWidth, layerHeight}: ILayerParams = {}) {
-        const newLayer = new fabric.Canvas(null);
-        newLayer.selection = false;
-        newLayer.backgroundColor = maskBackgroundColor.value;
-        newLayer.setHeight(layerHeight || height.value);
-        newLayer.setWidth(layerWidth || width.value);
-        if (image) newLayer.add(image);
-        return newLayer;
-    }
-
-    function makeNewLayer({image, layerWidth, layerHeight, fill, abosolute}: ILayerParams = {}) {
-        const newLayer = image || new fabric.Rect({
-            width: layerWidth || width.value,
-            height: layerHeight || height.value,
             left: 0,
             top: 0,
-            fill: fill || "transparent",
-            absolutePositioned: abosolute || true,
-            selectable: false,
-        })
+            width: 512,
+            height: 512,
+        };
 
-        const newGroup = new fabric.Group([newLayer], {
-            selectable: false,
-            absolutePositioned: abosolute || true,
+        fabric.Image.fromURL(maskLayer.value.toDataURL(dataUrlOptions), (oImg) => {
+
+            oImg.scaleX = (gSotre.params.width || 512) / (oImg.width || 512);
+            oImg.scaleY = (gSotre.params.height || 512) / (oImg.height || 512);
+
+            gSotre.currentImageProps.sourceImage = workingBase64.value;
+            gSotre.currentImageProps.maskImage = redoHistory.value?.length === 0 ? undefined : oImg.toDataURL({});
+            if(gSotre.checkIfNotControlNet) {
+                if(gSotre.checkIfInpainting) {
+                    gSotre.currentImageProps.sourceProcessing = "inpainting";
+                } else gSotre.currentImageProps.sourceProcessing = "img2img";
+            } else gSotre.currentImageProps.sourceProcessing = "img2img";
+            readyToSubmit.value = true;
+
         });
-
-        return newGroup;
     }
 
-    function resetCanvas() {
-        if (!canvas.value) return;
-        if (visibleImageLayer.value) {
-            canvas.value.remove(visibleImageLayer.value);
-            visibleImageLayer.value = undefined;
-        }
-        if (visibleDrawLayer.value) {
-            canvas.value.remove(visibleDrawLayer.value);
-            visibleDrawLayer.value = undefined;
-        }
-        imageLayer.value = undefined;
-        drawLayer.value = undefined;
-        redoHistory.value = [];
-        undoHistory.value = [];
-        canvas.value.isDrawingMode = false;
+    function UpdateOverlay() {
+        if (maskLayer.value === undefined) return;
+        const dataUrlOptions = {
+            format: "webp",
+        };
+        fabric.Image.fromURL(maskLayer.value.toDataURL(dataUrlOptions), (oImg) => {
+            if (maskObject.value === undefined) return;
+            canvas.value?.remove(maskObject.value);
+            maskObject.value = oImg.set({
+                backgroundColor: "transparent",
+                opacity: 0.4,
+                originX: "center",
+                originY: "center",
+                left: 256,
+                top: 256
+            });
+            canvas.value?.add(maskObject.value);
+            canvas.value?.renderAll();
+        });
     }
 
-    function resetDrawing() {
-        if (!canvas.value) return;
-        if (visibleDrawLayer.value) {
-            canvas.value.remove(visibleDrawLayer.value);
-            visibleDrawLayer.value = undefined;
-        }
-        if (drawing.value) {
-            const store = useGeneratorStore();
-            newBlankImage(store.params.height || 512, store.params.width || 512);
-        }
-        drawLayer.value = undefined;
-        redoHistory.value = [];
-        undoHistory.value = [];
-        visibleDrawLayer.value = makeNewLayer();
-        drawLayer.value = makeInvisibleLayer();
-        visibleDrawLayer.value.set("opacity", 0.8)
-        canvas.value.add(visibleDrawLayer.value);
+    function flipErase() {
+        erasing.value = !erasing.value;
     }
 
-    function downloadMask() {
-        saveImages();
-        const anchor = document.createElement("a");
-        if (drawing.value) {
-            anchor.href = 'data:image/webp;base64,'+generatorImageProps.value.sourceImage?.split(",")[1];
-            anchor.download = "image_drawing.webp";
-            anchor.click();
-            return;
+    function BackToScaling() {
+        if (originalBase64.value !== undefined) {
+            imageStage.value = "Scaling";
+            fabric.Image.fromURL(originalBase64.value, (oImg) => {
+
+                canvas.value?.remove(outlineLayer);
+                canvas.value?.setBackgroundImage(0, canvas.value?.renderAll.bind(canvas.value));
+                canvas.value?.setBackgroundColor("rgba(12,12,12,0.8)", canvas.value?.renderAll.bind(canvas.value));
+                
+                if (maskObject.value !== undefined)
+                    canvas.value?.remove(maskObject.value);
+                if(canvasImage.value !== undefined)
+                    canvas.value?.remove(canvasImage.value);
+                if(fixedImage.value !== undefined)
+                    canvas.value?.remove(fixedImage.value);
+                
+                maskLayer.value = new fabric.Canvas(null);
+                maskLayer.value.selection = false;
+                maskLayer.value.backgroundColor = "black";
+                maskLayer.value.setHeight(height.value);
+                maskLayer.value.setWidth(width.value);
+                
+                paintLayer.value = new fabric.Canvas(null);
+                paintLayer.value.selection = false;
+                paintLayer.value.backgroundColor = "white";
+                paintLayer.value.setHeight(height.value);
+                paintLayer.value.setWidth(width.value);
+
+                maskObject.value = new fabric.Image("");
+                maskObject.value.width = width.value;
+                maskObject.value.height = height.value;
+
+                if (canvas.value !== undefined)
+                    canvas.value.isDrawingMode = false;
+                isDrawing.value = false;
+
+                canvasImageScaleFactor.value = 1;
+                let scaleFactorNeededX = 1;
+                let scaleFactorNeededY = 1;
+                if((oImg.width || 0) > width.value) scaleFactorNeededX = width.value / (oImg.width || 0);
+                if((oImg.height || 0) > height.value) scaleFactorNeededY = height.value / (oImg.height || 0);
+                if(scaleFactorNeededX < scaleFactorNeededY && scaleFactorNeededX < canvasImageScaleFactor.value) {
+                    canvasImageScaleFactor.value = scaleFactorNeededX;
+                } else {
+                    canvasImageScaleFactor.value = scaleFactorNeededY;
+                }
+                canvasImage.value = oImg.set({ 
+                    left: (width.value / 2) - (((oImg.width || 0) / 2) * canvasImageScaleFactor.value), 
+                    top: (height.value / 2) - (((oImg.height || 0) / 2) * canvasImageScaleFactor.value),
+                    hasControls: false,
+                    hasBorders: false,
+
+                }).scale(canvasImageScaleFactor.value);
+                canvas.value?.add(canvasImage.value);
+                addBorder();
+                readyToSubmit.value = false;
+            });
         }
-        anchor.href = 'data:image/webp;base64,'+generatorImageProps.value.maskImage;
-        anchor.download = "image_mask.webp";
-        anchor.click();
     }
 
-    async function asyncClone(object: any) {
-        return new Promise((resolve, reject) => {
-            try {
-                object.clone(resolve);
-            } catch (error) {
-                reject(error);
+    async function prepareImage() {  
+        let rectMaxRatioX = gSotre.maxHeight / (canvas.value?.width || 512); 
+        let rectMaxRatioY = gSotre.maxHeight / (canvas.value?.width || 512); 
+        let factorX = (canvasImage.value?.width || 1) / (canvasImage.value?.getScaledWidth() || 1);
+        let factorY = (canvasImage.value?.height || 1) / (canvasImage.value?.getScaledHeight() || 1);    
+        let rectX = Math.round(((gSotre.params.width || 1) * factorX) / rectMaxRatioX);
+        let rectY = Math.round(((gSotre.params.height || 1) * factorY) / rectMaxRatioY);
+        let rectLeft = Math.round((width.value * factorX - rectX) / 2);
+        let rectTop = Math.round((height.value * factorY - rectY) / 2);
+        let totalLeft = Math.round((rectLeft) - ((canvasImage.value?.left || 1) * factorX));
+        let totalTop = Math.round((rectTop) - ((canvasImage.value?.top || 1) * factorY));
+
+        let whiteSpaceX:number = 0;
+        let whiteSpaceY:number = 0;
+        let whiteSpaceLeft:number = 0;
+        let whiteSpaceTop:number = 0;
+
+        if(originalImage.value !== undefined) {
+            if(totalLeft < 0) {
+                rectX += totalLeft;
+                whiteSpaceX = Math.round(Math.abs(totalLeft));
+                totalLeft = 0;     
             }
-        });
-    }
+            if(totalTop < 0) {
+                rectY += totalTop;
+                whiteSpaceY = Math.round(Math.abs(totalTop));
+                totalTop = 0; 
+            }
+            if((totalLeft + rectX) > originalImage.value?.width) {
+                let overhangX = (totalLeft + rectX) - originalImage.value?.width;
+                rectX -= overhangX;
+                whiteSpaceLeft += overhangX;
+            }
+            if((totalTop + rectY) > originalImage.value?.height) {
+                let overhangY = (totalTop + rectY) - originalImage.value?.height;
+                rectY -= overhangY;
+                whiteSpaceTop += overhangY;
+            }
+            let coppedImage:Image = await originalImage.value.crop({
+                origin: {column: totalLeft, row: totalTop}, 
+                width: rectX, 
+                height: rectY
+            });
 
-    async function onPathCreated(e: any) {
-        const path: IHistory = { path: e.path }
-        pathCreate({history: path, erase: erasing.value, draw: drawing.value});
-        redoHistory.value.push(path);
+            maskRect.value = new fabric.Rect({
+                left: totalLeft,
+                top: totalTop,
+                width: rectX, 
+                height: rectY
+            });
+
+            let finalImage:Image = new Image(rectX+whiteSpaceX+whiteSpaceLeft, rectY+whiteSpaceY+whiteSpaceTop, {colorModel: coppedImage.colorModel});
+            let finalImage2 = await coppedImage.copyTo(finalImage, {
+                origin: {column: whiteSpaceX, row: whiteSpaceY}
+            });
+            workingImage.value = finalImage2.resize({
+                width: (gSotre.params.width || 1), 
+                height: (gSotre.params.height || 1), 
+                interpolationType: InterpolationType.BILINEAR
+            });
+            let b64s = await toBase64URL(encode(workingImage.value), "image/webp");
+            workingBase64.value = b64s;
+        }
     }
 
     function onMouseMove(event: fabric.IEvent<Event>) {
@@ -449,7 +453,7 @@ export const useCanvasStore = defineStore("canvas", () => {
             setBrush("red");
         } else {
             outlineLayer.set("strokeWidth", 0);
-            if (drawing.value) {
+            if (!erasing.value) {
                 outlineLayer.set("fill", drawColor.value);
                 setBrush(drawColor.value);
             } else {
@@ -458,33 +462,151 @@ export const useCanvasStore = defineStore("canvas", () => {
             }
         }
         outlineLayer.set("radius", brushSize.value / 2);
-        updateCanvas();
+        canvas.value.renderAll();
+    }
+    
+    function setBrush(color: string | null = null) {
+        if (!canvas.value) return;
+        brush.value = canvas.value.freeDrawingBrush;
+        brush.value.color = color || brush.value.color;
+        brush.value.width = brushSize.value;
+    }
+
+    function onMouseWheel(event: fabric.IEvent<WheelEvent>) {
+        if (!canvas.value) return;
+        if (imageStage.value !== "Scaling") return;
+
+        if(event.e.deltaY > 0) {
+            canvasImageScaleFactor.value = (canvasImageScaleFactor.value || 1) - 0.1;
+        } else {
+            canvasImageScaleFactor.value = (canvasImageScaleFactor.value || 1) + 0.1;
+        }
+        if(canvasImageScaleFactor.value < 0.1) {
+            canvasImageScaleFactor.value = 0.1;
+        }
+        canvasImage.value?.set({ 
+            left: (width.value / 2) - (((canvasImage.value.width || 0) / 2) * (canvasImageScaleFactor.value || 1)), 
+            top: (height.value / 2) - (((canvasImage.value.height || 0) / 2) * (canvasImageScaleFactor.value || 1)),
+        }).scale(canvasImageScaleFactor.value || 1);
+        canvas.value.requestRenderAll();
+    }
+
+    function resetCanvas() {
+        RemoveImage();
+        canvasImageScaleFactor.value = 1;
+        imageStage.value = "Scaling";
+        readyToSubmit.value = false;
+        redoHistory.value = undefined;
+        undoHistory.value = undefined;
+    }
+
+    async function onPathCreated(e: any) {
+        const path: IHistory = { path: e.path }
+        pathCreate({history: path, erase: erasing.value, draw: isDrawing.value});
+        redoHistory.value?.push(path);
+    }
+    
+    async function pathCreate({history, erase = false, draw = false}: pathCreateOptions = {}) {
+        if (!history) return; 
+        if (!maskLayer.value) return;
+        if (!paintLayer.value) return;
+        if (!canvas.value) return;
+
+        history.path.selectable = false;
+        history.path.opacity = 1;
+
+        history.drawPath  = await asyncClone(history.path) as fabric.Path;
+        history.visibleDrawPath = await asyncClone(history.path) as fabric.Path;
+
+        if (erase) {
+            history.visibleDrawPath.globalCompositeOperation = 'destination-out';
+            history.drawPath.stroke = "black";
+        } else {
+            history.visibleDrawPath.globalCompositeOperation = 'source-over';
+            history.drawPath.stroke = draw ? drawColor.value : "white";
+        }
+        if (draw)
+            paintLayer.value.add(history.drawPath);
+        else {
+            maskLayer.value.add(history.drawPath);
+            UpdateOverlay();
+        }
+
+        canvas.value.remove(history.path);
+        canvas.value.renderAll();
+    }
+
+    function downloadMask() {
+        saveImages();
+        const anchor = document.createElement("a");
+        if (isDrawing.value) {
+            anchor.href = 'data:image/webp;base64,'+gSotre.currentImageProps.sourceImage?.split(",")[1];
+            anchor.download = "image_drawing.webp";
+            anchor.click();
+            return;
+        }
+        anchor.href = 'data:image/webp;base64,'+gSotre.currentImageProps.maskImage?.split(",")[1];
+        anchor.download = "image_mask.webp";
+        anchor.click();
+    }
+
+    async function asyncClone(object: any) {
+        return new Promise((resolve, reject) => {
+            try {
+                object.clone(resolve);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function redoAction() {
+        if (undoHistory.value === undefined || undoHistory.value.length === 0) return;
+        const path = undoHistory.value.pop() as IHistory;
+        pathCreate({history: path, erase: false, draw: isDrawing.value});
+        redoHistory.value?.push(path);
+    }
+
+    function undoAction() {
+        if (redoHistory.value === undefined || redoHistory.value.length === 0) return;
+        if (!paintLayer.value) return;
+        if (!maskLayer.value) return;
+        if (!canvas.value) return;
+        const path = redoHistory.value.pop() as IHistory;
+        undoHistory.value?.push(path);
+        if (isDrawing.value) {
+            paintLayer.value?.remove(path.drawPath as fabric.Path); 
+        } else {
+            maskLayer.value?.remove(path.drawPath as fabric.Path); 
+            UpdateOverlay();
+        }
+        delete path.drawPath; 
+        delete path.visibleDrawPath;
+        canvas.value.renderAll();
     }
 
     return {
-        // Variables
-        showCropPreview,
+        imageStage,
         erasing,
-        switchToolText,
-        brushSize,
-        undoHistory,
-        redoHistory,
         drawColor,
-        drawing,
-        // Computed
-        canvas,
-        // Actions
-        updateCropPreview,
-        createNewCanvas,
-        downloadMask,
-        resetCanvas,
-        resetDrawing,
+        isDrawing,
+        brushSize,
+        readyToSubmit,
+        redoHistory,
+        undoHistory,
+
         flipErase,
-        undoAction,
-        redoAction,
-        newImage,
-        newBlankImage,
+        RefreshRect,
+        createNewCanvas,
+        addImageObjectToCanvas,
+        resetCanvas,
+        AcceptImage,
+        RemoveImage,
+        BackToScaling,
         setBrush,
-        saveImages
+        blankImage,
+        saveImages,
+        downloadMask,
     };
+
 });

@@ -112,13 +112,22 @@ export const useRatingStore = defineStore("rating", () => {
         updateRatingInfo();
     }
 
+    const getDefaultRatings = () => ({
+        rating: 5,
+        artifacts: 6,
+    })
+
+    const currentRealRating = ref(getDefaultRatings());
+
     return {
         // Variables
+        currentRealRating,
         currentRatingInfo,
         imagesRated,
         kudosEarned,
         submitted,
         // Actions
+        getDefaultRatings,
         getNewRating,
         updateRatingInfo,
         baseSubmitRating,

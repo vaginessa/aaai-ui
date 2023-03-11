@@ -9,7 +9,6 @@ import {
     ElCarouselItem,
     ElEmpty,
     vLoading,
-    ElLoading,
     ElCollapse,
     ElCollapseItem,
     ElButton
@@ -96,8 +95,8 @@ useIntersectionObserver(
             <div>
                 <el-collapse style="margin-top: 0.5rem; --el-collapse-header-height: 2.5rem">
                     <el-collapse-item :title="`There are ${model.count} workers running this model`" name="1">
-                        <div id="workerTable" v-for="(worker) of store.getAllWorkersWithModel(model.name)">
-                            <div style="float:left; min-width: 20%;">{{Math.floor(Math.sqrt(worker.max_pixels))}}x{{Math.floor(Math.sqrt(worker.max_pixels))}}</div>
+                        <div id="workerTable" v-for="(worker) of store.getAllWorkersWithModel(model.name || '')">
+                            <div style="float:left; min-width: 20%;">{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}x{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}</div>
                             <div style="float:left; width: 55%;">{{worker.name}}</div>
                             
                             <el-button v-if="optStore.isWorkerWhitelisted(worker)" style="width: 25%;border: none;" @click="() => optStore.addWorkerToSelection(worker)">Add to {{optStore.getListMode()}}</el-button>

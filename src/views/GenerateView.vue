@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onUnmounted, ref } from 'vue';
+import { onUnmounted } from 'vue';
 import { useGeneratorStore } from '@/stores/generator';
 import {
     ElMenu
@@ -7,18 +7,15 @@ import {
 import {
     Comment,
     PictureFilled,
-    Cpu
+VideoCameraFilled
 } from '@element-plus/icons-vue';
 
 import FormRating from '../components/FormRating.vue';
-import FormText2Img from '../components/FormText2Img.vue';
+import FormTxt2Img from '../components/FormTxt2Img.vue';
 import FormImg2Img from '../components/FormImg2Img.vue';
-import FormInpainting from '../components/FormInpainting.vue';
-import FormControlNet from '../components/FormControlNet.vue';
+import FormTxt2Vid from '../components/FormImg2Vid.vue';
 
-import BrushFilled from '../components/icons/BrushFilled.vue';
 import GeneratorMenuItem from '../components/GeneratorMenuItem.vue';
-import DialogList from '../components/DialogList.vue';
 import StarEdit24Regular from '../components/icons/StarEdit24Regular.vue';
 
 import { useUIStore } from '@/stores/ui';
@@ -37,6 +34,11 @@ function disableBadge() {
 }
 
 function onMenuChange(key: any) {
+
+    if (key === "Txt2Vid") return;
+    if (key === "Img2Txt") return;
+    if (key === "Txt2Txt") return;
+
     store.generatorType = key;
     disableBadge();
     if (DEBUG_MODE) console.log(key)
@@ -60,19 +62,18 @@ handleUrlParams();
         :mode="isMobile ? 'horizontal' : 'vertical'"
         :class="isMobile ? 'mobile-generator-types' : 'generator-types'"
     >
-        <GeneratorMenuItem index="Text2Img"      :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" />
+        <GeneratorMenuItem index="Txt2Img"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" />
+        <!--GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile"/-->
         <GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" />
-        <GeneratorMenuItem index="Inpainting"    :icon-one="BrushFilled"         :icon-two="PictureFilled" :isMobile="isMobile" />
-        <GeneratorMenuItem index="ControlNet"    :icon-one="Cpu"                 :icon-two="PictureFilled" :isMobile="isMobile" />
+        <!--GeneratorMenuItem index="Img2Txt"       :icon-one="PictureFilled"       :icon-two="Comment" :isMobile="isMobile" /-->
+        <!--GeneratorMenuItem index="Txt2Txt"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
         <GeneratorMenuItem index="Rating"        :icon-one="StarEdit24Regular"   :isMobile="isMobile" />
     </el-menu>
     <div class="form">
 
-        <FormText2Img v-if="store.generatorType === 'Text2Img'" />
+        <FormTxt2Img v-if="store.generatorType === 'Txt2Img'" />
+        <!--FormTxt2Vid v-if="store.generatorType === 'Txt2Vid'" /-->
         <FormImg2Img v-if="store.generatorType === 'Img2Img'" />
-        <FormInpainting v-if="store.generatorType === 'Inpainting'" />
-        <FormControlNet v-if="store.generatorType === 'ControlNet'" />
-
         <FormRating v-if="store.generatorType === 'Rating'" />
 
     </div>
@@ -175,7 +176,7 @@ handleUrlParams();
     .container {
         display: grid;
         height: 110vh;
-        grid-template-rows: minmax(400px, 45vh) 40px 60%;
+        grid-template-rows: minmax(400px, 45vh) 110px 60%;
         grid-template-columns: 100%;
         gap: 10px;
         grid-template-areas:
@@ -196,13 +197,17 @@ handleUrlParams();
     }
 
     .container {
-        grid-template-rows: minmax(400px, 50vh) 40px 60%;
+        grid-template-rows: minmax(400px, 50vh) 110px 60%;
     }
 
     .form {
         padding-top: 20px;
         padding-left: 0;
         margin-left: 0;
+    }
+
+    #app .el-menu.el-menu--horizontal.el-menu--collapse.mobile-generator-types .el-menu-item {
+        width: 60px;
     }
 }
 

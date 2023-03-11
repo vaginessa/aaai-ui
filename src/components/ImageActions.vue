@@ -121,9 +121,8 @@ const ratingDialog = ref(false);
     <el-tooltip v-if="imageData.starred" content="Unfavourite" placement="top">
         <el-button v-if="imageData.starred" @click="outputStore.toggleStarred(imageData.id)" type="warning" :icon="StarFilled" plain />
     </el-tooltip>
-    <el-button @click="store.generateText2Img(imageData)" type="success" :icon="Refresh" plain>Text2img</el-button>
-    <el-button @click="store.generateImg2Img(imageData.image)" type="success" :icon="Refresh" plain>Img2img</el-button>
-    <el-button @click="store.generateInpainting(imageData.image)" type="success" :icon="Refresh" plain>Inpainting</el-button>
+    <el-button @click="store.generateTxt2Img(imageData)" type="success" :icon="Refresh" plain>Txt2Img</el-button>
+    <el-button @click="store.generateImg2Img(imageData.image)" type="success" :icon="Refresh" plain>Img2Img</el-button>
     <el-button @click="copyLink(imageData)" type="success" :icon="Link" plain>Copy Link</el-button>
     <el-button
         :disabled="!imageData.hordeImageId || !imageData.jobId || imageData.rated !== 0 || !imageData.sharedExternally"

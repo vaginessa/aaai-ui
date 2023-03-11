@@ -11,7 +11,6 @@ import {
 } from 'element-plus';
 import WorkerBox from './WorkerBox.vue';
 import FormSelect from './FormSelect.vue';
-import { useGeneratorStore } from "@/stores/generator";
 import type { WorkerDetailsStable } from "@/types/stable_horde";
 import { useWorkerStore } from "@/stores/workers";
 import { useOptionsStore } from "@/stores/options";
@@ -39,6 +38,13 @@ async function updateWorkerOptions() {
     if (response.status === 403) {
         workerStore.updateWorkers()
         return resJSON;
+    }
+    if (response.status === 500) {
+        // Hack cause Horder is always reporting 500,
+        // if paused argument is added that is not the case but
+        // worker name is not changeable anymore due to
+        // paused being only modifyable as an moderator
+        return;
     }
     if (!validateResponse(response, resJSON, 200, "Failed to modify worker")) return false;
     workerStore.updateWorkers()
@@ -81,7 +87,6 @@ const dialogOpen = ref(false);
 const workerOptionsChange = ref({
     maintenance: props.worker?.maintenance_mode,
     maintenance_msg: "",
-    paused: false,
     info: props.worker.info,
     name: props.worker.name,
     team: props.worker.team?.id === null ? '' : props.worker.team?.id

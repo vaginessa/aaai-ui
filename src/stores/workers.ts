@@ -237,8 +237,8 @@ export const useWorkerStore = defineStore("workers", () => {
         if (sortType == "MPS") value = sortArray("megapixelsteps_generated", descending, data);
         if (sortType == "Speed") {
             value = value.sort((a, b) => {
-                const cmpA = Number(a.performance?.split(" ")[0]) || 0;
-                const cmpB = Number(b.performance?.split(" ")[0]) || 0;
+                const cmpA:number = Number(a.performance?.split(" ")[0]) || 0;
+                const cmpB:number = Number(b.performance?.split(" ")[0]) || 0;
                 if (descending) return cmpB - cmpA;
                 return cmpA - cmpB;
             })

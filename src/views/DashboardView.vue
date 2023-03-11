@@ -4,17 +4,12 @@ import {
     ElCol,
     ElCard,
     ElEmpty,
-    ElIcon,
-    ElTable,
-    ElTableColumn,
-    ElScrollbar,
-    ElDivider
+    ElIcon
 } from "element-plus";
 import {
     Money,
     Aim,
     Picture,
-    Avatar,
     Lock
 } from "@element-plus/icons-vue"
 import DataLabel from '../components/DataLabel.vue'

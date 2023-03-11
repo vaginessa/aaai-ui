@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useColorMode, useLocalStorage, type BasicColorSchema } from '@vueuse/core'
+import { useColorMode, useLocalStorage } from '@vueuse/core'
 import { ref, computed } from 'vue';
 import { useWorkerStore } from '@/stores/workers';
 import type { WorkerDetailsStable } from "@/types/stable_horde";
@@ -25,14 +25,14 @@ export const useOptionsStore = defineStore("options", () => {
     const autoCarousel = useLocalStorage<IToggle>("autoCarousel", "Enabled");
     const zipMetaData = useLocalStorage<IToggle>("zipMetaData", "Enabled");
     const useBeta = useLocalStorage<IToggle>("useBeta", "Disabled");
-    const useWorkers = useLocalStorage<String[]>("usedWorkers",[]);
+    const useWorkers = useLocalStorage<string[]>("usedWorkers",[]);
     const workerListMode = useLocalStorage<IModeToggle>("workerListMode", "Whitelist"); 
     const pictureDownloadType = useLocalStorage<IPictureType>("downloadType", "JPG");
 
     const workerStore = useWorkerStore();
 
-    const getWokersToUse = computed<String[]>(() => {
-        var allowedWorkers: String[] = [];
+    const getWokersToUse = computed<string[]>(() => {
+        var allowedWorkers: string[] = [];
         if (workerListMode.value === 'Whitelist') {
             useWorkers.value.forEach(el => {
                 allowedWorkers.push(el);
@@ -82,7 +82,7 @@ export const useOptionsStore = defineStore("options", () => {
     }
 
     function addWorkerToSelection(worker: WorkerDetailsStable) {
-        useWorkers.value.push(worker.id as String);
+        useWorkers.value.push(worker.id as string);
     }
 
     return {

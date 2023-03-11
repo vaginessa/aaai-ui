@@ -1,7 +1,6 @@
 import type { UserDetailsStable, HordePerformanceStable, WorkerDetailsStable } from "@/types/stable_horde";
 import { defineStore } from "pinia";
 import { ref } from 'vue';
-import { useGeneratorStore } from "./generator";
 import { useOptionsStore } from "./options";
 import { useWorkerStore } from "./workers";
 import sanitizeHtml from 'sanitize-html';

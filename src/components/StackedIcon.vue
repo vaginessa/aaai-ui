@@ -27,6 +27,7 @@ const props = defineProps<{
     bottom: 12%;
     opacity: 0.8;
     z-index: 0;
+    color: #5a5a5a;
 }
 
 .secondIcon {
@@ -34,6 +35,24 @@ const props = defineProps<{
     left: 15%;
     top: 12%;
     z-index: 1;
+    color: #ffffff;
+}
+
+.el-menu-item.is-active .firstIcon {
+    position: absolute;
+    right: 15%;
+    bottom: 12%;
+    opacity: 0.8;
+    z-index: 0;
+    color: #1d4b7a;
+}
+
+.el-menu-item.is-active .secondIcon {
+    position: absolute;
+    left: 15%;
+    top: 12%;
+    z-index: 1;
+    color: #409eff;
 }
 
 .centerIcons {

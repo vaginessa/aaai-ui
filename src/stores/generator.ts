@@ -12,10 +12,8 @@ import { useLocalStorage } from "@vueuse/core";
 import { MODELS_DB_URL, POLL_MODELS_INTERVAL, DEBUG_MODE, POLL_STYLES_INTERVAL, MAX_PARALLEL_IMAGES, MAX_PARALLEL_REQUESTS } from "@/constants";
 import { convertToBase64 } from "@/utils/base64";
 import { validateResponse } from "@/utils/validate";
-import { ElNotification } from "element-plus";
-import { useWorkerStore } from '@/stores/workers';
+import { ElNotification, type FormRules } from "element-plus";
 import { BASE_URL_STABLE } from "@/constants";
-import { type FormRules } from 'element-plus';
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
 
 function getDefaultStore() {
@@ -33,7 +31,7 @@ function getDefaultStore() {
         denoising_strength: 0.75,
         tiling: false,
         hires_fix: false,
-        control_type: "normal",
+        control_type: "none",
     }
 }
 
@@ -83,25 +81,28 @@ interface IPromptHistory {
     timestamp: number;
 }
 
-type IGeneratorType = 'Text2Img' | 'Img2Img' | 'Inpainting' | 'ControlNet' | 'Rating'
+type IGeneratorType = 'Txt2Img' | 'Txt2Vid' | 'Img2Img' | 'Rating'
 type IMultiModel = "Enabled" | "Disabled"
 type IGroupedModel ={ label: string; options: {label: string; value: string;}[] }[];
 
 export const useGeneratorStore = defineStore("generator", () => {
-    const generatorType = useLocalStorage<IGeneratorType>("generationType", "Text2Img");
+    const canvasStore = useCanvasStore();
+
+    const generatorType = useLocalStorage<IGeneratorType>("generationType", "Txt2Img");
 
     const prompt = useLocalStorage("lastPrompt", "")
     const promptHistory = useLocalStorage<IPromptHistory[]>("promptHistory", []);
     const negativePrompt = useLocalStorage("lastNegativePrompt", "")
     const negativePromptLibrary = useLocalStorage<string[]>("negativeLibrary", []);
     const params = useLocalStorage<ModelGenerationInputStable>("params", getDefaultStore());
+
     const nsfw   = useLocalStorage<boolean>("nsfw", true);
     const censor_nsfw   = useLocalStorage<boolean>("censorNsfw", false);
     const trustedOnly = useLocalStorage<boolean>("trustedOnly", false);
 
     const availablePostProcessors: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[] = ["GFPGAN", "RealESRGAN_x4plus", "CodeFormers"];
 
-    const availableControlType: ('canny' | 'hed' | 'depth' | 'normal' | 'openpose' | 'seg' | 'scribble' | 'fakescribbles' | 'hough')[] = ['canny', 'hed', 'depth', 'normal', 'openpose', 'seg', 'scribble', 'fakescribbles', 'hough'];
+    const availableControlType: ('none' | 'canny' | 'hed' | 'depth' | 'normal' | 'openpose' | 'seg' | 'scribble' | 'fakescribbles' | 'hough')[] = ['none', 'canny', 'hed', 'depth', 'normal', 'openpose', 'seg', 'scribble', 'fakescribbles', 'hough'];
 
     const availableModelsGrouped = ref<IGroupedModel>([]);
     const modelsData = ref<IModelData[]>([]);
@@ -117,45 +118,59 @@ export const useGeneratorStore = defineStore("generator", () => {
     const selectedModelData = computed<IModelData>(() => modelsData.value.find(el => el.name === selectedModel.value) || {});
 
     const multiControlTypeSelect = useLocalStorage<IMultiModel>("multiControlTypeSelect", "Disabled");
-    const selectedControlTypeMultiple = useLocalStorage("selectedControlTypeMultiple", ["depth"]);
+    const selectedControlTypeMultiple = useLocalStorage("selectedControlTypeMultiple", ["none"]);
+    
+    const checkIfNotControlNet = computed<boolean>(() => {
+        if (multiControlTypeSelect.value === 'Enabled') {
+            return selectedControlTypeMultiple.value.filter((el) => el === 'none').length > 0;
+        } else {
+            return params.value.control_type === 'none';
+        }
+        return false;
+    });
+
+    const checkIfInpainting = computed<boolean>(() => {
+        if (selectedModel.value === 'stable_diffusion_inpainting') return true;
+        return false;
+    });
     
     const filteredAvailableModelsGrouped = computed(() => {
         if (availableModelsGrouped.value.length === 0) return [];
 
         var filtered;
         
-        if (generatorType.value === "Inpainting") {
-            filtered = [availableModelsGrouped.value.find(mg => mg.label == "inpainting")];
+        if (generatorType.value === "Img2Img") {
+            filtered = availableModelsGrouped.value.filter(mg => {
+                if (!checkIfNotControlNet)
+                    return mg.label !== "inpainting"
+                else return true;
+            });
         } else {
-            if (generatorType.value === "Img2Img") {
-                filtered = availableModelsGrouped.value.filter(mg => mg.label !== "inpainting");
-            } else {
-                filtered = availableModelsGrouped.value;
-                if (generatorType.value === "ControlNet") {
-                    filtered.forEach(el => el.options = el.options.filter(
-                        md =>   md.value !== "stable_diffusion_2.1" && 
-                                md.value !== "stable_diffusion_2.1_512" && 
-                                md.value !== "stable_diffusion_2.0" && 
-                                md.value !== "stable_diffusion_2.0_512" && 
-                                md.value !== "Stable Diffusion 2 Depth" && 
-                                md.value !== "Graphic-Art" && 
-                                md.value !== "Illuminati Diffusion" && 
-                                md.value !== "A to Zovya RPG" && 
-                                md.value !== "Waifu Diffusion Beta" && 
-                                md.value !== "PRMJ" && 
-                                md.value !== "Vector Art" && 
-                                md.value !== "Pulp Vector Art" && 
-                                md.value !== "Pokemon3D" && 
-                                md.value !== "CharHelper" && 
-                                md.value !== "Concept Sheet" && 
-                                md.value !== "Ultraskin" && 
-                                md.value !== "Future Diffusion" 
-                    ));
-                }
+            filtered = availableModelsGrouped.value;
+            if (!checkIfNotControlNet) {
                 filtered.forEach(el => el.options = el.options.filter(
-                    md => md.value !== "pix2pix" && md.value !== "stable_diffusion_inpainting" 
+                    md =>   md.value !== "stable_diffusion_2.1" && 
+                            md.value !== "stable_diffusion_2.1_512" && 
+                            md.value !== "stable_diffusion_2.0" && 
+                            md.value !== "stable_diffusion_2.0_512" && 
+                            md.value !== "Stable Diffusion 2 Depth" && 
+                            md.value !== "Graphic-Art" && 
+                            md.value !== "Illuminati Diffusion" && 
+                            md.value !== "A to Zovya RPG" && 
+                            md.value !== "Waifu Diffusion Beta" && 
+                            md.value !== "PRMJ" && 
+                            md.value !== "Vector Art" && 
+                            md.value !== "Pulp Vector Art" && 
+                            md.value !== "Pokemon3D" && 
+                            md.value !== "CharHelper" && 
+                            md.value !== "Concept Sheet" && 
+                            md.value !== "Ultraskin" && 
+                            md.value !== "Future Diffusion" 
                 ));
             }
+            filtered.forEach(el => el.options = el.options.filter(
+                md => md.value !== "pix2pix" && md.value !== "stable_diffusion_inpainting" 
+            ));
         }
 
         let sModel = filtered.find(el2 => {
@@ -185,21 +200,13 @@ export const useGeneratorStore = defineStore("generator", () => {
         maskImage: undefined,
     })
 
-    const inpainting = useLocalStorage<ITypeParams>("inpainting", {
-        ...getDefaultImageProps(),
-        sourceProcessing: "inpainting",
-    })
-
-    const img2img = useLocalStorage("img2img", <ITypeParams>{
+    const img2img = ref(<ITypeParams>{
         ...getDefaultImageProps(),
         sourceProcessing: "img2img",
     })
 
     const getImageProps = (type: typeof generatorType.value): ITypeParams => {
-        if (type === "Inpainting") {
-            return inpainting.value;
-        }
-        if (type === "Img2Img" || type === "ControlNet" ) {
+        if (type === "Img2Img") {
             return img2img.value;
         }
         return getDefaultImageProps();
@@ -247,9 +254,9 @@ export const useGeneratorStore = defineStore("generator", () => {
                 returnValue *= filteredAvailableModelsGrouped.value.filter(el => el?.label !== "Extra").length;
             }
         }
-        if(generatorType.value === 'ControlNet' && multiControlTypeSelect.value === "Enabled") 
+        if(generatorType.value === "Img2Img" && multiControlTypeSelect.value === "Enabled") 
         {
-            returnValue *= selectedControlTypeMultiple.value.length || 0;
+            returnValue *= selectedControlTypeMultiple.value.filter((el) => el !== "none").length || 1;
         }
         returnValue *= (params.value.n || 1);
         return returnValue;
@@ -262,7 +269,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         (params.value.post_processing || []).forEach( el => {
             kudos = Math.round((kudos * 1.2) * 100) / 100;
         });
-        if(generatorType.value == "ControlNet")
+        if(params.value.control_type !== "none")
             kudos = Math.round((kudos * 3) * 100) / 100;
         kudos += countParentheses();
         return kudos * (totalImageCount.value || 1);
@@ -311,10 +318,10 @@ export const useGeneratorStore = defineStore("generator", () => {
      * */ 
     function resetStore()  {
         params.value = getDefaultStore();
-        inpainting.value = getDefaultImageProps();
         img2img.value = getDefaultImageProps();
         images.value = [];
         useUIStore().showGeneratedImages = false;
+        useCanvasStore().resetCanvas();
         return true;
     }
 
@@ -338,7 +345,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (type === "Rating") return [];
         if (prompt.value === "") return generationFailed("Failed to generate: No prompt submitted.");
         if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed("Failed to generate: No model selected.");
-        if (multiControlTypeSelect.value === "Enabled" && selectedControlTypeMultiple.value.length === 0 && generatorType.value === "ControlNet") return generationFailed("Failed to generate: No control type selected.");
+        if (multiControlTypeSelect.value === "Enabled" && selectedControlTypeMultiple.value.length === 0 && generatorType.value === "Img2Img") return generationFailed("Failed to generate: No control type selected.");
 
         MersenneTwister(undefined);
 
@@ -346,8 +353,17 @@ export const useGeneratorStore = defineStore("generator", () => {
         const optionsStore = useOptionsStore();
         const uiStore = useUIStore();
 
-        canvasStore.saveImages();
-        const { sourceImage, maskImage, sourceProcessing } = getImageProps(type);
+        if(type === "Img2Img") {
+            canvasStore.saveImages();
+            let counter = 0;
+            while(!canvasStore.readyToSubmit) {
+                await sleep(200);
+                if(++counter == 10) {
+                    console.log("ERROR: Timed out while waiting for images.")
+                    return;
+                }
+            }
+        }
         
         let model = [selectedModel.value];
         const realModels = filteredAvailableModelsGrouped.value.filter(el => el?.label !== "Extra");
@@ -376,6 +392,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         for (let i = 0; i < (params.value.n || 1); i++) {
             plannedSeeds.push(params.value.seed == "" ? genrand_int32().toString() : params.value.seed);
         }
+
         for (let i = 0; i < requestCount; i++) {
             const selectCurrentItem = (arr: any[]) => arr[i % arr.length];
             const currentModel = multiModelSelect.value === "Enabled" ? selectCurrentItem(selectedModelMultiple.value) : selectCurrentItem(model);
@@ -392,14 +409,14 @@ export const useGeneratorStore = defineStore("generator", () => {
                         post_processing: params.value.post_processing || [],
                         sampler_name: currentSampler,
                         n: 1,
-                        control_type: type === "ControlNet" ? currentControlType : undefined,
+                        control_type: type === "Img2Img" ? params.value.control_type !== "none" ? currentControlType : undefined : undefined,
                     },
                     nsfw: nsfw.value || true,
                     censor_nsfw: !(nsfw.value || true) ? false : censor_nsfw.value,
                     trusted_workers: trustedOnly.value || false,
-                    source_image: sourceImage?.split(",")[1],
-                    source_mask: maskImage,
-                    source_processing: sourceProcessing,
+                    source_image: type === "Img2Img" ? currentImageProps.value.sourceImage?.split(",")[1] : undefined,
+                    source_mask: type === "Img2Img" ? currentImageProps.value.maskImage?.split(",")[1] : undefined,
+                    source_processing: type === "Img2Img" ? currentImageProps.value.sourceProcessing : undefined,
                     workers: optionsStore.getWokersToUse,
                     models: [currentModel],
                     r2: true,
@@ -462,11 +479,11 @@ export const useGeneratorStore = defineStore("generator", () => {
     
                 const status = await checkImage(queuedImage.jobId);
                 if (!status) return generationFailed();
-                if (status.faulted) return generationFailed("Failed to generate: Generation faulted.");
-                if (status.is_possible === false) return generationFailed("Failed to generate: Generation not possible.");
-                queuedImage.waitData = status;
+                 if ((status as RequestStatusCheck).faulted) return generationFailed("Failed to generate: Generation faulted.");
+                if ((status as RequestStatusCheck).is_possible === false) return generationFailed("Failed to generate: Generation not possible.");
+                queuedImage.waitData = (status as RequestStatusCheck);
 
-                if (status.done) {
+                if ((status as RequestStatusCheck).done) {
                     const finalImages = await getImageStatus(queuedImage.jobId);
                     if (!finalImages) return generationFailed();
                     processImages(finalImages.map(image => ({...image, ...queuedImage})))
@@ -542,11 +559,11 @@ export const useGeneratorStore = defineStore("generator", () => {
     }
 
     /**
-     * Prepare an image for going through text2img on the Horde
+     * Prepare an image for going through txt2img on the Horde
      * */ 
-    function generateText2Img(data: ImageData, correctDimensions = true) {
+    function generateTxt2Img(data: ImageData, correctDimensions = true) {
         const defaults = getDefaultStore();
-        generatorType.value = "Text2Img";
+        generatorType.value = "Txt2Img";
         multiModelSelect.value = "Disabled";
         router.push("/");
         if (correctDimensions) {
@@ -576,31 +593,18 @@ export const useGeneratorStore = defineStore("generator", () => {
      * Prepare an image for going through img2img on the Horde
      * */ 
     function generateImg2Img(sourceimg: string) {
-        const canvasStore = useCanvasStore();
         generatorType.value = "Img2Img";
         img2img.value.sourceImage = sourceimg;
-        canvasStore.drawing = false;
+        canvasStore.isDrawing = false;
         images.value = [];
         router.push("/");
-        fabric.Image.fromURL(sourceimg, canvasStore.newImage);
+        canvasStore.addImageObjectToCanvas(sourceimg);
         // Note: unused code
         // const img = new Image();
         // img.onload = function() {
         //     uploadDimensions.value = `${(this as any).naturalWidth}x${(this as any).naturalHeight}`;
         // }
         // img.src = newImgUrl;
-    }
-
-    /**
-     * Prepare an image for going through inpainting on the Horde
-     * */ 
-    function generateInpainting(sourceimg: string) {
-        const canvasStore = useCanvasStore();
-        images.value = [];
-        inpainting.value.sourceImage = sourceimg;
-        generatorType.value = "Inpainting";
-        router.push("/");
-        fabric.Image.fromURL(sourceimg, canvasStore.newImage);
     }
 
     /**
@@ -741,7 +745,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                             cursor: "pointer",
                         },
                         onClick: () => {
-                            if (generatorType.value === "Rating") generatorType.value = "Text2Img";
+                            if (generatorType.value === "Rating") generatorType.value = "Txt2Img";
                             uiStore.showGeneratorBadge = false;
                             router.push("/");
                             notification.close();
@@ -762,7 +766,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     /**
      * Gets information about the generating image(s). Returns false if an error occurs.
      * */ 
-    async function checkImage(imageID: string, tries: number = 0) {
+    async function checkImage(imageID: string, tries: number = 0): Promise<RequestStatusCheck | boolean> {
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/check/`+imageID);
         
         if (response.status == 500) {
@@ -937,7 +941,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         nsfw,
         censor_nsfw,
         trustedOnly,
-        inpainting,
         img2img,
         uploadDimensions,
         cancelled,
@@ -978,11 +981,11 @@ export const useGeneratorStore = defineStore("generator", () => {
         selectedModelData,
         currentImageProps,
         totalImageCount,
+        checkIfNotControlNet,
         // Actions
         generateImage,
-        generateText2Img,
+        generateTxt2Img,
         generateImg2Img,
-        generateInpainting,
         getImageStatus,
         getPrompt,
         addDreamboothTrigger,
@@ -994,5 +997,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         pushToPromptHistory,
         removeFromPromptHistory,
         generateFormBaseRules,
+        checkIfInpainting,
     };
 });

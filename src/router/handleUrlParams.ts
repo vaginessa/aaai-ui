@@ -57,7 +57,7 @@ const handleUrlParams = function() {
 
     // Pass to generator view
     const store = useGeneratorStore();
-    store.generateText2Img(imageData, false);
+    store.generateTxt2Img(imageData, false);
 }
 
 export default handleUrlParams;

@@ -9,7 +9,7 @@ import {
 import { computed } from 'vue';
 import CrownIcon from '../components/icons/CrownIcon.vue';
 import CircleFilled from '../components/icons/CircleFilled.vue';
-import type { TeamDetailsStable, WorkerDetailsLite } from '../types/stable_horde';
+import type { TeamDetailsStable } from '../types/stable_horde';
 import { formatSeconds } from '@/utils/format';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ElForm, ElCollapseItem, ElCollapse, ElRow, ElCol } from 'element-plus';
+import { ElForm, ElRow, ElCol } from 'element-plus';
 import FormSlider from '../components/FormSlider.vue';
 import FormModelSelect from '../components/FormModelSelect.vue';
 import FormSelect from '../components/FormSelect.vue';
@@ -8,15 +8,12 @@ import FormOnOffButton from '../components/FormOnOffButton.vue';
 import FormPromptInput from '../components/FormPromptInput.vue';
 import FormImagePreview from '../components/FormImagePreview.vue';
 import FormSeed from '../components/FormSeed.vue';
+import FormControlSelect from '../components/FormControlSelect.vue';
 import { useGeneratorStore } from '@/stores/generator';
-import { useUIStore } from '@/stores/ui';
-import { useWorkerStore } from '@/stores/workers';
 import { useCanvasStore } from '@/stores/canvas';
 import { Check, Close } from '@element-plus/icons-vue';
 
 const store = useGeneratorStore();
-const uiStore = useUIStore();
-const workerStore = useWorkerStore();
 const canvasStore = useCanvasStore();
 
 const samplerListLite = ["k_lms", "k_heun", "k_euler", "k_euler_a", "k_dpm_2", "k_dpm_2_a"]
@@ -24,7 +21,7 @@ const dpmSamplers = ['k_dpm_fast', 'k_dpm_adaptive', 'k_dpmpp_2m', 'k_dpmpp_2s_a
 
 const availableSamplers = computed(() => {
     if (store.selectedModel === "stable_diffusion_2.0") return updateCurrentSampler(["dpmsolver"])
-    if (store.generatorType === 'Text2Img') return updateCurrentSampler([...samplerListLite, ...dpmSamplers]);
+    if (store.generatorType === 'Txt2Img') return updateCurrentSampler([...samplerListLite, ...dpmSamplers]);
     return updateCurrentSampler(samplerListLite);
 })
 
@@ -38,8 +35,7 @@ function updateCurrentSampler(newSamplers: string[]) {
 }
 
 function onDimensionsChange() {
-    canvasStore.showCropPreview = true;
-    canvasStore.updateCropPreview();
+    canvasStore.RefreshRect();
 }
 
 function getAspectRatio(isWidth: boolean) {
@@ -90,9 +86,10 @@ function getAspectRatio(isWidth: boolean) {
             @submit.prevent
         >
             <div class="sidebar">
-                <form-prompt-input />
+                <form-prompt-input />                   
+                <form-control-select />
                 <FormSeed />
-                <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   info="k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast."/>
+                <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   info="k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast." v-if="store.checkIfNotControlNet"/>
                 <form-slider label="Batch Size"         prop="batchSize"      v-model="store.params.n"                  :min="store.minImages"     :max="store.maxImages" />
                 <form-slider label="Steps"              prop="steps"          v-model="store.params.steps"              :min="store.minSteps"      :max="store.maxSteps"      info="Keep step count between 30 to 50 for optimal generation times. Coherence typically peaks between 60 and 90 steps, with a trade-off in speed." />
                 <form-slider :label="`Width ` + getAspectRatio(true)"              prop="width"          v-model="store.params.width"              :min="store.minWidth"      :max="store.maxWidth" :step="64"   :change="onDimensionsChange" />

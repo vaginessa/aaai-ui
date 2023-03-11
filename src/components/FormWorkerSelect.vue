@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-    ElImage,
-    ElCarousel,
-    ElCarouselItem,
-} from 'element-plus';
 import FormSelect from './FormSelect.vue';
-import InfoTooltip from './InfoTooltip.vue';
 import { useOptionsStore } from '@/stores/options';
 import { useWorkerStore } from '@/stores/workers';
 const store = useOptionsStore();

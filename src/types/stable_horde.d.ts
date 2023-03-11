@@ -114,7 +114,7 @@ export interface ModelPayloadRootStable {
    */
   seed_variation?: number;
   post_processing?: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[];
-  control_type?: ("canny" | "hed" | "depth" | "normal" | "openpose" | "seg" | "scribble" | "fakescribbles" | "hough");
+  control_type?: ("none" | "canny" | "hed" | "depth" | "normal" | "openpose" | "seg" | "scribble" | "fakescribbles" | "hough");
   /** Set to True to enable karras noise scheduling tweaks */
   karras?: boolean;
   /** Set to True to create images that stitch together seamlessly */

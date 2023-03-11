@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ElForm, ElCollapseItem, ElCollapse, ElRow, ElCol } from 'element-plus';
-import FormSlider from '../components/FormSlider.vue';
-import FormSeed from '../components/FormSeed.vue';
-import FormModelSelect from '../components/FormModelSelect.vue';
-import FormSelect from '../components/FormSelect.vue';
-import FormOnOffButton from '../components/FormOnOffButton.vue';
-import FormPromptInput from '../components/FormPromptInput.vue';
-import FormImagePreview from '../components/FormImagePreview.vue';
+import { ElForm, ElRow, ElCol } from 'element-plus';
+import FormSlider from './FormSlider.vue';
+import FormSeed from './FormSeed.vue';
+import FormModelSelect from './FormModelSelect.vue';
+import FormSelect from './FormSelect.vue';
+import FormOnOffButton from './FormOnOffButton.vue';
+import FormPromptInput from './FormPromptInput.vue';
+import FormImagePreview from './FormImagePreview.vue';
 import { useGeneratorStore } from '@/stores/generator';
 import { useUIStore } from '@/stores/ui';
 import { useWorkerStore } from '@/stores/workers';
@@ -15,8 +15,6 @@ import { useCanvasStore } from '@/stores/canvas';
 import { Check, Close } from '@element-plus/icons-vue';
 
 const store = useGeneratorStore();
-const uiStore = useUIStore();
-const workerStore = useWorkerStore();
 const canvasStore = useCanvasStore();
 
 const samplerListLite = ["k_lms", "k_heun", "k_euler", "k_euler_a", "k_dpm_2", "k_dpm_2_a"]
@@ -24,7 +22,7 @@ const dpmSamplers = ['k_dpm_fast', 'k_dpm_adaptive', 'k_dpmpp_2m', 'k_dpmpp_2s_a
 
 const availableSamplers = computed(() => {
     if (store.selectedModel === "stable_diffusion_2.0") return updateCurrentSampler(["dpmsolver"])
-    if (store.generatorType === 'Text2Img') return updateCurrentSampler([...samplerListLite, ...dpmSamplers]);
+    if (store.generatorType === 'Txt2Img') return updateCurrentSampler([...samplerListLite, ...dpmSamplers]);
     return updateCurrentSampler(samplerListLite);
 })
 

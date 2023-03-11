@@ -11,7 +11,6 @@ import {
     Delete,
     Check,
     Clock,
-    View,
     FolderChecked,
     FolderOpened,
 TrendCharts
@@ -78,7 +77,7 @@ const nsfwBong = ref(false);
 const showNsfwBong = computed(() => nsfwBong.value);
 
 const nsfwREGEX = new RegExp('girl|\\bboy\\b|student|\\byoung\\b|lit[tl]le|\\blil\\b|small|tiny')
-function showNsfwNotification(event) {
+function showNsfwNotification(event: string) {
   if (nsfwREGEX.test(event.toLowerCase())) {
     nsfwBong.value = true;
   } else {

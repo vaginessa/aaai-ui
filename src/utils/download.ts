@@ -1,7 +1,8 @@
 import type { ImageData } from '@/stores/outputs'
 import { ElMessage } from 'element-plus';
 import JSZip from 'jszip';
-import Image from 'image-js';
+import { read, encodePng, encodeJpeg, Image } from 'image-js';
+import { toBase64URL, encode as encodeWebp, loadURL as base64Image, convertBase64ToBlob} from "../utils/base64"
 import { useOptionsStore } from '@/stores/options';
 
 export async function downloadMultipleWebp(outputs: ImageData[]) {
@@ -20,30 +21,28 @@ export async function downloadMultipleWebp(outputs: ImageData[]) {
         const fileName = `${i}-${outputs[i].seed}-${outputs[i].prompt}`.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd();
 
         // Create image file
-        await Image.load(image).then(function (image) {
-            if (optionStore.pictureDownloadType == "PNG") 
-            {
-                zip.file(
-                    fileName + ".png",
-                    image.toBlob("image/png", 85)
-                );
-            }
-            else if (optionStore.pictureDownloadType == "JPG")
-            {
-                zip.file(
-                    fileName + ".jpeg",
-                    image.toBlob("image/jpeg", 85)
-                );
-            }
-            else if (optionStore.pictureDownloadType == "WEBP")
-            {
-                zip.file(
-                    fileName + ".webp",
-                    image.toBase64("image/webp"),
-                    { base64: true }
-                );
-            }
-        });
+        if (optionStore.pictureDownloadType == "PNG") 
+        {
+            zip.file(
+                fileName + ".png",
+                convertBase64ToBlob(image, "image/png"),
+            );
+        }
+        else if (optionStore.pictureDownloadType == "JPG")
+        {
+            zip.file(
+                fileName + ".jpeg",
+                convertBase64ToBlob(image, "image/jpeg"),
+            );
+        }
+        else if (optionStore.pictureDownloadType == "WEBP")
+        {
+            zip.file(
+                fileName + ".webp",
+                convertBase64ToBlob(image, "image/webp"),
+                { base64: true }
+            );
+        }
         
         if (optionStore.zipMetaData == "Enabled") {
             // Create JSON file
@@ -67,45 +66,26 @@ export async function downloadMultipleWebp(outputs: ImageData[]) {
 export async function downloadImage(output: ImageData, fileName: string) {    
     const store = useOptionsStore();
     const {image, id, ...jsonData} = output;
+    const downloadLink = document.createElement("a");
+    // Only get first 128 characters so we don't break the max file name limit
+    let newFileName = fileName.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd(); 
 
-    Image.load(image).then(function (imageFile) {
-
-        let newFileName = fileName.replace(/[/\\:*?"<>]/g, "").substring(0, 128).trimEnd(); // Only get first 128 characters so we don't break the max file name limit
-
-        if (store.pictureDownloadType == "PNG") 
-        {
-            const downloadLink = document.createElement("a");
-            newFileName += ".png";
-            downloadLink.href = imageFile.toDataURL("image/png");
-            downloadLink.download = newFileName; 
-            downloadLink.click();
-        }
-        else if (store.pictureDownloadType == "JPG")
-        {            
-            Promise.resolve(imageFile.toBlob("image/jpeg", 85)).then(data => {
-                const objectUrl: string = URL.createObjectURL(data);
-                const a: HTMLAnchorElement = document.createElement('a') as HTMLAnchorElement;
-                const imageFileName = newFileName + ".jpeg";
-
-                a.href = objectUrl;
-                a.download = imageFileName;
-                document.body.appendChild(a);
-                a.click();        
-            
-                document.body.removeChild(a);
-                URL.revokeObjectURL(objectUrl);
-            });
-
-        }
-        else if (store.pictureDownloadType == "WEBP")
-        {
-            const downloadLink = document.createElement("a");
-            newFileName += ".webp";
-            downloadLink.href = imageFile.toDataURL("image/webp");
-            downloadLink.download = newFileName; 
-            downloadLink.click();
-        }
-        
+    if (store.pictureDownloadType == "PNG")  {
+        newFileName += ".png";
+        downloadLink.href = URL.createObjectURL(convertBase64ToBlob(image, "image/png"));
+    }
+    else if (store.pictureDownloadType == "JPG") {          
+        newFileName += ".jpeg";
+        downloadLink.href = URL.createObjectURL(convertBase64ToBlob(image, "image/jpeg"));
+    }
+    else if (store.pictureDownloadType == "WEBP") {
+        newFileName += ".webp";
+        downloadLink.href = URL.createObjectURL(convertBase64ToBlob(image, "image/webp"));
+    }
+    downloadLink.download = newFileName; 
+    downloadLink.click();
+    
+    new Promise(f => setTimeout(f, 250)).then(() => {
         if (store.zipMetaData == "Enabled") {
             const blob: Blob = new Blob([JSON.stringify(jsonData, undefined, 4)], {type: 'text/json'});
             const jsonFileName = newFileName + ".json";
@@ -121,5 +101,6 @@ export async function downloadImage(output: ImageData, fileName: string) {
             URL.revokeObjectURL(objectUrl);
         }
     });
+
 
 }

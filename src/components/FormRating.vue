@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import { ref } from "vue";
 import { useRatingStore } from '@/stores/rating';
 import { useOptionsStore } from '@/stores/options';
 import RatingView from '../components/RatingView.vue';
@@ -12,6 +12,55 @@ import {
 const ratingStore = useRatingStore();
 const optionsStore = useOptionsStore();
 
+
+const ratingCycle = ref(0);
+
+window.addEventListener('keyup', (event) => {
+
+    console.log(event.key);
+
+    let rating = 0;
+    if (event.key == "1") {
+        rating = 1;
+    } else if (event.key == "2") {
+        rating = 2;
+    } else if (event.key == "3") {
+        rating = 3;
+    } else if (event.key == "4") {
+        rating = 4;
+    } else if (event.key == "5") {
+        rating = 5;
+    } else if (event.key == "6") {
+        rating = 6;
+    } else if (event.key == "7" && ratingCycle.value == 0) {
+        rating = 7;
+    } else if (event.key == "8" && ratingCycle.value == 0) {
+        rating = 8;
+    } else if (event.key == "9" && ratingCycle.value == 0) {
+        rating = 9;
+    } else if (event.key == "0" && ratingCycle.value == 0) {
+        rating = 10;
+    } else if ((event.key == "Enter" || event.key == " ") && ratingCycle.value > 1) {
+        rating = -1;
+    } else {
+        return;
+    }
+
+    if (ratingCycle.value == 0) {
+        ratingStore.currentRealRating.rating = rating;
+        ratingCycle.value++;
+        console.log("Rating: ", rating);
+    } else if (ratingCycle.value == 1) {
+        ratingStore.currentRealRating.artifacts = rating;
+        ratingCycle.value++;
+        console.log("Artifacts: ", rating);
+    } else if (rating == -1 && ratingCycle.value > 1) {
+        console.log("Submit");
+        ratingStore.submitRating(ratingStore.currentRealRating, ratingStore.currentRatingInfo.id || "");
+        ratingCycle.value = 0;
+        ratingStore.currentRealRating = ratingStore.getDefaultRatings();
+    }
+});
 
 </script>
 

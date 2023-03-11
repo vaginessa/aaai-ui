@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRatingStore } from '@/stores/rating';
 import type { RatePostInput } from '@/types/ratings';
 import {
     ElButton,
@@ -7,6 +8,7 @@ import {
     ElImage
 } from 'element-plus';
 import { ref } from 'vue';
+const ratingStore = useRatingStore();
 
 const props = defineProps<{
     id: string;
@@ -43,24 +45,19 @@ const imageDescriptions = [
     'The Best!',
 ]
 
-const getDefaultRatings = () => ({
-    rating: 5,
-    artifacts: 6,
-})
 
-const currentRating = ref(getDefaultRatings());
 const showImage = ref(false);
 
 function onRatingSubmit() {
     emit(
         "onRatingSubmit",
         {
-            ...currentRating.value,
-            artifacts: 6 - currentRating.value.artifacts,
+            ...ratingStore.currentRealRating,
+            artifacts: 6 - ratingStore.currentRealRating.artifacts,
         }, 
         props.id,
     );
-    currentRating.value = getDefaultRatings();
+    ratingStore.currentRealRating = ratingStore.getDefaultRatings();
     showImage.value = false;
 }
 const colors10 = ref({1:'#7B0100', 2:'#EA0001', 4:'#FA9924', 6:'#FEC923', 8:'#92D14F', 10:'#00602B'});
@@ -73,13 +70,13 @@ const colors6 = ref({1:'#7B0100', 2:'#EA0001', 3:'#FA9924', 4:'#FEC923', 5:'#92D
             <el-image v-loading="!showImage" @load="() => showImage = true" :src="imageSource" class="rate-image" />
         </div>
         <div>
-            <div>How would <em><strong>you</strong></em> rate this image? ({{ imageDescriptions[currentRating.rating || 1] }})</div>
-            <el-rate :max="10" v-model="currentRating.rating" :colors="colors10"/>
+            <div>How would <em><strong>you</strong></em> rate this image? ({{ imageDescriptions[ratingStore.currentRealRating.rating || 1] }})</div>
+            <el-rate :max="10" v-model="ratingStore.currentRealRating.rating" :colors="colors10"/>
             <div><span class="starLike">1</span><span class="starLike">2</span><span class="starLike">3</span><span class="starLike">4</span><span class="starLike">5</span><span class="starLike">6</span><span class="starLike">7</span><span class="starLike">8</span><span class="starLike">9</span><span class="starLike">10</span></div>
         </div>
         <div>
-            <div>How would <em><strong>you</strong></em> describe the flaws, artifacts, etc? ({{ artifactDescriptions[currentRating.artifacts || 1] }})</div>
-            <el-rate :max="6" v-model="currentRating.artifacts" :colors="colors6"/>
+            <div>How would <em><strong>you</strong></em> describe the flaws, artifacts, etc? ({{ artifactDescriptions[ratingStore.currentRealRating.artifacts || 1] }})</div>
+            <el-rate :max="6" v-model="ratingStore.currentRealRating.artifacts" :colors="colors6"/>
             <div><span class="starLike">1</span><span class="starLike">2</span><span class="starLike">3</span><span class="starLike">4</span><span class="starLike">5</span><span class="starLike">6</span></div>
         </div>
         <div><el-button style="height: 50px; width: 200px; margin-bottom: 75px;" @click="() => onRatingSubmit()" :disabled="submitted">Submit rating</el-button></div>
