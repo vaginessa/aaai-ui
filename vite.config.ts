@@ -7,6 +7,9 @@ import viteCompression from 'vite-plugin-compression';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    define: {
+      global: "window",
+    },
     plugins: [
         vue(),
         ElementPlus(),
