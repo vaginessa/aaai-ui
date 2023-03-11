@@ -272,8 +272,22 @@ export const useGeneratorStore = defineStore("generator", () => {
         if(params.value.control_type !== "none")
             kudos = Math.round((kudos * 3) * 100) / 100;
         kudos += countParentheses();
+        kudos = recordUsage(kudos);
         return kudos * (totalImageCount.value || 1);
     })
+
+    function recordUsage(kudos:number) {
+        if(generatorType.value === "Img2Img") kudos *= 1.5;
+        if(params.value.post_processing !== undefined) {
+            if(params.value.post_processing?.indexOf("RealESRGAN_x4plus") > 0) kudos *= 1.3;
+            if(params.value.post_processing?.indexOf("CodeFormers") > 0) kudos *= 1.3;
+        }
+        let horde_tax = 3;
+        if(useOptionsStore().shareWithLaion === "Enabled") horde_tax = 1;
+        if(kudos < 10) horde_tax -= 1;
+        kudos += horde_tax; 
+        return kudos;
+    }
 
     function countParentheses() {
         const chars = [...prompt.value];
