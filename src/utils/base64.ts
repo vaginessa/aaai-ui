@@ -1,4 +1,5 @@
-import { decode as imageJsDecode } from "image-js";
+import { decode as imageJsDecode, decodeJpeg, decodePng, decodeTiff } from "image-js";
+import imageType from "image-type";
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -67,30 +68,60 @@ export function decode(base64) {
 }
 
 export function loadURL(url: string) {
-    const dataURL = url.slice(0, 64).match(isDataURL);
-
+    let workUrl = url;
+    if(url.indexOf("image/webp") > 0) workUrl = convertB64ToDataType(url, "image/jpeg");
+    let dataURL = workUrl.slice(0, 64).match(isDataURL);
     let binaryDataP;
     if (dataURL !== null) {
-        binaryDataP = Promise.resolve(decode(url.slice(dataURL[0].length)));
+        binaryDataP = Promise.resolve<Uint8Array | undefined>(decode(workUrl.slice(dataURL[0].length)));
     } else {
-        binaryDataP = fetchBinary(url);
+        binaryDataP = Promise.resolve<Uint8Array | undefined>(fetchBinary(url))
     }
     return binaryDataP.then((binaryData) => {
-        const uint8 = new Uint8Array(binaryData);
-        return imageJsDecode(uint8);
+        if (binaryData === undefined) return;
+        return imageJsDecode(binaryData);
+
+        imageType(binaryData).then((type) => {
+            console.log(type);
+            switch (type?.mime) {
+                case 'image/png':
+                return decodePng(binaryData);
+                case 'image/jpeg':
+                return decodeJpeg(binaryData);
+                case 'image/tiff':
+                return decodeTiff(binaryData);
+                default:
+                throw new Error('unrecognized data format');
+            }
+        });
+
+        /*
+        if (imgType === "image/jpeg") {
+            return decodeJpeg(binaryData);
+            let imgType = "";
+            imgType = "image/jpeg";
+            let data = convertB64ToDataType(url, imgType);
+            let newDataUrl = data.slice(data.slice(0, 64)[0].length);
+            console.log(imgType);
+        }
+*/
+        //return imageJsDecode(uint8);
     });
 }
 
 export function fetchBinary(url: string, { withCredentials = false } = {}) {
-    return new Promise(function (resolve, reject) {
+    return new Promise<Uint8Array | undefined>(function (resolve, reject) {
         let xhr = new self.XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
         xhr.withCredentials = withCredentials;
 
         xhr.onload = function (e) {
-            if (this.status !== 200) reject(e);
-            else resolve(this.response);
+            if (this.status !== 200) reject(undefined);
+            else {
+                //let type = this.getResponseHeader('Content-Type');
+                resolve(this.response);
+            }
         };
         xhr.onerror = reject;
         xhr.send();
@@ -102,11 +133,25 @@ export function toBase64URL(u8, type) {
   return `data:${type};base64,${base64}`;
 }
 
+export function convertB64ToDataType(base64Image: string,contentType?: string) {    
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    const image = new Image();
+    image.src = base64Image;
+
+    canvas.width = image.width;
+    canvas.height = image.height;
+    context?.drawImage(image, 0, 0);
+    return canvas.toDataURL(contentType);
+}
+
+
 /**
  * Converts base64 data into a blob
  * @param base64Image Base64 data to convert into a BLOB
  */
-export function convertBase64ToBlob(base64Image: string, contentType?: string) {
+export function convertBase64ToBlob(b64Image: string, contentType?: string) {
+    let base64Image = convertB64ToDataType(b64Image, contentType);
     // Split into two parts
     const parts = base64Image.split(';base64,');
 

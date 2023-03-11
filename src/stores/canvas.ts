@@ -158,22 +158,22 @@ export const useCanvasStore = defineStore("canvas", () => {
             originalImage.value = img;
         })
         fabric.Image.fromURL(base64Images, (oImg) => {
-            let canvasImageScaleFactor = 1;
+            canvasImageScaleFactor.value = 1;
             let scaleFactorNeededX = 1;
             let scaleFactorNeededY = 1;
             if((oImg.width || 0) > width.value) scaleFactorNeededX = width.value / (oImg.width || 0);
             if((oImg.height || 0) > height.value) scaleFactorNeededY = height.value / (oImg.height || 0);
-            if(scaleFactorNeededX < scaleFactorNeededY && scaleFactorNeededX < canvasImageScaleFactor) {
-                canvasImageScaleFactor = scaleFactorNeededX;
+            if(scaleFactorNeededX < scaleFactorNeededY && scaleFactorNeededX < canvasImageScaleFactor.value) {
+                canvasImageScaleFactor.value = scaleFactorNeededX;
             } else {
-                canvasImageScaleFactor = scaleFactorNeededY;
+                canvasImageScaleFactor.value = scaleFactorNeededY;
             }
             canvasImage.value = oImg.set({ 
-                left: (width.value / 2) - (((oImg.width || 0) / 2) * canvasImageScaleFactor), 
-                top: (height.value / 2) - (((oImg.height || 0) / 2) * canvasImageScaleFactor),
+                left: (width.value / 2) - (((oImg.width || 0) / 2) * canvasImageScaleFactor.value), 
+                top: (height.value / 2) - (((oImg.height || 0) / 2) * canvasImageScaleFactor.value),
                 hasControls: false,
                 hasBorders: false,
-            }).scale(canvasImageScaleFactor);
+            }).scale(canvasImageScaleFactor.value);
             canvas.value?.add(canvasImage.value);
             addBorder();
         });
@@ -477,17 +477,38 @@ export const useCanvasStore = defineStore("canvas", () => {
         if (imageStage.value !== "Scaling") return;
 
         if(event.e.deltaY > 0) {
-            canvasImageScaleFactor.value = (canvasImageScaleFactor.value || 1) - 0.1;
+            canvasImageScaleFactor.value = (canvasImageScaleFactor.value || 1) - 0.05;
         } else {
-            canvasImageScaleFactor.value = (canvasImageScaleFactor.value || 1) + 0.1;
+            canvasImageScaleFactor.value = (canvasImageScaleFactor.value || 1) + 0.05;
         }
-        if(canvasImageScaleFactor.value < 0.1) {
-            canvasImageScaleFactor.value = 0.1;
+        setScale();
+    }
+
+    function setScale() {
+        if (!canvas.value) return;
+        if (!canvasImage.value) return;
+        if (imageStage.value !== "Scaling") return;
+        if(canvasImageScaleFactor.value < 0.01) {
+            canvasImageScaleFactor.value = 0.05;
         }
-        canvasImage.value?.set({ 
-            left: (width.value / 2) - (((canvasImage.value.width || 0) / 2) * (canvasImageScaleFactor.value || 1)), 
-            top: (height.value / 2) - (((canvasImage.value.height || 0) / 2) * (canvasImageScaleFactor.value || 1)),
-        }).scale(canvasImageScaleFactor.value || 1);
+
+        let oldPanX = (canvasImage.value.left || 0);
+        let oldPanY = (canvasImage.value.top || 0);
+        let oldWidth = (canvasImage.value.getScaledWidth() || 0);
+        let oldHeight = (canvasImage.value.getScaledHeight() || 0);
+
+        canvasImage.value.scale(canvasImageScaleFactor.value || 1);
+        
+        let newWidth = (canvasImage.value.getScaledWidth() || 0);
+        let newHeight = (canvasImage.value.getScaledHeight() || 0);
+
+        let centerPointX = ((width.value / 2) - (canvasImage.value.getScaledWidth() / 2));
+        let centerPointY = ((height.value / 2) - (canvasImage.value.getScaledHeight() / 2));
+
+        canvasImage.value.set({ 
+            left: oldPanX + ((oldWidth / 2) - (newWidth / 2)), 
+            top: oldPanY + ((oldHeight / 2) - (newHeight / 2))
+        });
         canvas.value.requestRenderAll();
     }
 
@@ -594,7 +615,9 @@ export const useCanvasStore = defineStore("canvas", () => {
         readyToSubmit,
         redoHistory,
         undoHistory,
+        canvasImageScaleFactor,
 
+        setScale,
         flipErase,
         RefreshRect,
         createNewCanvas,

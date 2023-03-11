@@ -163,6 +163,9 @@ function getWebImage() {
                 <el-button @click="canvasStore.flipErase()"    :icon="canvasStore.erasing ? EditPen : EraserIcon" plain />
             </div>
 
+            <el-form v-if="canvasStore.imageStage === 'Scaling'" label-width="110px" style="margin-top: 10px">
+                <form-slider style="margin-bottom: 5px" label="Scaling" prop="brushSize" v-model="canvasStore.canvasImageScaleFactor" :min="0.05" :max="1" :step="0.05" :change="canvasStore.setScale"/>
+            </el-form>
             <el-form v-if="canvasStore.imageStage === 'Painting' || canvasStore.imageStage === 'PaintingMask'" label-width="110px" style="margin-top: 10px">
                 <form-slider style="margin-bottom: 5px" label="Brush Size" prop="brushSize" v-model="canvasStore.brushSize" :min="10" :max="100" :step="10" :change="canvasStore.setBrush" />
             </el-form>

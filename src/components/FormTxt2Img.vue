@@ -36,8 +36,8 @@ function updateCurrentSampler(newSamplers: string[]) {
 }
 
 function onDimensionsChange() {
-    canvasStore.showCropPreview = true;
-    canvasStore.updateCropPreview();
+    //canvasStore.showCropPreview = true;
+    //canvasStore.updateCropPreview();
 }
 
 function getAspectRatio(isWidth: boolean) {
