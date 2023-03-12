@@ -4,7 +4,7 @@ import { validateResponse } from "@/utils/validate";
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { useOptionsStore } from "./options";
+import { useUserStore } from "./user";
 import { useUIStore } from "./ui";
 import { BASE_URL_STABLE } from "@/constants";
 import { ElMessage } from 'element-plus';
@@ -23,11 +23,11 @@ export const useRatingStore = defineStore("rating", () => {
     }
 
     async function getNewRating() {
-        const optionsStore = useOptionsStore();
+        const userStore = useUserStore();
         submitted.value = true;
         let response = await fetch("https://ratings.aihorde.net/api/v1/rating/new", {
             headers: {
-                apikey: optionsStore.apiKey,
+                apikey: userStore.apiKey,
             }
         });
 
@@ -44,7 +44,7 @@ export const useRatingStore = defineStore("rating", () => {
             }
             response = await fetch("https://ratings.aihorde.net/api/v1/rating/new", {
                 headers: {
-                    apikey: optionsStore.apiKey,
+                    apikey: userStore.apiKey,
                 }
             });
             retryCount++;
@@ -58,30 +58,31 @@ export const useRatingStore = defineStore("rating", () => {
     }
 
     async function baseSubmitRating(currentRating: RatePostInput, id: string) {
-        const optionsStore = useOptionsStore();
+        const userStore = useUserStore();
         const response = await fetch("https://ratings.aihorde.net/api/v1/rating/"+id, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
                 "Client-Agent": "AAAIUI:1.0:Discord Sgt. Chaos#0812",
-                apikey: optionsStore.apiKey,
+                apikey: userStore.apiKey,
             },
             body: JSON.stringify(currentRating),
         });
         const json: RatePostResponse = await response.json();
         if (!validateResponse(response, json, 201, "Failed to submit rating", onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
-        if (optionsStore.apiKey !== '0000000000' && optionsStore.apiKey !== '') kudosEarned.value = (kudosEarned.value || 0) + (json.reward || 5);
+        await userStore.addNewRating();
+        if (userStore.apiKey !== '0000000000' && userStore.apiKey !== '') kudosEarned.value = (kudosEarned.value || 0) + (json.reward || 5);
     }
 
     async function submitRatingHorde(currentRating: AestheticRating, jobId: string) {
-        const optionsStore = useOptionsStore();
+        const userStore = useUserStore();
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/rate/`+jobId, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
                 "Client-Agent": "AAAIUI:1.0:Discord Sgt. Chaos#0812",
-                apikey: optionsStore.apiKey,
+                apikey: userStore.apiKey,
             },
             body: JSON.stringify({
                 ratings: [currentRating]
@@ -90,7 +91,8 @@ export const useRatingStore = defineStore("rating", () => {
         const json: GenerationSubmitted = await response.json();
         if (!validateResponse(response, json, 200, "Failed to submit rating", onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
-        if (optionsStore.apiKey !== '0000000000' && optionsStore.apiKey !== '') kudosEarned.value = (kudosEarned.value || 0) + (json.reward || 5);
+        await userStore.addNewRating();
+        if (userStore.apiKey !== '0000000000' && userStore.apiKey !== '') kudosEarned.value = (kudosEarned.value || 0) + (json.reward || 5);
     }
 
     async function updateRatingInfo() {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRatingStore } from '@/stores/rating';
-import { useOptionsStore } from '@/stores/options';
+import { useUserStore } from "@/stores/user";
 import RatingView from '../components/RatingView.vue';
 import BaseLink from '../components/BaseLink.vue';
 import {
@@ -10,14 +10,11 @@ import {
 
 
 const ratingStore = useRatingStore();
-const optionsStore = useOptionsStore();
-
+const userStore = useUserStore();
 
 const ratingCycle = ref(0);
 
 window.addEventListener('keyup', (event) => {
-
-    console.log(event.key);
 
     let rating = 0;
     if (event.key == "1") {
@@ -49,26 +46,25 @@ window.addEventListener('keyup', (event) => {
     if (ratingCycle.value == 0) {
         ratingStore.currentRealRating.rating = rating;
         ratingCycle.value++;
-        console.log("Rating: ", rating);
     } else if (ratingCycle.value == 1) {
         ratingStore.currentRealRating.artifacts = rating;
         ratingCycle.value++;
-        console.log("Artifacts: ", rating);
     } else if (rating == -1 && ratingCycle.value > 1) {
-        console.log("Submit");
         ratingStore.submitRating(ratingStore.currentRealRating, ratingStore.currentRatingInfo.id || "");
         ratingCycle.value = 0;
         ratingStore.currentRealRating = ratingStore.getDefaultRatings();
     }
 });
 
+userStore.updateRatingCount();
+
 </script>
 
 <template>
     <h1 style="margin: 0">Image Rating</h1>
     <div>Rate images based on aesthetics to gain kudos and help <BaseLink href="https://laion.ai/">LAION</BaseLink> - the non-profit who helped train Stable Diffusion - improve their datasets!</div>
-    <div v-if="optionsStore.apiKey === '0000000000' || optionsStore.apiKey === ''">You have rated a total of <strong>{{ ratingStore.imagesRated }}</strong> images! <BaseLink router href="/options">Sign in</BaseLink> using your API key to start earning kudos.</div>
-    <div v-else>From rating a total of <strong>{{ ratingStore.imagesRated }}</strong> images, you have gained <strong>{{ ratingStore.kudosEarned }}</strong> kudos!</div>
+    <div v-if="userStore.apiKey === '0000000000' || userStore.apiKey === ''">You have rated a total of <strong>{{ ratingStore.imagesRated }}</strong> images! <BaseLink router href="/options">Sign in</BaseLink> using your API key to start earning kudos.</div>
+    <div v-else>From rating a total of <strong>{{ userStore.ratingCount }}</strong> images, you have gained <strong>{{ ratingStore.kudosEarned }}</strong> kudos!</div>
     <el-button
         @click="() => ratingStore.updateRatingInfo()"
         v-if="!ratingStore.currentRatingInfo.id"

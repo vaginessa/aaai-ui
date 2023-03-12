@@ -5,11 +5,13 @@ import GeneratedCarousel from '../components/GeneratedCarousel.vue';
 import { useUIStore } from '@/stores/ui';
 import { useGeneratorStore } from '@/stores/generator';
 import { useOptionsStore } from '@/stores/options';
+import { useUserStore } from "@/stores/user";
 import { ElButton, ElCard, ElRow, ElCol } from 'element-plus';
 import FormPun from '../components/FormPuns.vue';
 const uiStore = useUIStore();
 const store = useGeneratorStore();
 const optionsStore = useOptionsStore();
+const userStore = useUserStore();
 </script>
 
 <template>
@@ -27,7 +29,7 @@ const optionsStore = useOptionsStore();
                 >
                     Generate 
                     (<span>
-                        <span v-if="optionsStore.apiKey !== '0000000000' && optionsStore.apiKey !== ''">
+                        <span v-if="userStore.apiKey !== '0000000000' && userStore.apiKey !== ''">
                             {{ optionsStore.allowLargerParams === 'Enabled' ? store.canGenerate ? '✅ ' : '❌ ' : '' }}
                             {{ store.kudosCost.toFixed(2) }} kudos{{ store.canGenerate ? '' : ' required' }}
                             for

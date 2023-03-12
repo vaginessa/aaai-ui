@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from 'vue';
 import { useOptionsStore } from "./options";
 import { useWorkerStore } from "./workers";
+import { useUserStore } from "./user";
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
 import { POLL_DASHBOARD_INTERVAL, POLL_USERS_INTERVAL, DEBUG_MODE } from "@/constants";
@@ -25,11 +26,11 @@ export const useDashboardStore = defineStore("dashboard", () => {
      * Finds the user based on API key
      * */ 
     async function updateDashboard() {
-        const optionsStore = useOptionsStore();
+        const userStore = useUserStore();
 
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/find_user`, {
             headers: {
-                apikey: optionsStore.apiKey
+                apikey: userStore.apiKey
             }
         });
         const resJSON: UserDetailsStable = await response.json();
@@ -38,7 +39,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
         getHordePerformance();
         getNews();
         
-        if (optionsStore.apiKey === '0000000000' || optionsStore.apiKey === '') return;
+        if (userStore.apiKey === '0000000000' || userStore.apiKey === '') return;
         getAllUserWorkers();
     }
 
@@ -46,7 +47,6 @@ export const useDashboardStore = defineStore("dashboard", () => {
      * Finds the user's stale workers
      * */ 
     async function getStaleWorker(workerID: string) {
-        const optionsStore = useOptionsStore();
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers/${workerID}`);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to find user by API key")) return false;

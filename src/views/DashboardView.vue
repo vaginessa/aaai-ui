@@ -16,8 +16,8 @@ import DataLabel from '../components/DataLabel.vue'
 import WorkerEditor from '../components/WorkerEditor.vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { computed } from 'vue';
-import { useOptionsStore } from '@/stores/options';
 import { useDashboardStore } from '@/stores/dashboard';
+import { useUserStore } from '@/stores/user';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 
@@ -25,7 +25,7 @@ const breakLabels = breakpoints.smallerOrEqual('xl');
 const breakLabelsMore = breakpoints.smallerOrEqual('lg');
 
 const dashStore = useDashboardStore();
-const optionsStore = useOptionsStore();
+const userStore = useUserStore();
 
 // Max: 24 for each col
 const spanLabels = computed(() => breakLabels.value ? breakLabelsMore.value ? 20 : 10 : 5);
@@ -37,7 +37,7 @@ const sortChange = function(column: any) {
     dashStore.updateLeaderboard();
 }
 
-const signedIn = computed(() => optionsStore.apiKey != '0000000000' && optionsStore.apiKey != '');
+const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.apiKey != '');
 </script>
 
 <template>

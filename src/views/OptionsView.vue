@@ -15,7 +15,7 @@ import {
     Download
 } from '@element-plus/icons-vue';
 import { useOptionsStore } from '@/stores/options';
-import { useWorkerStore } from '@/stores/workers';
+import { useUserStore } from '@/stores/user';
 import type { BasicColorSchema } from '@vueuse/core';
 import FormSlider from '../components/FormSlider.vue';
 import FormSelect from '../components/FormSelect.vue';
@@ -28,7 +28,7 @@ import FormWorkerSelect from '../components/FormWorkerSelect.vue';
 
 const store = useOptionsStore();
 const outputsStore = useOutputStore();
-const workerStore = useWorkerStore();
+const userStore = useUserStore();
 
 interface ColorModeOption {
     value: BasicColorSchema;
@@ -82,21 +82,22 @@ async function bulkDownload() {
                 <h2>Generation Options</h2>
                 <el-form-item label="API Key" prop="apiKey">
                     <el-input
-                        v-model="store.apiKey"
+                        v-model="userStore.apiKey"
                         type="password"
                         placeholder="Enter API Key Here"
                         autocomplete="off"
                         class="apikey"
                         show-password
                     />
-                    <el-button class="anon" @click="store.useAnon()">Anon?</el-button>
+                    <el-button class="anon" @click="userStore.setAnon()">Anon?</el-button>
+                    <div v-if="userStore.userId !== '0'"><small style="color: var(--el-text-color-regular);">User ID: <strong>{{userStore.userId}}</strong></small></div>
                 </el-form-item>
-                <form-radio label="Larger Values" prop="allowLargerParams" v-model="store.allowLargerParams" :options="['Enabled', 'Disabled']" info="Allows use of larger step values and dimension sizes if you have the kudos on hand." :disabled="store.apiKey === '0000000000' || store.apiKey === ''" />
+                <form-radio label="Larger Values" prop="allowLargerParams" v-model="store.allowLargerParams" :options="['Enabled', 'Disabled']" info="Allows use of larger step values and dimension sizes if you have the kudos on hand." :disabled="userStore.apiKey === '0000000000' || userStore.apiKey === ''" />
                 
                 <form-radio label="Worker List Mode" prop="workerListMode" v-model="store.workerListMode" :options="['Whitelist', 'Blacklist']" info="When whitelist mode is selected, only the workers listed below will be able to take your jobs. When blacklist is selected, all workers, except the ones on the list will be eligible to take your jobs. When the field is empty, all workers are eligible, regardless of what mode is selected. Make sure the model you selected is served by at least one eligible worker or no generation will be possible, and you will be stuck on pending." />
                 <form-worker-select />
 
-                <form-radio  label="Share Generated Images with LAION" prop="shareWithLaion" v-model="store.shareWithLaion" :options="['Enabled', 'Disabled']" info="Automatically and anonymously share images with LAION (the non-profit that created the dataset that was used to train Stable Diffusion) for use in aesthetic training in order to improve future models. See the announcement at https://discord.com/channels/781145214752129095/1020707945694101564/1061980573096226826 for more information. NOTE: This option is automatically enabled for users without a valid API key. " :disabled="store.apiKey === '0000000000' || store.apiKey === ''" />
+                <form-radio  label="Share Generated Images with LAION" prop="shareWithLaion" v-model="store.shareWithLaion" :options="['Enabled', 'Disabled']" info="Automatically and anonymously share images with LAION (the non-profit that created the dataset that was used to train Stable Diffusion) for use in aesthetic training in order to improve future models. See the announcement at https://discord.com/channels/781145214752129095/1020707945694101564/1061980573096226826 for more information. NOTE: This option is automatically enabled for users without a valid API key. " :disabled="userStore.apiKey === '0000000000' || userStore.apiKey === ''" />
             </el-tab-pane>
             <el-tab-pane label="📷 Images">
                 <h2>Image Options</h2>

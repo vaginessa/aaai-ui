@@ -13,7 +13,7 @@ import WorkerBox from './WorkerBox.vue';
 import FormSelect from './FormSelect.vue';
 import type { WorkerDetailsStable } from "@/types/stable_horde";
 import { useWorkerStore } from "@/stores/workers";
-import { useOptionsStore } from "@/stores/options";
+import { useUserStore } from "@/stores/user";
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
 
@@ -23,7 +23,7 @@ const props = defineProps<{
 }>();
 
 const workerStore = useWorkerStore();
-const optionsStore = useOptionsStore();
+const userStore = useUserStore();
 
 async function updateWorkerOptions() {
     const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers/${props.worker?.id}`, {
@@ -31,7 +31,7 @@ async function updateWorkerOptions() {
         body: JSON.stringify(workerOptionsChange.value),
         headers: {
             "Content-Type": "application/json",
-            apikey: optionsStore.apiKey
+            apikey: userStore.apiKey
         }
     });
     const resJSON = await response.json();
@@ -67,7 +67,7 @@ function deleteWorker() {
             const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers/${props.worker?.id}`, {
                 method: "DELETE",
                 headers: {
-                    apikey: optionsStore.apiKey
+                    apikey: userStore.apiKey
                 }
             });
             const resJSON = await response.json();

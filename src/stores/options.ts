@@ -64,15 +64,6 @@ export const useOptionsStore = defineStore("options", () => {
         initialValue: options.value.colorMode
     }) as any
 
-    const apiKey = useLocalStorage("apikey", "0000000000");
-
-    /**
-     * Make your API key anonymous (0000000000)
-     * */
-    function useAnon() {
-        apiKey.value = "0000000000";
-    }
-
     function isWorkerWhitelisted(worker: WorkerDetailsStable) {
         return !useWorkers.value.find(element => worker.id == element)
     }
@@ -90,7 +81,6 @@ export const useOptionsStore = defineStore("options", () => {
         options,
         pageSize,
         pageless,
-        apiKey,
         allowLargerParams,
         autoCarousel,
         zipMetaData,
@@ -102,7 +92,6 @@ export const useOptionsStore = defineStore("options", () => {
         // Computed
         getWokersToUse,
         // Actions
-        useAnon,
         isWorkerWhitelisted,
         getListMode,
         addWorkerToSelection

@@ -2,7 +2,7 @@ import type { RequestInterrogationResponse, ModelInterrogationInputStable, Inter
 import { validateResponse } from "@/utils/validate";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { useOptionsStore } from "./options";
+import { useUserStore } from "./user";
 import { useUIStore } from "./ui";
 import { BASE_URL_STABLE } from "@/constants";
 
@@ -32,7 +32,7 @@ export const useInterrogationStore = defineStore("interrogate", () => {
     }
 
     async function interrogateImage() {
-        const optionsStore = useOptionsStore();
+        const userStore = useUserStore();
         const { source_image } = currentInterrogation.value;
         const forms = selectedForms.value;
         if (!source_image) return onError("Failed to get interrogation ID: No image supplied.");
@@ -42,7 +42,7 @@ export const useInterrogationStore = defineStore("interrogate", () => {
             headers: {
                 'Content-Type': 'application/json',
                 "Client-Agent": "AAAIUI:1.0:Discord Sgt. Chaos#0812",
-                apikey: optionsStore.apiKey,
+                apikey: userStore.apiKey,
             },
             body: JSON.stringify(<ModelInterrogationInputStable>{
                 source_image: source_image.split(",")[1],
@@ -71,7 +71,6 @@ export const useInterrogationStore = defineStore("interrogate", () => {
     }
 
     async function getInterrogationStatus() {
-        const optionsStore = useOptionsStore();
         interrogating.value = true;
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/interrogate/status/${currentInterrogation.value.id}`, {
             headers: {

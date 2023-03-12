@@ -4,8 +4,8 @@ import type { ModelGenerationInputStable, GenerationStable, RequestAsync, Genera
 import { useOutputStore, type ImageData } from "./outputs";
 import { useUIStore } from "./ui";
 import { useOptionsStore } from "./options";
+import { useUserStore } from "./user";
 import router from "@/router";
-import { fabric } from "fabric";
 import { useCanvasStore } from "./canvas";
 import { useDashboardStore } from "./dashboard";
 import { useLocalStorage } from "@vueuse/core";
@@ -669,12 +669,12 @@ export const useGeneratorStore = defineStore("generator", () => {
      */
     async function fetchNewID(parameters: GenerationInput) {
         if (DEBUG_MODE) console.log("New Generation: ", parameters)
-        const optionsStore = useOptionsStore();
+        const userStore = useUserStore();
         const response: Response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/async`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'apikey': optionsStore.apiKey,
+                'apikey': userStore.apiKey,
             },
             body: JSON.stringify(parameters)
         })
@@ -689,6 +689,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     async function processImages(finalImages: (GenerationStable & ICurrentGeneration)[]) {
         const store = useOutputStore();
         const optionsStore = useOptionsStore();
+        const userStore = useUserStore();
         const finalParams: ImageData[] = await Promise.all(
             finalImages.map(async (image) => {
                 let { img } = image;
@@ -706,7 +707,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                     jobId: image.jobId,
                     image: `data:image/webp;base64,${img}`,
                     hordeImageId: image.id,
-                    sharedExternally: optionsStore.shareWithLaion === "Enabled" || optionsStore.apiKey === '0000000000',
+                    sharedExternally: optionsStore.shareWithLaion === "Enabled" || userStore.apiKey === '0000000000',
                     prompt: image.prompt,
                     modelName: image.model,
                     workerID: image.worker_id,
