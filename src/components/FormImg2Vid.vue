@@ -7,7 +7,6 @@ import FormSeed from '../components/FormSeed.vue';
 import FormSlider from '../components/FormSlider.vue';
 import FormPun from '../components/FormPuns.vue';
 import FormModelSelect from '../components/FormModelSelect.vue';
-import OpenPlayerJS from "openplayerjs";
 
 const store = useVideoGeneratorStore();
 
@@ -94,7 +93,7 @@ function getAspectRatio(isWidth: boolean) {
                         show vid
                     </div>                           
                     <div v-if="store.generating" style="text-align: center;">
-                        <el-progress
+                        <!--el-progress
                             type="circle"
                             :percentage="uiStore.progress / (pendingRequests.length + 1)"
                             :width="200"
@@ -102,19 +101,19 @@ function getAspectRatio(isWidth: boolean) {
                             <template #default>
                                 <span>EST: {{ Math.round((store.queueStatus?.wait_time as number) * (pendingRequests.length + 1)) }}s</span><br>
                             </template>
-                        </el-progress>
-                        <div style="font-size: 15px; padding: 8px; margin-top: 10px; background-color: var(--el-color-info-light-9); border-radius: 5px">
+                        </el-progress-->
+                        <!--div style="font-size: 15px; padding: 8px; margin-top: 10px; background-color: var(--el-color-info-light-9); border-radius: 5px">
                             <div style="font-size: 18px">Generation Status</div>
                             <span>Pending: {{ (store.queueStatus.waiting || 0) + pendingRequests.map(el => el?.params?.n || 0).reduce((curr, next) => curr + next, 0) }} - </span>
                             <span>Processing: {{ store.queueStatus.processing }} - </span>
                             <span>Finished: {{ store.queueStatus.finished }} - </span>
                             <span>Restarted: {{ store.queueStatus.restarted }}</span>
                             <div>Queue Position: {{ store.queueStatus.queue_position }}</div>
-                        </div>
-                        <div @click="uiStore.showGeneratedImages = true" v-if="store.images.length != 0" class="view-images">
+                        </div-->
+                        <!--div @click="uiStore.showGeneratedImages = true" v-if="store.images.length != 0" class="view-images">
                             <span>View {{ store.gatheredImages }} / {{ store.queue.map(el => el.params?.n || 0).reduce((curr, next) => curr + next, 0) }} images</span>
                             <el-icon><Right /></el-icon>
-                        </div>
+                        </div-->
                     </div>
                 </el-card> 
             </div>
