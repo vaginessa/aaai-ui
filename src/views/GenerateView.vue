@@ -22,11 +22,14 @@ import { useUIStore } from '@/stores/ui';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import handleUrlParams from "@/router/handleUrlParams";
 import { DEBUG_MODE, dots } from "@/constants";
+import { useRatingStore } from '@/stores/rating';
+import { useUserStore } from '@/stores/user';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
 
 const store = useGeneratorStore();
+const userStore = useUserStore();
 const uiStore = useUIStore();
 
 function disableBadge() {
@@ -52,6 +55,7 @@ onUnmounted(() => {
 
 disableBadge();
 handleUrlParams();
+userStore.updateUserId();
 </script>
 
 <template>

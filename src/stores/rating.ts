@@ -13,7 +13,6 @@ export const useRatingStore = defineStore("rating", () => {
     const currentRatingInfo = ref<DatasetImagePopResponse>({});
     const pendingRatingInfo = ref<DatasetImagePopResponse>({});
     const imagesRated = useLocalStorage<number>("ratedImages", 0);
-    const kudosEarned = useLocalStorage<number>("ratedImagesKudos", 0);
     const submitted = ref(false);
 
     async function onInvalidResponse(msg: string) {
@@ -71,8 +70,7 @@ export const useRatingStore = defineStore("rating", () => {
         const json: RatePostResponse = await response.json();
         if (!validateResponse(response, json, 201, "Failed to submit rating", onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
-        await userStore.addNewRating();
-        if (userStore.apiKey !== '0000000000' && userStore.apiKey !== '') kudosEarned.value = (kudosEarned.value || 0) + (json.reward || 5);
+        await userStore.addNewRating(json.reward);
     }
 
     async function submitRatingHorde(currentRating: AestheticRating, jobId: string) {
@@ -91,8 +89,7 @@ export const useRatingStore = defineStore("rating", () => {
         const json: GenerationSubmitted = await response.json();
         if (!validateResponse(response, json, 200, "Failed to submit rating", onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
-        await userStore.addNewRating();
-        if (userStore.apiKey !== '0000000000' && userStore.apiKey !== '') kudosEarned.value = (kudosEarned.value || 0) + (json.reward || 5);
+        await userStore.addNewRating(json.reward);
     }
 
     async function updateRatingInfo() {
@@ -126,7 +123,6 @@ export const useRatingStore = defineStore("rating", () => {
         currentRealRating,
         currentRatingInfo,
         imagesRated,
-        kudosEarned,
         submitted,
         // Actions
         getDefaultRatings,

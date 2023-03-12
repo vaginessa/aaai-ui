@@ -64,7 +64,7 @@ userStore.updateRatingCount();
     <h1 style="margin: 0">Image Rating</h1>
     <div>Rate images based on aesthetics to gain kudos and help <BaseLink href="https://laion.ai/">LAION</BaseLink> - the non-profit who helped train Stable Diffusion - improve their datasets!</div>
     <div v-if="userStore.apiKey === '0000000000' || userStore.apiKey === ''">You have rated a total of <strong>{{ ratingStore.imagesRated }}</strong> images! <BaseLink router href="/options">Sign in</BaseLink> using your API key to start earning kudos.</div>
-    <div v-else>From rating a total of <strong>{{ userStore.ratingCount }}</strong> images, you have gained <strong>{{ ratingStore.kudosEarned }}</strong> kudos!</div>
+    <div v-else>From rating a total of <strong>{{ userStore.ratingCount }}</strong> images, you have gained <strong>{{ userStore.ratingKudos }}</strong> kudos!</div>
     <el-button
         @click="() => ratingStore.updateRatingInfo()"
         v-if="!ratingStore.currentRatingInfo.id"

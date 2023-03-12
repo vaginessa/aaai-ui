@@ -8,18 +8,23 @@ export const useUserStore = defineStore("user", () => {
     const apiKey = useLocalStorage("apikey", "0000000000");
 
     const ratingCount = ref(0);
+    const ratingKudos = ref(0);
 
-    watch(apiKey, async (apiKey) => {
-        if (apiKey == "0000000000" ||  apiKey == "" || apiKey.length < 8) 
+    watch(apiKey, async () => {
+        updateUserId();
+    });
+
+    async function updateUserId() {
+        if (apiKey.value == "0000000000" ||  apiKey.value == "" || apiKey.value.length < 8) 
             userId.value = "0";
         else {
-            let userSecret = cyrb53(apiKey, 8566321);
+            let userSecret = cyrb53(apiKey.value, 8566321);
             const url = `https://api.artificial-art.eu/user/enroll?secret=${userSecret}`;
             const response = await fetch(url);
             const resJSON = await response.json();
             userId.value = resJSON['user_id'];
         }
-    });
+    }
 
     watch(userId, async () => {
         updateRatingCount();
@@ -33,15 +38,16 @@ export const useUserStore = defineStore("user", () => {
             const response = await fetch(url);
             const resJSON = await response.json();
             ratingCount.value = resJSON['rating_count'];
+            ratingKudos.value = resJSON['rating_kudos'];
         }
     }
 
-    async function addNewRating() {
-        console.log("addNewRating: ",ratingCount.value);
-        const url = `https://api.artificial-art.eu/rating/add?uid=${userId.value}`;
+    async function addNewRating(kudos:number) {
+        const url = `https://api.artificial-art.eu/rating/add?uid=${userId.value}&kudos=${kudos}`;
         const response = await fetch(url);
         const resJSON = await response.json();
         ratingCount.value = resJSON['rating_count'];
+        ratingKudos.value = resJSON['rating_kudos'];
     }
     
     function setAnon() {
@@ -65,9 +71,11 @@ export const useUserStore = defineStore("user", () => {
         apiKey,
         userId,
         ratingCount,
+        ratingKudos,
 
         setAnon,
         addNewRating,
+        updateUserId,
         updateRatingCount,
     }
 });
