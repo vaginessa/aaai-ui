@@ -80,32 +80,6 @@ export function loadURL(url: string) {
     return binaryDataP.then((binaryData) => {
         if (binaryData === undefined) return;
         return imageJsDecode(binaryData);
-
-        imageType(binaryData).then((type) => {
-            console.log(type);
-            switch (type?.mime) {
-                case 'image/png':
-                return decodePng(binaryData);
-                case 'image/jpeg':
-                return decodeJpeg(binaryData);
-                case 'image/tiff':
-                return decodeTiff(binaryData);
-                default:
-                throw new Error('unrecognized data format');
-            }
-        });
-
-        /*
-        if (imgType === "image/jpeg") {
-            return decodeJpeg(binaryData);
-            let imgType = "";
-            imgType = "image/jpeg";
-            let data = convertB64ToDataType(url, imgType);
-            let newDataUrl = data.slice(data.slice(0, 64)[0].length);
-            console.log(imgType);
-        }
-*/
-        //return imageJsDecode(uint8);
     });
 }
 
