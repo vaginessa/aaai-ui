@@ -1,5 +1,4 @@
 import { decode as imageJsDecode, decodeJpeg, decodePng, decodeTiff } from "image-js";
-import imageType from "image-type";
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -73,18 +72,19 @@ export function loadURL(url: string) {
     let dataURL = workUrl.slice(0, 64).match(isDataURL);
     let binaryDataP;
     if (dataURL !== null) {
-        binaryDataP = Promise.resolve<Uint8Array | undefined>(decode(workUrl.slice(dataURL[0].length)));
+        binaryDataP = Promise.resolve(decode(workUrl.slice(dataURL[0].length)));
     } else {
-        binaryDataP = Promise.resolve<Uint8Array | undefined>(fetchBinary(url))
+        binaryDataP = Promise.resolve(fetchBinary(url))
     }
     return binaryDataP.then((binaryData) => {
         if (binaryData === undefined) return;
-        return imageJsDecode(binaryData);
+        const uint8 = new Uint8Array(binaryData);
+        return imageJsDecode(uint8);
     });
 }
 
 export function fetchBinary(url: string, { withCredentials = false } = {}) {
-    return new Promise<Uint8Array | undefined>(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         let xhr = new self.XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
@@ -92,10 +92,7 @@ export function fetchBinary(url: string, { withCredentials = false } = {}) {
 
         xhr.onload = function (e) {
             if (this.status !== 200) reject(undefined);
-            else {
-                //let type = this.getResponseHeader('Content-Type');
-                resolve(this.response);
-            }
+            else resolve(this.response);
         };
         xhr.onerror = reject;
         xhr.send();
