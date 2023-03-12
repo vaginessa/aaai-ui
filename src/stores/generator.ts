@@ -269,7 +269,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         (params.value.post_processing || []).forEach( el => {
             kudos = Math.round((kudos * 1.2) * 100) / 100;
         });
-        if(params.value.control_type !== "none")
+        if(generatorType.value === "Img2Img" && params.value.control_type !== "none")
             kudos = Math.round((kudos * 3) * 100) / 100;
         kudos += countParentheses();
         kudos = recordUsage(kudos);
@@ -305,7 +305,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     }
 
     function getAccurateSteps() {
-        const { sourceImage, maskImage, sourceProcessing } = getImageProps(generatorType.value);
+        const { sourceImage, sourceProcessing } = getImageProps(generatorType.value);
         if((params.value.sampler_name || "k_euler_a") == "k_dpm_adaptive") {
             return 50;
         }
