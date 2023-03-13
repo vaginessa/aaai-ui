@@ -1,8 +1,7 @@
 import type { ImageData } from '@/stores/outputs'
 import { ElMessage } from 'element-plus';
 import JSZip from 'jszip';
-import { read, encodePng, encodeJpeg, Image } from 'image-js';
-import { toBase64URL, encode as encodeWebp, loadURL as base64Image, convertBase64ToBlob} from "../utils/base64"
+import { convertBase64ToBlob} from "../utils/base64"
 import { useOptionsStore } from '@/stores/options';
 
 export async function downloadMultipleWebp(outputs: ImageData[]) {

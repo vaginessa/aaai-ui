@@ -127,7 +127,6 @@ async function bulkDownload() {
             <el-tab-pane label="⚙️ General">
                 <h2>General Options</h2>
                 <form-select label="Color Scheme" prop="colorScheme" v-model="store.options.colorMode" :options="options" />
-                <form-radio  label="Allow anonymous data collection" prop="pageless" v-model="store.pageless" :options="['Enabled', 'Disabled']" info="What Data could you possible collect? Easy, we collect only a generate button press and the type of request (txt2img, img2img ...). It is totally anonymously and is only to display the usage statistics in the dashboard."/>
             </el-tab-pane>
         </el-tabs>
     </el-form>

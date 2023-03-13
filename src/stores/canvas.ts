@@ -2,9 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useGeneratorStore } from "./generator";
 import { fabric } from "fabric";
-import { Image, encode } from "image-js";
+import { Mask as Image, encode } from "image-js";
 import { loadURL as base64Image, toBase64URL } from "../utils/base64"
-import { InterpolationType } from "image-js/lib/utils/interpolatePixel";
 
 export const useCanvasStore = defineStore("canvas", () => {
 
@@ -432,7 +431,7 @@ export const useCanvasStore = defineStore("canvas", () => {
             workingImage.value = finalImage2.resize({
                 width: (gSotre.params.width || 1), 
                 height: (gSotre.params.height || 1), 
-                interpolationType: InterpolationType.BILINEAR
+                interpolationType: "BILINEAR"
             });
             let b64s = await toBase64URL(encode(workingImage.value), "image/webp");
             workingBase64.value = b64s;
