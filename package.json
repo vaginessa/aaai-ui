@@ -2,6 +2,8 @@
   "name": "stable-viewer",
   "version": "0.0.0",
   "scripts": {
+    "clean": "npm clean-install",
+    "clean-build": "npm clean-install && run-p type-check build-only",
     "dev": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview --port 4173",
