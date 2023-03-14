@@ -30,27 +30,22 @@ const store = useOptionsStore();
 const outputsStore = useOutputStore();
 const userStore = useUserStore();
 
-interface ColorModeOption {
-    value: BasicColorSchema;
-    label: string;
-}
-
-const options: ColorModeOption[] = [
+const options = [
     {
         value: 'dark',
         label: 'Dark',
     }, {
         value: 'light',
         label: 'Light',
-    }/*, {
-        value: 'contrast',
-        label: 'Contrast',
     }, {
-        value: 'cafe',
-        label: 'Zelda',
-    }*/, {
-        value: 'auto',
-        label: 'Auto',
+        value: 'orange',
+        label: 'Orange',
+    }, {
+        value: 'purple',
+        label: 'Purple',
+    }, {
+        value: 'green',
+        label: 'Green',
     }
 ]
 
@@ -68,13 +63,12 @@ async function bulkDownload() {
     const selectedOutputs = await db.outputs.toArray();
     downloadMultipleWebp((selectedOutputs.filter(el => el != undefined) as ImageData[]))
 }
-</script>
 
+</script>
 <template>
     <h1>Options</h1>
     <el-form
         label-position="top"
-        :model="store.options"
         @submit.prevent
     >
         <el-tabs type="border-card" style="min-height: 50vh;">
@@ -126,7 +120,7 @@ async function bulkDownload() {
             </el-tab-pane>
             <el-tab-pane label="⚙️ General">
                 <h2>General Options</h2>
-                <form-select label="Color Scheme" prop="colorScheme" v-model="store.options.colorMode" :options="options" />
+                <form-select label="Color Mode:" prop="colorMode" v-model="store.colorMode" :options="options" />
             </el-tab-pane>
         </el-tabs>
     </el-form>

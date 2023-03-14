@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { useColorMode, useLocalStorage } from '@vueuse/core'
-import { ref, computed } from 'vue';
+import { useLocalStorage } from '@vueuse/core'
+import { ref, computed, watch, onMounted } from 'vue';
 import { useWorkerStore } from '@/stores/workers';
 import type { WorkerDetailsStable } from "@/types/stable_horde";
 
@@ -10,14 +10,6 @@ type IModeToggle = "Whitelist" | "Blacklist";
 type IPictureType = "WEBP" | "PNG" | "JPG";
 
 export const useOptionsStore = defineStore("options", () => {
-    const options = useLocalStorage("options", ref({
-        colorMode: useColorMode({
-            emitAuto: true,
-            modes: {
-              //contrast: 'dark contrast',
-            },
-        })
-    }));
     const pageSize = useLocalStorage("pageSize", 25);
     const pageless = useLocalStorage<IToggle>("pageless", "Disabled");
     const allowLargerParams = useLocalStorage<IToggle>("allowLargerParams", "Disabled");
@@ -55,15 +47,6 @@ export const useOptionsStore = defineStore("options", () => {
         return allowedWorkers;
     });
 
-    // A janky way to fix using color modes
-    options.value.colorMode = useColorMode({
-        emitAuto: true,
-        modes: {
-          //contrast: 'dark contrast',
-        },
-        initialValue: options.value.colorMode
-    }) as any
-
     function isWorkerWhitelisted(worker: WorkerDetailsStable) {
         return !useWorkers.value.find(element => worker.id == element)
     }
@@ -75,10 +58,31 @@ export const useOptionsStore = defineStore("options", () => {
     function addWorkerToSelection(worker: WorkerDetailsStable) {
         useWorkers.value.push(worker.id as string);
     }
+    
+    const colorMode = useLocalStorage("selectedColorMode", "dark");
+    const lastColorMode = ref("");
+
+    onMounted(refreshColorMode);
+
+    function refreshColorMode()
+    {
+        if(lastColorMode.value == colorMode.value)
+            return;
+
+        if(lastColorMode.value != "") 
+            document.documentElement.classList.remove(lastColorMode.value);
+
+        document.documentElement.classList.add(colorMode.value);
+        lastColorMode.value = colorMode.value;
+    }
+
+    watch(colorMode, () => {
+        refreshColorMode()
+    });
 
     return {
         // Variables
-        options,
+        colorMode,
         pageSize,
         pageless,
         allowLargerParams,

@@ -7,6 +7,10 @@ import router from "./router";
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import "./assets/main.css";
 
+import "./assets/purple.css";
+import "./assets/green.css";
+import "./assets/orange.css";
+
 const app = createApp(App);
 
 app.use(createPinia());

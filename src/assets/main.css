@@ -85,39 +85,3 @@ body {
     background-color: rgba(163, 166, 173, 0.5);
 }
 
-
-/* ===== Theming ===== */
-html.cafe body {
-    background-color: #9c6b30;
-}
-html.cafe h1{
-    color: #3f2a11;
-}
-html.cafe h2{
-    color: #9b800b;
-}
-html.cafe {
-    color-scheme: dark;
-    --el-color-primary: #553207;
-    --el-color-primary-light-3: #a16c2b;
-    --el-color-primary-light-5: #8f5e22;
-    --el-color-primary-light-7: #694518;
-    --el-color-primary-light-8: #523512;
-    --el-color-primary-light-9: #3f2a11;
-    --el-color-primary-dark-2: #309c47;
-    --el-text-color-regular: #9b800b;
-    --el-text-color-secondary: #351d00;
-    --el-text-color-placeholder: #9b800b;
-    --el-bg-color-overlay: #3f2a11;
-    --el-border-color: #694518;
-    --el-fill-color-blank: #523512;
-    --el-border-color-extra-light: #664823;
-    --el-button-disabled-border-color: #6d5b09;
-    --el-fill-color: #301d05;
-    --el-fill-color-light: #694518;
-    --el-border-color-light: #9c6b30;
-    --el-menu-text-color: #c57d25;
-}
-html.cafe .el-radio-button{
-    --el-radio-button-checked-text-color: #d6af00;
-}
