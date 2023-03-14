@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "clean": "npm clean-install",
-    "clean-build": "npm clean-install && run-p type-check build-only",
+    "clean-build": "npm clean-install && vite build",
     "dev": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview --port 4173",
