@@ -69,9 +69,14 @@ export const useOptionsStore = defineStore("options", () => {
         if(lastColorMode.value == colorMode.value)
             return;
 
-        if(lastColorMode.value != "") 
+        if(lastColorMode.value != "") {
+            if(colorMode.value == 'orange' || colorMode.value == 'green' || colorMode.value == 'purple')
+                document.documentElement.classList.remove("dark");
             document.documentElement.classList.remove(lastColorMode.value);
+        }
 
+        if(colorMode.value == 'orange' || colorMode.value == 'green' || colorMode.value == 'purple')
+            document.documentElement.classList.add("dark");
         document.documentElement.classList.add(colorMode.value);
         lastColorMode.value = colorMode.value;
     }
