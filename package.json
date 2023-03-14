@@ -16,7 +16,7 @@
     "dexie": "^3.2.2",
     "element-plus": "^2.2.17",
     "fabric": "^5.2.4",
-    "image-js": "^0.0.0-next-c85e82d5c8",
+    "image-js": "github:SlayerTO/image-js-typescript",
     "image-type": "^5.2.0",
     "jszip": "^3.10.1",
     "marked": "^4.1.1",

@@ -67,6 +67,10 @@ export const useUserStore = defineStore("user", () => {
         return 4294967296 * (2097151 & h2) + (h1 >>> 0);
       };
 
+      function allowTxt2Vid() {
+        return false;
+      }
+
     return {
         apiKey,
         userId,
@@ -77,5 +81,6 @@ export const useUserStore = defineStore("user", () => {
         addNewRating,
         updateUserId,
         updateRatingCount,
+        allowTxt2Vid,
     }
 });

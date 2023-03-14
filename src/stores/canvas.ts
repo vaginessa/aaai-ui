@@ -2,8 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useGeneratorStore } from "./generator";
 import { fabric } from "fabric";
-import { Mask as Image, encode } from "image-js";
-import { loadURL as base64Image, toBase64URL } from "../utils/base64"
+import { Image, encode } from "image-js";
+import { loadURL as base64Image, toBase64URL } from "../utils/base64";
 
 export const useCanvasStore = defineStore("canvas", () => {
 
