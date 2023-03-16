@@ -1,4 +1,5 @@
-html.purple body {
+html.purple {
+    color-scheme: purple;
     filter: drop-shadow(0 0 10rem #7e5aa3);
     background: #391c58;
     --el-color-primary: #6323a7;
@@ -94,10 +95,35 @@ html.purple i.el-icon.el-tooltip__trigger {
 	color: #a3a0a7; 
 }
 
-html.purple body .el-menu .el-menu-item.is-active .firstIcon{
+html.purple .el-menu .el-menu-item.is-active .firstIcon{
     color: #e840ff;
 }
 
-html.purple body .el-menu .el-menu-item.is-active .secondIcon{
+html.purple .el-menu .el-menu-item.is-active .secondIcon{
     color: #b083e1;
+}
+
+html.purple .el-card {
+    --el-card-border-color: var(--el-border-color-light);
+    --el-card-border-radius: 4px;
+    --el-card-padding: 20px;
+    --el-card-bg-color: #2b1541
+}
+
+html.purple .el-empty {
+    --el-empty-fill-color-0: var(--el-color-black);
+    --el-empty-fill-color-1: #4b4b52;
+    --el-empty-fill-color-2: #36383d;
+    --el-empty-fill-color-3: #1e1e20;
+    --el-empty-fill-color-4: #262629;
+    --el-empty-fill-color-5: #202124;
+    --el-empty-fill-color-6: #212224;
+    --el-empty-fill-color-7: #1b1c1f;
+    --el-empty-fill-color-8: #1c1d1f;
+    --el-empty-fill-color-9: #18181a
+}
+
+html.purple span.el-input-number__decrease,
+html.purple span.el-input-number__increase {
+    border-color: #4C4D4F;
 }

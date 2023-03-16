@@ -1,4 +1,5 @@
-html.orange body {
+html.orange {
+    color-scheme: orange;
     filter: drop-shadow(0 0 10rem #c75305);
     background: #421b00;
     --el-color-primary: #c75305;
@@ -100,4 +101,29 @@ html.orange body .el-menu .el-menu-item.is-active .firstIcon{
 
 html.orange body .el-menu .el-menu-item.is-active .secondIcon{
     color: #c75305;
+}
+
+html.orange body .el-card {
+    --el-card-border-color: var(--el-border-color-light);
+    --el-card-border-radius: 4px;
+    --el-card-padding: 20px;
+    --el-card-bg-color: #291100
+}
+
+html.orange body .el-empty {
+    --el-empty-fill-color-0: var(--el-color-black);
+    --el-empty-fill-color-1: #4b4b52;
+    --el-empty-fill-color-2: #36383d;
+    --el-empty-fill-color-3: #1e1e20;
+    --el-empty-fill-color-4: #262629;
+    --el-empty-fill-color-5: #202124;
+    --el-empty-fill-color-6: #212224;
+    --el-empty-fill-color-7: #1b1c1f;
+    --el-empty-fill-color-8: #1c1d1f;
+    --el-empty-fill-color-9: #18181a
+}
+
+html.orange span.el-input-number__decrease,
+html.orange span.el-input-number__increase {
+    border-color: #4C4D4F;
 }
