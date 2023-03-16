@@ -1,6 +1,5 @@
 html.orange {
     color-scheme: orange;
-    filter: drop-shadow(0 0 10rem #c75305);
     background: #421b00;
     --el-color-primary: #c75305;
     --el-color-primary-light-3: #ed6002;
@@ -87,6 +86,10 @@ html.orange {
     --el-menu-icon-width: 24px;
 }
 
+html.orange body {
+    filter: drop-shadow(0 0 10rem #c75305);
+}
+
 html.orange .el-button:focus, .el-button:hover {
     --el-button-hover-bg-color:  var(--el-color-primary-light-5);
 }
@@ -95,22 +98,22 @@ html.orange i.el-icon.el-tooltip__trigger {
 	color: #a3a0a7; 
 }
 
-html.orange body .el-menu .el-menu-item.is-active .firstIcon{
+html.orange .el-menu .el-menu-item.is-active .firstIcon{
     color: #c75305;
 }
 
-html.orange body .el-menu .el-menu-item.is-active .secondIcon{
+html.orange .el-menu .el-menu-item.is-active .secondIcon{
     color: #c75305;
 }
 
-html.orange body .el-card {
+html.orange .el-card {
     --el-card-border-color: var(--el-border-color-light);
     --el-card-border-radius: 4px;
     --el-card-padding: 20px;
-    --el-card-bg-color: #291100
+    --el-card-bg-color: var(--el-color-info-light-9);;
 }
 
-html.orange body .el-empty {
+html.orange .el-empty {
     --el-empty-fill-color-0: var(--el-color-black);
     --el-empty-fill-color-1: #4b4b52;
     --el-empty-fill-color-2: #36383d;
