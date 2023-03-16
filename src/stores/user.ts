@@ -1,6 +1,7 @@
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { watch, ref } from "vue";
+import { useDashboardStore } from "./dashboard";
 
 export const useUserStore = defineStore("user", () => {
 
@@ -18,7 +19,10 @@ export const useUserStore = defineStore("user", () => {
         if (apiKey.value == "0000000000" ||  apiKey.value == "" || apiKey.value.length < 8) 
             userId.value = "0";
         else {
-            let userSecret = cyrb53(apiKey.value, 8566321);
+            let hordeId = useDashboardStore().user.username?.split('#')[1];
+            if (hordeId == undefined)
+                return;
+            let userSecret = cyrb53(hordeId, 8566321);
             const url = `https://api.artificial-art.eu/user/enroll?secret=${userSecret}`;
             const response = await fetch(url);
             const resJSON = await response.json();
