@@ -45,23 +45,66 @@ const imageDescriptions = [
     'The Best!',
 ]
 
-
 const showImage = ref(false);
 
 function onRatingSubmit() {
-    emit(
-        "onRatingSubmit",
-        {
-            ...ratingStore.currentRealRating,
-            artifacts: 6 - ratingStore.currentRealRating.artifacts,
-        }, 
-        props.id,
-    );
+    
+    let rp:RatePostInput = {
+        rating: ratingStore.currentRealRating.rating,
+        artifacts: 6 - ratingStore.currentRealRating.artifacts,
+    };
+
+    emit("onRatingSubmit",rp,props.id);
     ratingStore.currentRealRating = ratingStore.getDefaultRatings();
     showImage.value = false;
+    ratingCycle.value = 0;
 }
+
 const colors10 = ref({1:'#7B0100', 2:'#EA0001', 4:'#FA9924', 6:'#FEC923', 8:'#92D14F', 10:'#00602B'});
 const colors6 = ref({1:'#7B0100', 2:'#EA0001', 3:'#FA9924', 4:'#FEC923', 5:'#92D14F', 6:'#00602B'});
+
+const ratingCycle = ref(0);
+
+window.addEventListener('keyup', (event) => {
+
+    let rating = 0;
+    if (event.key == "1") {
+        rating = 1;
+    } else if (event.key == "2") {
+        rating = 2;
+    } else if (event.key == "3") {
+        rating = 3;
+    } else if (event.key == "4") {
+        rating = 4;
+    } else if (event.key == "5") {
+        rating = 5;
+    } else if (event.key == "6") {
+        rating = 6;
+    } else if (event.key == "7" && ratingCycle.value == 0) {
+        rating = 7;
+    } else if (event.key == "8" && ratingCycle.value == 0) {
+        rating = 8;
+    } else if (event.key == "9" && ratingCycle.value == 0) {
+        rating = 9;
+    } else if (event.key == "0" && ratingCycle.value == 0) {
+        rating = 10;
+    } else if ((event.key == "Enter" || event.key == " ") && ratingCycle.value > 1) {
+        rating = -1;
+    } else {
+        return;
+    }
+
+    if (ratingCycle.value == 0) {
+        ratingStore.currentRealRating.rating = rating;
+        ratingCycle.value++;
+    } else if (ratingCycle.value == 1) {
+        ratingStore.currentRealRating.artifacts = rating;
+        ratingCycle.value++;
+    } else if (rating == -1 && ratingCycle.value > 1) {
+        onRatingSubmit();
+    }
+});
+
 </script>
 
 <template>
