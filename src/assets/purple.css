@@ -86,7 +86,7 @@ html.purple {
     --el-menu-icon-width: 24px;
 }
 
-html.orange body {
+html.purple #app > div {
     filter: drop-shadow(0 0 10rem #7e5aa3);
 }
 

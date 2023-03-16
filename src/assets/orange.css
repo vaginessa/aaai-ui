@@ -86,7 +86,7 @@ html.orange {
     --el-menu-icon-width: 24px;
 }
 
-html.orange body {
+html.orange #app > div {
     filter: drop-shadow(0 0 10rem #c75305);
 }
 
