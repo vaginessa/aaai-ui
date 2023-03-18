@@ -37,7 +37,7 @@ const sortChange = function(column: any) {
     dashStore.updateLeaderboard();
 }
 
-const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.apiKey != '');
+const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.apiKey != '' && userStore.userId != "0");
 </script>
 
 <template>

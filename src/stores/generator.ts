@@ -230,7 +230,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     });
 
     const minImages = ref(1);
-    const maxImages = ref(50);
+    const maxImages = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 500 : 100);
     const minSteps = ref(1);
     const maxSteps = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 500 : 50);
     const minCfgScale = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? -40 : 1);
@@ -373,7 +373,7 @@ export const useGeneratorStore = defineStore("generator", () => {
             while(!canvasStore.readyToSubmit) {
                 await sleep(200);
                 if(++counter == 10) {
-                    console.log("ERROR: Timed out while waiting for images.")
+                    if (DEBUG_MODE) console.log("ERROR: Timed out while waiting for images.")
                     return;
                 }
             }

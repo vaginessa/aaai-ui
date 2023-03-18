@@ -19,6 +19,7 @@ const props = defineProps<{
     info?: string;
     labelStyle?: string;
     change?: Function;
+    spanWidth?: number;
 }>();
 
 const emit = defineEmits(["update:modelValue"]);
@@ -37,7 +38,7 @@ function onChanged(value: string) {
             </FormLabel>
         </template>
         <el-row style="width: 100%;">
-            <el-col :span="21">
+            <el-col :span="(24 - (spanWidth || 0))">
                 <el-input
                     :model-value="modelValue"
                     :autosize="autosize"
@@ -47,7 +48,7 @@ function onChanged(value: string) {
                     :placeholder="placeholder"
                 ><template #append><slot name="append" /></template></el-input>
             </el-col>
-            <el-col :span="3">
+            <el-col :span="(spanWidth || 0)">
                 <slot name="inline" />
             </el-col>
         </el-row>

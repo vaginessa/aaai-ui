@@ -39,6 +39,15 @@ export class OutputsDexie extends Dexie {
                 output.rated = Number(output.rated);
             });
         });
+        
+        this.version(1).stores({
+            outputs: `++id,starred,rated`,
+        }).upgrade(async tx => {
+            return await tx.table("outputs").toCollection().modify(output => {
+                output.starred = Number(output.starred);
+                output.rated = Number(output.rated);
+            });
+        });
     }
 }
 

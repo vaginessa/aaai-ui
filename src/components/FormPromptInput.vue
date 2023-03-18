@@ -94,7 +94,7 @@ function showNsfwNotification(event: string) {
         </div>
         <div class="clear">&nbsp;</div>
     </div>
-    <form-input :change="showNsfwNotification" prop="prompt" v-model="store.prompt" :autosize="{ minRows: 2 }" resize="vertical" type="textarea" placeholder="Enter prompt here" label-position="top" label-style="justify-content: space-between; width: 100%;">
+    <form-input :change="showNsfwNotification" prop="prompt" :spanWidth=3 v-model="store.prompt" :autosize="{ minRows: 2 }" resize="vertical" type="textarea" placeholder="Enter prompt here" label-position="top" label-style="justify-content: space-between; width: 100%;">
         <template #label>
             <div>Prompt</div>
             <el-tooltip content="Add trigger (dreambooth)" placement="top" v-if="store.selectedModelData?.trigger">
@@ -192,6 +192,7 @@ function showNsfwNotification(event: string) {
         placeholder="Enter negative prompt here"
         info="What to exclude from the image. Not working? Try increasing the guidance."
         label-position="top"
+        :spanWidth=3
     >
         <template #inline>
             <el-tooltip content="Add Negative Prompt" placement="right">

@@ -36,7 +36,7 @@ export const useRatingStore = defineStore("rating", () => {
             if(retryCount > 5) 
             {
                 ElMessage({
-                    message: `Unable to get new Horde Rating Image...`,
+                    message: `Unable to get new Horde rating image...`,
                     type: 'info',
                 })
                 return;
@@ -70,7 +70,7 @@ export const useRatingStore = defineStore("rating", () => {
         const json: RatePostResponse = await response.json();
         if (!validateResponse(response, json, 201, "Failed to submit rating", onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
-        await userStore.addNewRating(json.reward);
+        await userStore.addNewRating(json?.reward || 0);
     }
 
     async function submitRatingHorde(currentRating: AestheticRating, jobId: string) {
@@ -89,7 +89,7 @@ export const useRatingStore = defineStore("rating", () => {
         const json: GenerationSubmitted = await response.json();
         if (!validateResponse(response, json, 200, "Failed to submit rating", onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
-        await userStore.addNewRating(json.reward);
+        await userStore.addNewRating(json.reward || 0);
     }
 
     async function updateRatingInfo() {

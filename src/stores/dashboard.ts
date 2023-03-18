@@ -1,11 +1,8 @@
 import type { UserDetailsStable, HordePerformanceStable, WorkerDetailsStable } from "@/types/stable_horde";
 import { defineStore } from "pinia";
 import { ref } from 'vue';
-import { useOptionsStore } from "./options";
 import { useWorkerStore } from "./workers";
 import { useUserStore } from "./user";
-import sanitizeHtml from 'sanitize-html';
-import { marked } from 'marked';
 import { POLL_DASHBOARD_INTERVAL, POLL_USERS_INTERVAL, DEBUG_MODE } from "@/constants";
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
@@ -34,12 +31,11 @@ export const useDashboardStore = defineStore("dashboard", () => {
             }
         });
         const resJSON: UserDetailsStable = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to find user by API key")) return false;
+        //if (!validateResponse(response, resJSON, 200, "Failed to find user by API key")) return false;
         user.value = resJSON;
         getHordePerformance();
-        getNews();
         
-        if (userStore.apiKey === '0000000000' || userStore.apiKey === '') return;
+        if (userStore.apiKey === '0000000000' || userStore.apiKey === '' || response.status !== 200) return;
         getAllUserWorkers();
     }
 
@@ -73,7 +69,6 @@ export const useDashboardStore = defineStore("dashboard", () => {
     }
 
     async function updateUsers() {
-        const optionsStore = useOptionsStore();
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/users`);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to update leaderboard")) return false;
@@ -82,20 +77,10 @@ export const useDashboardStore = defineStore("dashboard", () => {
     }
 
     async function getHordePerformance() {
-        const optionsStore = useOptionsStore();
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/status/performance`);
         const resJSON = await response.json();
         if (!validateResponse(response, resJSON, 200, "Failed to get server performance")) return false;
         performance.value = resJSON;
-    }
-
-    async function getNews() {
-        const optionsStore = useOptionsStore();
-        const response = await fetch(`${BASE_URL_STABLE}/api/v2/status/news`);
-        const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to get news")) return false;
-        resJSON.forEach((el: any) => el.newspiece = sanitizeHtml(marked.parse(el.newspiece)))
-        news.value = resJSON;
     }
 
     async function updateLeaderboard() {

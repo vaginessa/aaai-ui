@@ -13,7 +13,7 @@ VideoCameraFilled
 import FormRating from '../components/FormRating.vue';
 import FormTxt2Img from '../components/FormTxt2Img.vue';
 import FormImg2Img from '../components/FormImg2Img.vue';
-import FormTxt2Vid from '../components/FormImg2Vid.vue';
+import FormTxt2Vid from '../components/FormTxt2Vid.vue';
 
 import GeneratorMenuItem from '../components/GeneratorMenuItem.vue';
 import StarEdit24Regular from '../components/icons/StarEdit24Regular.vue';
@@ -37,8 +37,6 @@ function disableBadge() {
 }
 
 function onMenuChange(key: any) {
-
-    if (key === "Txt2Vid") return;
     if (key === "Img2Txt") return;
     if (key === "Txt2Txt") return;
 
@@ -55,7 +53,6 @@ onUnmounted(() => {
 
 disableBadge();
 handleUrlParams();
-userStore.updateUserId();
 </script>
 
 <template>
@@ -67,7 +64,7 @@ userStore.updateUserId();
         :class="isMobile ? 'mobile-generator-types' : 'generator-types'"
     >
         <GeneratorMenuItem index="Txt2Img"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" />
-        <!--GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile"/-->
+        <GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" />
         <!--GeneratorMenuItem index="Img2Txt"       :icon-one="PictureFilled"       :icon-two="Comment" :isMobile="isMobile" /-->
         <!--GeneratorMenuItem index="Txt2Txt"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
@@ -76,7 +73,7 @@ userStore.updateUserId();
     <div class="form">
 
         <FormTxt2Img v-if="store.generatorType === 'Txt2Img'" />
-        <!--FormTxt2Vid v-if="store.generatorType === 'Txt2Vid'" /-->
+        <FormTxt2Vid v-if="store.generatorType === 'Txt2Vid'" />
         <FormImg2Img v-if="store.generatorType === 'Img2Img'" />
         <FormRating v-if="store.generatorType === 'Rating'" />
 

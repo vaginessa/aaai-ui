@@ -1,7 +1,8 @@
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
-import { watch, ref } from "vue";
+import { watch, ref, onMounted } from "vue";
 import { useDashboardStore } from "./dashboard";
+import { useVideoGeneratorStore } from "./VideoGenerator";
 
 export const useUserStore = defineStore("user", () => {
 
@@ -11,22 +12,32 @@ export const useUserStore = defineStore("user", () => {
     const ratingCount = ref(0);
     const ratingKudos = ref(0);
 
+    const txt2vid = ref(false);
+
     watch(apiKey, async () => {
         updateUserId();
-    });
+    })
 
     async function updateUserId() {
-        if (apiKey.value == "0000000000" ||  apiKey.value == "" || apiKey.value.length < 8) 
+        if (apiKey.value == "0000000000" ||  apiKey.value == "" || apiKey.value.length < 8) {
             userId.value = "0";
+            txt2vid.value = false;
+        }
         else {
+            await useDashboardStore().updateDashboard();
             let hordeId = useDashboardStore().user.username?.split('#')[1];
-            if (hordeId == undefined)
+            if (hordeId == undefined) {
+                userId.value = "0";
+                txt2vid.value = false;
                 return;
+            }
             let userSecret = cyrb53(hordeId, 8566321);
             const url = `https://api.artificial-art.eu/user/enroll?secret=${userSecret}`;
             const response = await fetch(url);
             const resJSON = await response.json();
             userId.value = resJSON['user_id'];
+            txt2vid.value = resJSON['txt2vid'];
+            useVideoGeneratorStore().updateNetworkHealth();
         }
     }
 
@@ -71,8 +82,10 @@ export const useUserStore = defineStore("user", () => {
         return 4294967296 * (2097151 & h2) + (h1 >>> 0);
       };
 
-      function allowTxt2Vid() {
-        return false;
+      onMounted(updateUserId);
+
+      function videoAllowence() {
+        return txt2vid.value;
       }
 
     return {
@@ -85,6 +98,6 @@ export const useUserStore = defineStore("user", () => {
         addNewRating,
         updateUserId,
         updateRatingCount,
-        allowTxt2Vid,
+        videoAllowence,
     }
 });
