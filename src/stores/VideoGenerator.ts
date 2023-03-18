@@ -87,6 +87,9 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             while (params.value.prompts?.length < params.value.seed?.length) {
                 params.value.prompts?.push(params.value.prompts[params.value.prompts?.length - 1]);
             }
+        }  else if (params.value.prompts?.length == 1 && params.value.seed?.length == 1) {
+            params.value.prompts?.push(params.value.prompts[params.value.prompts?.length - 1]);
+            params.value.seed?.push(params.value.seed[params.value.seed?.length - 1]);
         } 
 
         const Payload = {
