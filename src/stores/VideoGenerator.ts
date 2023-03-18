@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
 import type { FormRules } from "element-plus";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useUserStore } from "./user";
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
+import { useOptionsStore } from "./options";
 
 export type ModelGenerationVideo = {
     prompts?: string[];
@@ -17,6 +18,9 @@ export type ModelGenerationVideo = {
     desired_duration?: number;
     fps?: number;
     cfg_scale?: number;
+    upsampler?: string; //None | RealESRGAN for now
+    interpolate?: string; //None | FilmNet
+    timestointerpolate?: number;
 };
 
 function getDefaultStore() {
@@ -33,6 +37,9 @@ function getDefaultStore() {
         desired_duration: 5,
         fps: 10,
         cfg_scale: 6,
+        upsampler: "None",
+        interpolate: "None",
+        timestointerpolate: 2
     }
 }
 
@@ -51,6 +58,8 @@ const generateFormBaseRules = reactive<FormRules>({
 
 export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
 
+    const optionsStore = useOptionsStore();
+    
     function generateClicked() {
         generateVideo();
     }
@@ -79,6 +88,11 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         if(params.value.prompts === undefined || params.value.seed === undefined)
             return; // Add error handling
 
+        params.value.seed.forEach((seed, index) => {
+            if(seed == undefined || seed as any == '')
+                params.value.seed[index] = genrand_int32();
+        });
+
         if (params.value.prompts?.length > params.value.seed?.length) {
             while (params.value.prompts?.length > params.value.seed?.length) {
                 params.value.seed?.push(params.value.seed[params.value.seed?.length - 1]);
@@ -91,6 +105,8 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             params.value.prompts?.push(params.value.prompts[params.value.prompts?.length - 1]);
             params.value.seed?.push(params.value.seed[params.value.seed?.length - 1]);
         } 
+
+        params.value.upsampler = "None";
 
         const Payload = {
             "Model": AvailableModels.indexOf(params.value.model || "Deliberate"),
@@ -106,6 +122,9 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             "GuidanceScale": params.value.cfg_scale,
             "Steps": params.value.steps,
             "Scheduler": params.value.sampler,
+            "Upsampler": params.value.upsampler,
+            "Interpolate": params.value.interpolate,
+            "TimesToInterpolate": params.value.timestointerpolate
         }
 
         const url = `https://api.artificial-art.eu/video/push`;
@@ -130,7 +149,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                 totalFrames.value = resJSON["total"];
                 currentFrame.value = resJSON["frame"];
                 
-                if(resJSON['queue'] > 0) {
+                if(resJSON['queue'] > 0 && resJSON["total"] == 0 && resJSON["frame"] == 0) {
                     QueuePosition.value = resJSON['queue'];
                     queueStatus.value = `queue position ${resJSON['queue']}`;
                 } else {
@@ -143,7 +162,11 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                         queueStatus.value = "finished";
                         requestRunning = false;
                     } else if(resJSON['generating'] == 1) {
-                        queueStatus.value = "generating";
+                        if (resJSON["total"] == resJSON["frame"]) {
+                            queueStatus.value = "interpolating";
+                        } else {
+                            queueStatus.value = "generating";
+                        }
                     }
                 }
             }
@@ -195,6 +218,13 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         "PNDM"
     ];
 
+    const AvailableInterpolations = [
+        "None",
+        "L1",
+        "Style",
+        "VGG"
+    ];
+
     const AvailableModels = [
         "Waifu Diffusion", 
         "Deliberate", 
@@ -232,17 +262,37 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const queueStatus = ref("waiting");
 
     const minFPS = ref(1);
-    const maxFPS = ref(30);
+    const maxFPS = computed(() => {
+        if((params.value.timestointerpolate || 0) == 1)
+            return 9;
+        if((params.value.timestointerpolate || 0) == 2)
+            return 6;
+        if((params.value.timestointerpolate || 0) == 3)
+            return 3;
+        if(optionsStore.allowLargerParams)
+            return 30;
+        return 20;
+    });
     const minDuration = ref(1);
-    const maxDuration = ref(5);
+    const maxDuration = computed(() => {
+        if(optionsStore.allowLargerParams)
+            return 10;
+        return 5;
+    });
     const minWidth = ref(64);
     const maxWidth = ref(768);
     const minHeight = ref(64);
     const maxHeight = ref(768);
-    const minCfgScale = ref(1);
+    const minCfgScale = ref(-10);
     const maxCfgScale = ref(50);
     const minSteps = ref(1);
-    const maxSteps = ref(30);
+    const maxSteps = computed(() => {
+        if(optionsStore.allowLargerParams)
+            return 50;
+        return 30;
+    });
+    const minTimestointerpolate = ref(1);
+    const maxTimestointerpolate = ref(3);
 
     const generating = ref(false);
     const cancelled = ref(false);
@@ -268,6 +318,9 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     }
 
     return {
+        AvailableInterpolations,
+        minTimestointerpolate,
+        maxTimestointerpolate,
         minFPS,
         maxFPS,
         minDuration,
@@ -298,6 +351,6 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         getTime,
         getProgressWriting,
         deleteVideo,
-        downloadVideo,
+        downloadVideo
     }
 })

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { useVideoGeneratorStore } from '@/stores/VideoGenerator';
-import { ElForm, ElButton, ElCard, ElProgress } from 'element-plus';
+import { ElForm, ElButton, ElCard, ElProgress, ElRow, ElCol } from 'element-plus';
 import FormSlider from './FormSlider.vue';
 import FormPun from './FormPuns.vue';
 import FormSelect from './FormSelect.vue';
@@ -68,6 +68,8 @@ function getAspectRatio(isWidth: boolean) {
                 <form-slider label="Desired FPS" prop="desiredFPS" v-model="store.params.fps" :min="store.minFPS" :max="store.maxFPS" />
                 <form-slider label="Desired Length" prop="desiredLength" v-model="store.params.desired_duration" :min="store.minDuration" :max="store.maxDuration" />
                 <form-select label="Model" prop="model" v-model="store.params.model" :options="store.AvailableModels" />
+                <form-select label="Interpolate" prop="interpolate" v-model="store.params.interpolate" :options="store.AvailableInterpolations" />
+                <form-slider label="Times to Interpolate" v-if="store.params.interpolate !== 'None'" prop="timesToInterpolate" v-model="store.params.timestointerpolate" :min="store.minTimestointerpolate" :max="store.maxTimestointerpolate" />
             </div>
             <div class="main">
                 <el-button

@@ -73,7 +73,7 @@ function getStyle(key: string) {
                 <div>Prompt  {{index+1}}</div>
             </template>
             <template #inline>
-                <el-tooltip content="Add Seed" placement="right" v-if="index == 0">
+                <el-tooltip content="Add Prompt" placement="right" v-if="index == 0">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
                         vStore.params.prompts?.push('');
                     }" :icon="Plus"/>
@@ -84,7 +84,7 @@ function getStyle(key: string) {
                 <el-tooltip content="Prompt Styles" placement="right" v-if="index == 0">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() => selectStyle = true" :icon="TrendCharts"/>
                 </el-tooltip>
-                <el-tooltip content="Remove Seed" placement="right" v-if="index > 0">
+                <el-tooltip content="Remove Prompt" placement="right" v-if="index > 0">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
                         vStore.params.prompts.splice(index, 1);
                     }" :icon="Delete"/>
