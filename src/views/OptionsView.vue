@@ -16,7 +16,6 @@ import {
 } from '@element-plus/icons-vue';
 import { useOptionsStore } from '@/stores/options';
 import { useUserStore } from '@/stores/user';
-import type { BasicColorSchema } from '@vueuse/core';
 import FormSlider from '../components/FormSlider.vue';
 import FormSelect from '../components/FormSelect.vue';
 import FormRadio from '../components/FormRadio.vue';
