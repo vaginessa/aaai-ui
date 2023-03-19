@@ -173,12 +173,11 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         }
 
         if (cancelled.value) {
-            const url = `https://api.artificial-art.eu/video/cancel?jobid=${resAddJSON['job_id']}`;
-            const response = await fetch(url);
-            await response.json();
             LastJobID.value = "";
-            videoUrl.value = "";
+            videoUrl.value = "none";
             cancelled.value = false;
+            const url = `https://api.artificial-art.eu/video/cancel?jobid=${resAddJSON['job_id']}`;
+            await fetch(url);
         } else {
             LastJobID.value = resAddJSON['job_id'];
             videoUrl.value = `https://api.artificial-art.eu/AIVideos/${resAddJSON['job_id']}.mp4`;
