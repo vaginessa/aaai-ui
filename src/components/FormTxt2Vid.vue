@@ -111,12 +111,10 @@ function getAspectRatio(isWidth: boolean) {
                             <FormPun />    
                         </div>
                     </div>
-                    <div v-if="!store.generating && store.videoUrl !== 'none'">
-                        <div class="player">
-                            <video controls>
-                                <source :src=store.videoUrl type="video/mp4" />
-                            </video>
-                        </div>
+                    <div v-if="!store.generating && store.videoUrl !== 'none'" class="player">
+                        <video controls>
+                            <source :src=store.videoUrl type="video/mp4" />
+                        </video>
                     </div>                           
                     <div v-if="store.generating" style="text-align: center;">
                         <el-progress
@@ -142,10 +140,10 @@ function getAspectRatio(isWidth: boolean) {
 
 .player {
     display: flex;
-    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
     align-content: center;
-    align-items: center;
-    justify-content: flex-start;
 }
 
 .noticeBox {

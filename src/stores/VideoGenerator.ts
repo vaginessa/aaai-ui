@@ -148,8 +148,8 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             if(resJSON["success"]) {
                 totalFrames.value = resJSON["total"];
                 currentFrame.value = resJSON["frame"];
-                
-                if(resJSON['queue'] > 0 && resJSON["total"] == 0 && resJSON["frame"] == 0) {
+
+                if(resJSON['queue'] > 0 && resJSON["total"] == 0 && resJSON["frame"] == null) {
                     QueuePosition.value = resJSON['queue'];
                     queueStatus.value = `queue position ${resJSON['queue']}`;
                 } else {
@@ -172,8 +172,16 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             }
         }
 
-        LastJobID.value = resAddJSON['job_id'];
-        videoUrl.value = `https://api.artificial-art.eu/AIVideos/${resAddJSON['job_id']}.mp4`;
+        if (cancelled.value) {
+            const url = `https://api.artificial-art.eu/video/cancel?jobid=${resAddJSON['job_id']}`;
+            const response = await fetch(url);
+            await response.json();
+            LastJobID.value = "";
+            videoUrl.value = "";
+        } else {
+            LastJobID.value = resAddJSON['job_id'];
+            videoUrl.value = `https://api.artificial-art.eu/AIVideos/${resAddJSON['job_id']}.mp4`;
+        }
 
         generating.value = false;
     }
@@ -264,14 +272,16 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const minFPS = ref(1);
     const maxFPS = computed(() => {
         if((params.value.timestointerpolate || 0) == 1)
-            return 9;
+            return 8;
         if((params.value.timestointerpolate || 0) == 2)
             return 6;
         if((params.value.timestointerpolate || 0) == 3)
-            return 3;
+            return 4;
+        if((params.value.timestointerpolate || 0) == 4)
+            return 2;
         if(optionsStore.allowLargerParams)
-            return 30;
-        return 20;
+            return 20;
+        return 10;
     });
     const minDuration = ref(1);
     const maxDuration = computed(() => {
@@ -292,7 +302,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         return 30;
     });
     const minTimestointerpolate = ref(1);
-    const maxTimestointerpolate = ref(3);
+    const maxTimestointerpolate = ref(4);
 
     const generating = ref(false);
     const cancelled = ref(false);
