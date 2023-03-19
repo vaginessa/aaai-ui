@@ -81,6 +81,10 @@ handleUrlParams();
 </template>
 
 <style>
+html body {
+    height: calc(100% + 32px);
+}
+
 :root {
     --sidebar-width: 70px
 }
@@ -162,6 +166,10 @@ handleUrlParams();
 }
 
 @media only screen and (max-width: 1280px) {
+    html body {
+        height: calc(100% + 75%);
+    }
+
     .generated-image > .el-card__body {
         height: 100%;
         display: flex;
@@ -192,6 +200,10 @@ handleUrlParams();
 }
 
 @media only screen and (max-width: 768px) {
+    html body {
+        height: calc(100% * 2);
+    }
+
     .generated-image {
         width: 100%;
         height: 100%;

@@ -99,7 +99,7 @@ function getAspectRatio(isWidth: boolean) {
                 </el-button>
             </div>
             <div class="image center-horizontal">
-                <el-card class="center-both generated-image" >
+                <el-card class="center-both generated-video" >
                     <div class="noticeBox" v-if="!store.generating && store.videoUrl === 'none'">
                         <div class="genNotice" v-if="store.generateLock">
                             <strong>ATTENTION</strong>
@@ -138,12 +138,13 @@ function getAspectRatio(isWidth: boolean) {
 
 <style scoped>
 
-.player {
-    display: flex;
-    height: 100%;
+.generated-video {
     width: 100%;
-    justify-content: center;
-    align-content: center;
+}
+
+.player video {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .noticeBox {
