@@ -178,6 +178,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             await response.json();
             LastJobID.value = "";
             videoUrl.value = "";
+            cancelled.value = false;
         } else {
             LastJobID.value = resAddJSON['job_id'];
             videoUrl.value = `https://api.artificial-art.eu/AIVideos/${resAddJSON['job_id']}.mp4`;
