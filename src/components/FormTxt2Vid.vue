@@ -67,7 +67,7 @@ function getAspectRatio(isWidth: boolean) {
                 <form-slider label="Guidance" prop="cfgScale" v-model="store.params.cfg_scale" :min="store.minCfgScale" :max="store.maxCfgScale" :step="0.5" info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
                 <form-slider label="Desired FPS" prop="desiredFPS" v-model="store.params.fps" :min="store.minFPS" :max="store.maxFPS" />
                 <form-slider label="Desired Length" prop="desiredLength" v-model="store.params.desired_duration" :min="store.minDuration" :max="store.maxDuration" />
-                <form-select label="Model" prop="model" v-model="store.params.model" :options="store.AvailableModels" />
+                <form-select label="Model" prop="model" v-model="store.params.model" :options="store.AvailableModels" :filterable="true" />
                 <form-select label="Interpolate" prop="interpolate" v-model="store.params.interpolate" :options="store.AvailableInterpolations" />
                 <form-slider label="Times to Interpolate" v-if="store.params.interpolate !== 'None'" prop="timesToInterpolate" v-model="store.params.timestointerpolate" :min="store.minTimestointerpolate" :max="store.maxTimestointerpolate" />
             </div>
