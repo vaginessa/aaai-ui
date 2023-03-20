@@ -248,6 +248,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         "Crosskemono",
         "Deliberate",
         "Deliberate UberX",
+        "Dumb Monkey",
         "Dreamlike Photoreal 2.0",
         "Dreamshaper",
         "Dungeons & Diffusion",
