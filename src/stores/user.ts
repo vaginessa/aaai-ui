@@ -36,10 +36,13 @@ export const useUserStore = defineStore("user", () => {
             const response = await fetch(url);
             const resJSON = await response.json();
             userId.value = resJSON['user_id'];
-            txt2vid.value = resJSON['txt2vid'];
+            txt2vid.value = resJSON['allowVideo'] == "1";
+            txt2vidMsg.value = resJSON['msg'];
             useVideoGeneratorStore().updateNetworkHealth();
         }
     }
+
+    const txt2vidMsg = ref("");
 
     watch(userId, async () => {
         updateRatingCount();
@@ -85,7 +88,7 @@ export const useUserStore = defineStore("user", () => {
       onMounted(updateUserId);
 
       function videoAllowence() {
-        return txt2vid.value;
+        return {"allow": txt2vid.value, "msg": txt2vidMsg};
       }
 
     return {

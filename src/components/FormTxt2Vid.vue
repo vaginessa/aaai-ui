@@ -105,6 +105,7 @@ function getAspectRatio(isWidth: boolean) {
                             <strong>ATTENTION</strong>
                             <hr/>
                             Can not accept more generation requests!<br/>
+                            {{ store.generateMsg }}<br/>
                             To find out more join our <BaseLink href="https://discord.gg/ugEqPP5wMT">Discord</BaseLink>!
                         </div>
                         <div>

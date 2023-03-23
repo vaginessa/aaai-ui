@@ -204,17 +204,29 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         onlineWorkers = resJSON['online'];
 
         const isUserAllowed = useUserStore().videoAllowence();
-        const isQueueLengthResonable = queueLength <= 5;
+        const isQueueLengthResonable = queueLength <= 10;
         const isWorkerOnline = onlineWorkers >= 1;
 
-        generateLock.value = !(isUserAllowed && isQueueLengthResonable && isWorkerOnline);
+        if(!isUserAllowed.allow) {
+            generateMsg.value = isUserAllowed.msg.value;
+        }
+        if(!isQueueLengthResonable) {
+            generateMsg.value = "Queue is too long!";
+        }
+        if(!isWorkerOnline) {
+            generateMsg.value = "No Workers Online!";
+        }
+
+        generateLock.value = !(isUserAllowed.allow && isQueueLengthResonable && isWorkerOnline);
     }
+
+    const generateMsg = ref('');
 
     const params = useLocalStorage<ModelGenerationVideo>("videoParams", getDefaultStore());
 
     function getTime() {
         let TotalFrame = (params.value.fps || 1) * (params.value.desired_duration || 1);
-        return new Date((TotalFrame * 4) * 1000).toISOString().slice(11, 19);
+        return TotalFrame + " Frames";
     }
 
     const AvailableSamplers = [
@@ -375,6 +387,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         totalFrames,
         queueStatus,
         generateLock,
+        generateMsg,
         latestSeed,
         generateClicked,
         updateNetworkHealth,
