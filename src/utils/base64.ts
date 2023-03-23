@@ -68,7 +68,7 @@ export function decode(base64) {
 
 export function loadURL(url: string) {
     let workUrl = url;
-    if(url.indexOf("image/webp") > 0) workUrl = convertB64ToDataType(url, "image/jpeg");
+    if(url.indexOf("image/webp") > -1) workUrl = convertB64ToDataType(url, "image/jpeg");
     let dataURL = workUrl.slice(0, 64).match(isDataURL);
     let binaryDataP;
     if (dataURL !== null) {

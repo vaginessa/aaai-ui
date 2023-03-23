@@ -13,6 +13,7 @@ import { useUIStore } from '@/stores/ui';
 import { useWorkerStore } from '@/stores/workers';
 import { useCanvasStore } from '@/stores/canvas';
 import { Check, Close } from '@element-plus/icons-vue';
+import { or } from 'image-js';
 
 const store = useGeneratorStore();
 const canvasStore = useCanvasStore();
@@ -75,6 +76,14 @@ function getAspectRatio(isWidth: boolean) {
             return "(" + vr.toFixed(0) + ":" + hr.toFixed(0) + ")";
     }
 }
+
+function ShowFacefixer(): boolean {
+    if((store.params.post_processing || []).indexOf('GFPGAN') > -1)
+        return true;
+    if((store.params.post_processing || []).indexOf('CodeFormers') > -1)
+        return true;
+    return false;
+}
 </script>
 
 
@@ -99,7 +108,7 @@ function getAspectRatio(isWidth: boolean) {
                 <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
                 <form-model-select />
                 <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                <form-slider label="Face fixer"           prop="faceFixer"       v-model="store.params.facefixer_strength"          :min="0"   :max="1"   :step="0.1"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
+                <form-slider label="Face fixer"           prop="faceFixer"       v-model="store.params.facefixer_strength"          :min="0"   :max="1"   :step="0.1"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative."  v-if="ShowFacefixer()" />
                 
                 <el-row>
                     <el-col :span="12" :xs="24">

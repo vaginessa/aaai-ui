@@ -284,13 +284,13 @@ export const useGeneratorStore = defineStore("generator", () => {
     function recordUsage(kudos:number) {
         if(generatorType.value === "Img2Img") kudos *= 1.3;
         if(params.value.post_processing !== undefined) {
-            if(params.value.post_processing?.indexOf("GFPGAN") > 0) kudos *= 1.0;
-            if(params.value.post_processing?.indexOf("RealESRGAN_x4plus") > 0) kudos *= 1.3;
-            if(params.value.post_processing?.indexOf("RealESRGAN_x4plus_anime_6B") > 0) kudos *= 1.3;
-            if(params.value.post_processing?.indexOf("NMKD_Siax") > 0) kudos *= 1.1;
-            if(params.value.post_processing?.indexOf("4x_AnimeSharp") > 0) kudos *= 1.1;
-            if(params.value.post_processing?.indexOf("CodeFormers") > 0) kudos *= 1.3;
-            if(params.value.post_processing?.indexOf("strip_background") > 0) kudos *= 1.2;
+            if(params.value.post_processing?.indexOf("GFPGAN") > -1) kudos *= 1.0;
+            if(params.value.post_processing?.indexOf("RealESRGAN_x4plus") > -1) kudos *= 1.3;
+            if(params.value.post_processing?.indexOf("RealESRGAN_x4plus_anime_6B") > -1) kudos *= 1.3;
+            if(params.value.post_processing?.indexOf("NMKD_Siax") > -1) kudos *= 1.1;
+            if(params.value.post_processing?.indexOf("4x_AnimeSharp") > -1) kudos *= 1.1;
+            if(params.value.post_processing?.indexOf("CodeFormers") > -1) kudos *= 1.3;
+            if(params.value.post_processing?.indexOf("strip_background") > -1) kudos *= 1.2;
         }
         let horde_tax = 3;
         if(useOptionsStore().shareWithLaion === "Enabled") horde_tax = 1;
