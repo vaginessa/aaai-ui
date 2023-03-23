@@ -18,7 +18,7 @@ const store = useGeneratorStore();
 const canvasStore = useCanvasStore();
 
 const samplerListLite = ["k_lms", "k_heun", "k_euler", "k_euler_a", "k_dpm_2", "k_dpm_2_a"]
-const dpmSamplers = ['k_dpm_fast', 'k_dpm_adaptive', 'k_dpmpp_2m', 'k_dpmpp_2s_a', 'k_dpmpp_sde']
+const dpmSamplers = ['k_dpm_fast', 'k_dpm_adaptive', 'k_dpmpp_2m', 'k_dpmpp_2s_a', 'k_dpmpp_sde', "DDIM"]
 
 const availableSamplers = computed(() => {
     if (store.selectedModel === "stable_diffusion_2.0") return updateCurrentSampler(["dpmsolver"])
@@ -99,6 +99,7 @@ function getAspectRatio(isWidth: boolean) {
                 <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
                 <form-model-select />
                 <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
+                <form-slider label="Face fixer"           prop="faceFixer"       v-model="store.params.facefixer_strength"          :min="0"   :max="1"   :step="0.1"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
                 
                 <el-row>
                     <el-col :span="12" :xs="24">
@@ -118,6 +119,12 @@ function getAspectRatio(isWidth: boolean) {
                     </el-col>
                     <el-col :span="12" :xs="24">
                         <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" info="If nsfw material is detected should it be censored." :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
+                    </el-col>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="slow_workers" label="Slow Worker" :icon-on="Check" :icon-off="Close" v-model="store.slow_workers" info="When True, allows slower workers to pick up this request. Disabling this incurs an extra kudos cost." />
+                    </el-col>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="replacement_filter" label="Replacement Filter" :icon-on="Check" :icon-off="Close" v-model="store.replacement_filter" info="If enabled, suspicious prompts are sanitized through a string replacement filter instead." />
                     </el-col>
                 </el-row>
             </div>

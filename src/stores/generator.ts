@@ -32,6 +32,7 @@ function getDefaultStore() {
         tiling: false,
         hires_fix: false,
         control_type: "none",
+        facefixer_strength: 0.75,
     }
 }
 
@@ -96,11 +97,14 @@ export const useGeneratorStore = defineStore("generator", () => {
     const negativePromptLibrary = useLocalStorage<string[]>("negativeLibrary", []);
     const params = useLocalStorage<ModelGenerationInputStable>("params", getDefaultStore());
 
+    const slow_workers   = useLocalStorage<boolean>("slow_workers", true);
+    const replacement_filter   = useLocalStorage<boolean>("replacement_filter", false);
+
     const nsfw   = useLocalStorage<boolean>("nsfw", true);
     const censor_nsfw   = useLocalStorage<boolean>("censorNsfw", false);
     const trustedOnly = useLocalStorage<boolean>("trustedOnly", false);
 
-    const availablePostProcessors: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[] = ["GFPGAN", "RealESRGAN_x4plus", "CodeFormers"];
+    const availablePostProcessors: ("GFPGAN" | "RealESRGAN_x4plus" | "RealESRGAN_x4plus_anime_6B" | "NMKD_Siax" | "4x_AnimeSharp" | "CodeFormers" | "strip_background")[] = ["GFPGAN", "RealESRGAN_x4plus", "RealESRGAN_x4plus_anime_6B", "NMKD_Siax", "4x_AnimeSharp", "CodeFormers", "strip_background"];
 
     const availableControlType: ('none' | 'canny' | 'hed' | 'depth' | 'normal' | 'openpose' | 'seg' | 'scribble' | 'fakescribbles' | 'hough')[] = ['none', 'canny', 'hed', 'depth', 'normal', 'openpose', 'seg', 'scribble', 'fakescribbles', 'hough'];
 
@@ -265,11 +269,12 @@ export const useGeneratorStore = defineStore("generator", () => {
     const kudosCost = computed(() => {
         const result = Math.pow(((params.value.width as number) * (params.value.height as number)) - (64*64), 1.75) / Math.pow((1024*1024) - (64*64), 1.75);
         const steps = getAccurateSteps();
+        
         let kudos = Math.round((((0.1232 * steps) + result * (0.1232 * steps * 8.75))) * 100) / 100;
         (params.value.post_processing || []).forEach( el => {
             kudos = Math.round((kudos * 1.2) * 100) / 100;
         });
-        if(generatorType.value === "Img2Img" && params.value.control_type !== "none")
+        if(generatorType.value === "Img2Img" && params.value.control_type !== "none" && !(params.value.return_control_map || false))
             kudos = Math.round((kudos * 3) * 100) / 100;
         kudos += countParentheses();
         kudos = recordUsage(kudos);
@@ -277,10 +282,15 @@ export const useGeneratorStore = defineStore("generator", () => {
     })
 
     function recordUsage(kudos:number) {
-        if(generatorType.value === "Img2Img") kudos *= 1.5;
+        if(generatorType.value === "Img2Img") kudos *= 1.3;
         if(params.value.post_processing !== undefined) {
+            if(params.value.post_processing?.indexOf("GFPGAN") > 0) kudos *= 1.0;
             if(params.value.post_processing?.indexOf("RealESRGAN_x4plus") > 0) kudos *= 1.3;
+            if(params.value.post_processing?.indexOf("RealESRGAN_x4plus_anime_6B") > 0) kudos *= 1.3;
+            if(params.value.post_processing?.indexOf("NMKD_Siax") > 0) kudos *= 1.1;
+            if(params.value.post_processing?.indexOf("4x_AnimeSharp") > 0) kudos *= 1.1;
             if(params.value.post_processing?.indexOf("CodeFormers") > 0) kudos *= 1.3;
+            if(params.value.post_processing?.indexOf("strip_background") > 0) kudos *= 1.2;
         }
         let horde_tax = 3;
         if(useOptionsStore().shareWithLaion === "Enabled") horde_tax = 1;
@@ -435,6 +445,8 @@ export const useGeneratorStore = defineStore("generator", () => {
                     models: [currentModel],
                     r2: true,
                     shared: useOptionsStore().shareWithLaion === "Enabled",
+                    slow_workers: slow_workers.value || true,
+                    replacement_filter: replacement_filter.value || false,
                 });
             }
         }
@@ -594,6 +606,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (data.steps)           params.value.steps = validateParam("steps", data.steps, maxSteps.value, defaults.steps as number);
         if (data.cfg_scale)       params.value.cfg_scale = data.cfg_scale;
         if (data.clip_skip)       params.value.clip_skip = data.clip_skip;
+        if (data.facefixer_strength) params.value.facefixer_strength = data.facefixer_strength;
         if (data.width)           params.value.width = validateParam("width", data.width, maxWidth.value, defaults.width as number);
         if (data.height)          params.value.height = validateParam("height", data.height, maxHeight.value, defaults.height as number);
         if (data.seed)            params.value.seed = data.seed;
@@ -719,10 +732,13 @@ export const useGeneratorStore = defineStore("generator", () => {
                     height: (params?.height as number) * ((params?.post_processing || []).includes("RealESRGAN_x4plus") ? 4 : 1),
                     cfg_scale: params?.cfg_scale,
                     clip_skip: params?.clip_skip,
+                    facefixer_strength: params?.facefixer_strength,
                     karras: params?.karras,
                     hires_fix: params?.hires_fix,
                     post_processing: params?.post_processing,
                     tiling: params?.tiling,
+                    slow_worker: image.slow_workers,
+                    replacement_filter: image.replacement_filter,
                     starred: 0,
                     rated: 0,
                     control_net: params?.control_type?.toString(),
@@ -987,6 +1003,8 @@ export const useGeneratorStore = defineStore("generator", () => {
         maxWidth,
         minHeight,
         maxHeight,
+        slow_workers,
+        replacement_filter,
         // Computed
         filteredAvailableModelsGrouped,
         kudosCost,

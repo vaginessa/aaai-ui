@@ -22,6 +22,8 @@ export interface GenerationInput {
   nsfw?: boolean;
   /** When true, only trusted workers will serve this request. When False, Evaluating workers will also be used which can increase speed but adds more risk! */
   trusted_workers?: boolean;
+  /** When True, allows slower workers to pick up this request. Disabling this incurs an extra kudos cost. */
+  slow_workers?: boolean;
   /** If the request is SFW, and the worker accidentaly generates NSFW, it will send back a censored image. */
   censor_nsfw?: boolean;
   workers?: string[];
@@ -39,6 +41,8 @@ export interface GenerationInput {
   r2?: boolean;
   /** If True, The image will be shared with LAION for improving their dataset. This will also reduce your kudos consumption by 2. For anonymous users, this is always True. */
   shared?: boolean;
+  /** If enabled, suspicious prompts are sanitized through a string replacement filter instead. */
+  replacement_filter?: boolean;
 }
 
 export type ModelGenerationInputStable = ModelPayloadRootStable & {
@@ -56,7 +60,6 @@ export type ModelGenerationInputStable = ModelPayloadRootStable & {
 };
 
 export interface ModelPayloadRootStable {
-  /** @example k_lms */
   sampler_name?:
     | "k_lms"
     | "k_heun"
@@ -69,11 +72,8 @@ export interface ModelPayloadRootStable {
     | "k_dpmpp_2s_a"
     | "k_dpmpp_2m"
     | "dpmsolver"
-    | "k_dpmpp_sde";
-  /**
-   * Obsolete Toggles used in the SD Webui. To be removed. Do not modify unless you know what you're doing.
-   * @example [1,4]
-   */
+    | "k_dpmpp_sde"
+    | "DDIM";
   toggles?: number[];
   /**
    * @min -40
@@ -82,45 +82,42 @@ export interface ModelPayloadRootStable {
   cfg_scale?: number;
   /**
    * @min 0
-   * @max 12
-   * @example 1
-   */
-  clip_skip?: number;
-  /**
-   * @min 0
    * @max 1
-   * @example 0.75
    */
   denoising_strength?: number;
-  /** The seed to use to generete this request */
   seed?: string;
   /**
-   * The height of the image to generate
    * @min 64
    * @max 3072
    */
   height?: number;
   /**
-   * The width of the image to generate
    * @min 64
    * @max 3072
    */
   width?: number;
   /**
-   * If passed with multiple n, the provided seed will be incremented every time by this value
    * @min 1
    * @max 1000
-   * @example 1
    */
   seed_variation?: number;
-  post_processing?: ("GFPGAN" | "RealESRGAN_x4plus" | "CodeFormers")[];
-  control_type?: ("none" | "canny" | "hed" | "depth" | "normal" | "openpose" | "seg" | "scribble" | "fakescribbles" | "hough");
-  /** Set to True to enable karras noise scheduling tweaks */
+  post_processing?: ("GFPGAN" | "RealESRGAN_x4plus" | "RealESRGAN_x4plus_anime_6B" | "NMKD_Siax" | "4x_AnimeSharp" | "CodeFormers" | "strip_background")[];
   karras?: boolean;
-  /** Set to True to create images that stitch together seamlessly */
   tiling?: boolean;
-  /** Set to True to create a highres fix images first pass will be with lower dize and then upscaled */
   hires_fix?: boolean;
+  /**
+   * @min 0
+   * @max 12
+   */
+  clip_skip?: number;
+  control_type?: ("none" | "canny" | "hed" | "depth" | "normal" | "openpose" | "seg" | "scribble" | "fakescribbles" | "hough");
+  image_is_control?: boolean;
+  return_control_map?: boolean;
+  /**
+   * @min 0
+   * @max 1
+   */
+  facefixer_strength?: number;
 }
 
 export interface RequestAsync {

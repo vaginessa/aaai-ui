@@ -112,6 +112,12 @@ function getAspectRatio(isWidth: boolean) {
                     <el-col :span="12" :xs="24">
                         <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" info="If nsfw material is detected should it be censored." :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
                     </el-col>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="slow_workers" label="Slow Worker" :icon-on="Check" :icon-off="Close" v-model="store.slow_workers" info="When True, allows slower workers to pick up this request. Disabling this incurs an extra kudos cost." />
+                    </el-col>
+                    <el-col :span="12" :xs="24">
+                        <form-on-off-button prop="replacement_filter" label="Replacement Filter" :icon-on="Check" :icon-off="Close" v-model="store.replacement_filter" info="If enabled, suspicious prompts are sanitized through a string replacement filter instead." />
+                    </el-col>
                 </el-row>
             </div>
             <FormImagePreview />

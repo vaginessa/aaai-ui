@@ -19,6 +19,7 @@ export interface ImageData {
     hordeImageId?: string;
     prompt?: string;
     sampler_name?:
+        | "DDIM"
         | "k_lms"
         | "k_heun"
         | "k_euler"
@@ -49,6 +50,9 @@ export interface ImageData {
     hires_fix?: boolean;
     generation_time?: number;
     control_net?: string;
+    facefixer_strength?: number;
+    replacement_filter?: boolean;
+    slow_workers?: boolean;
 }
 
 export const useOutputStore = defineStore("outputs", () => {
