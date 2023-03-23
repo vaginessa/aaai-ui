@@ -24,21 +24,21 @@ export async function downloadMultipleWebp(outputs: ImageData[]) {
         {
             zip.file(
                 fileName + ".png",
-                convertBase64ToBlob(image, "image/png"),
+                await convertBase64ToBlob(image, "image/png"),
             );
         }
         else if (optionStore.pictureDownloadType == "JPG")
         {
             zip.file(
                 fileName + ".jpeg",
-                convertBase64ToBlob(image, "image/jpeg"),
+                await convertBase64ToBlob(image, "image/jpeg"),
             );
         }
         else if (optionStore.pictureDownloadType == "WEBP")
         {
             zip.file(
                 fileName + ".webp",
-                convertBase64ToBlob(image, "image/webp"),
+                await convertBase64ToBlob(image, "image/webp"),
                 { base64: true }
             );
         }
@@ -71,15 +71,15 @@ export async function downloadImage(output: ImageData, fileName: string) {
 
     if (store.pictureDownloadType == "PNG")  {
         newFileName += ".png";
-        downloadLink.href = URL.createObjectURL(convertBase64ToBlob(image, "image/png"));
+        downloadLink.href = URL.createObjectURL(await convertBase64ToBlob(image, "image/png"));
     }
     else if (store.pictureDownloadType == "JPG") {          
         newFileName += ".jpeg";
-        downloadLink.href = URL.createObjectURL(convertBase64ToBlob(image, "image/jpeg"));
+        downloadLink.href = URL.createObjectURL(await convertBase64ToBlob(image, "image/jpeg"));
     }
     else if (store.pictureDownloadType == "WEBP") {
         newFileName += ".webp";
-        downloadLink.href = URL.createObjectURL(convertBase64ToBlob(image, "image/webp"));
+        downloadLink.href = URL.createObjectURL(await convertBase64ToBlob(image, "image/webp"));
     }
     downloadLink.download = newFileName; 
     downloadLink.click();

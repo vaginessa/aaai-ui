@@ -104,16 +104,20 @@ export function toBase64URL(u8, type) {
   return `data:${type};base64,${base64}`;
 }
 
-export function convertB64ToDataType(base64Image: string,contentType?: string) {    
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-    const image = new Image();
-    image.src = base64Image;
-
-    canvas.width = image.width;
-    canvas.height = image.height;
-    context?.drawImage(image, 0, 0);
-    return canvas.toDataURL(contentType);
+export async function convertB64ToDataType(base64Image: string, contentType?: string): Promise<string> {    
+    return new Promise((resolve, reject) => {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        let img = new Image()
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context?.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL(contentType));
+        }
+        img.onerror = reject
+        img.src = base64Image
+    });
 }
 
 
@@ -121,10 +125,10 @@ export function convertB64ToDataType(base64Image: string,contentType?: string) {
  * Converts base64 data into a blob
  * @param base64Image Base64 data to convert into a BLOB
  */
-export function convertBase64ToBlob(b64Image: string, contentType?: string) {
-    let base64Image = convertB64ToDataType(b64Image, contentType);
+export async function convertBase64ToBlob(b64Image: string, contentType?: string) {
+    let base64Image = await convertB64ToDataType(b64Image, contentType);
     // Split into two parts
-    const parts = base64Image.split(';base64,');
+    const parts = await base64Image.split(';base64,');
 
     // Hold the content type
     const imageType = contentType ?? parts[0].split(':')[1];

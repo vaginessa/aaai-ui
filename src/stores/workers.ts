@@ -125,7 +125,8 @@ export const useWorkerStore = defineStore("workers", () => {
     function updateStore() {
         if (DEBUG_MODE) console.log("Attempting to update worker store...")
         updateWorkers();
-        updateTeams();
+        // Teams don't need to get updated every time
+        //updateTeams();
     }
 
     /** <>
@@ -282,8 +283,9 @@ export const useWorkerStore = defineStore("workers", () => {
         return value;
     }
 
-    updateStore()
-    setInterval(updateStore, POLL_WORKERS_INTERVAL * 1000)
+    updateStore();
+    updateTeams();
+    setInterval(updateStore, POLL_WORKERS_INTERVAL * 1000);
 
     return {
         // Variables
