@@ -313,8 +313,8 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const minSteps = ref(1);
     const maxSteps = computed(() => {
         if(optionsStore.allowLargerParams)
-            return 50;
-        return 30;
+            return 100;
+        return 50;
     });
     const minTimestointerpolate = ref(1);
     const maxTimestointerpolate = ref(4);
