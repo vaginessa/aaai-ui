@@ -4,7 +4,9 @@ import {
     ElCol,
     ElCard,
     ElEmpty,
-    ElIcon
+    ElIcon,
+    ElTable,
+    ElTableColumn
 } from "element-plus";
 import {
     Money,
@@ -63,6 +65,19 @@ const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.ap
                         <div>There are <strong>{{dashStore.performance.queued_requests}}</strong> queued requests (<strong>{{dashStore.performance.queued_megapixelsteps}}</strong> MPS) with <strong>{{dashStore.performance.worker_count}}</strong> workers (<strong>{{dashStore.performance.thread_count}}</strong> threads).</div>
                         <div>There are <strong>{{dashStore.performance.queued_forms}}</strong> queued interrogation requests with <strong>{{dashStore.performance.interrogator_count }}</strong> interrogation workers (<strong>{{dashStore.performance.interrogator_thread_count}}</strong> threads).</div>
                         <div>In the past minute, there have been <strong>{{dashStore.performance.past_minute_megapixelsteps}}</strong> MPS processed.</div>
+                    </el-card>
+                    <el-card style="margin-bottom: 10px;">
+                        <template #header>
+                            <strong>AAAI Video Performance</strong>
+                        </template>
+                        <div>There are <strong>{{dashStore.performanceVideo.Queue}}</strong> queued requests (<strong>{{dashStore.performanceVideo.QueuedFrames || 0}}</strong> Frames).</div>
+                        <br/>
+                        <el-table :data="dashStore.performanceTable()" stripe style="width: 100%">
+                            <el-table-column prop="type"   label="" />
+                            <el-table-column prop="videos" label="Videos" />
+                            <el-table-column prop="frames" label="Frames" />
+                            <el-table-column prop="uesers" label="Users" />
+                        </el-table>
                     </el-card>
                 </el-col>
                 <el-col :span="spanAmount" class="label">

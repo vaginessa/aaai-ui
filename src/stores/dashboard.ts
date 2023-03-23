@@ -9,10 +9,28 @@ import { BASE_URL_STABLE } from "@/constants";
 
 const formatter = Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 2});
 
+
+export type AAAIVideoPerformance = {
+    success?: boolean;
+    Queue?: number;
+    QueuedFrames?: number;
+    TotalGenerated?: number;
+    TotalFrames?: number;
+    TotalUsers?: number;
+    DayGenerated?: number;
+    DayFrames?: number;
+    DayUsers?: number;
+    HourGenerated?: number;
+    HourFrames?: number;
+    HourUsers?: number;
+    msg?: string;
+  };
+
 export const useDashboardStore = defineStore("dashboard", () => {
     const user = ref<UserDetailsStable>({});
     const userWorkers = ref<WorkerDetailsStable[]>([]);
     const performance = ref<HordePerformanceStable>({});
+    const performanceVideo = ref<AAAIVideoPerformance>({});
     const users = ref<UserDetailsStable[]>([]);
     const leaderboard = ref<{id: number; name: string; kudos: string; mps: number;}[]>([]);
     const leaderboardOrderProp = ref("kudos");
@@ -34,6 +52,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
         //if (!validateResponse(response, resJSON, 200, "Failed to find user by API key")) return false;
         user.value = resJSON;
         getHordePerformance();
+        getAAAIVideoPerformance();
         
         if (userStore.apiKey === '0000000000' || userStore.apiKey === '' || response.status !== 200) return;
         getAllUserWorkers();
@@ -74,6 +93,14 @@ export const useDashboardStore = defineStore("dashboard", () => {
         if (!validateResponse(response, resJSON, 200, "Failed to update leaderboard")) return false;
         users.value = resJSON;
         updateLeaderboard();
+    }
+
+    async function getAAAIVideoPerformance() {
+        const response = await fetch(`https://api.artificial-art.eu/video/stats`);
+        const resJSON = await response.json();
+        if (!validateResponse(response, resJSON, 200, "Failed to get AAAI server performance")) return false;
+        performanceVideo.value = resJSON;
+
     }
 
     async function getHordePerformance() {
@@ -118,6 +145,30 @@ export const useDashboardStore = defineStore("dashboard", () => {
         }
     }
 
+    function performanceTable() {
+        const tableData = [
+          {
+            type: "Last Hour",
+            videos: Intl.NumberFormat('en-US').format(performanceVideo.value.HourGenerated || 0),
+            frames: Intl.NumberFormat('en-US').format(performanceVideo.value.HourFrames || 0),
+            uesers: Intl.NumberFormat('en-US').format(performanceVideo.value.HourUsers || 0),
+          },
+          {
+            type: "Last Day",
+            videos: Intl.NumberFormat('en-US').format(performanceVideo.value.DayGenerated || 0),
+            frames: Intl.NumberFormat('en-US').format(performanceVideo.value.DayFrames || 0),
+            uesers: Intl.NumberFormat('en-US').format(performanceVideo.value.DayUsers || 0),
+          },
+          {
+            type: "Total",
+            videos: Intl.NumberFormat('en-US').format(performanceVideo.value.TotalGenerated || 0),
+            frames: Intl.NumberFormat('en-US').format(performanceVideo.value.TotalFrames || 0),
+            uesers: Intl.NumberFormat('en-US').format(performanceVideo.value.TotalUsers || 0),
+          },
+        ];
+        return tableData;
+    }
+
     updateDashboard();
     updateUsers();
     setInterval(updateDashboard, POLL_DASHBOARD_INTERVAL * 1000);
@@ -128,16 +179,19 @@ export const useDashboardStore = defineStore("dashboard", () => {
         user,
         userWorkers,
         performance,
+        performanceVideo,
         users,
         leaderboard,
         leaderboardOrderProp,
         leaderboardOrder,
         news, 
         // Actions
+        performanceTable,
         updateDashboard,
         getAllUserWorkers,
         updateLeaderboard,
         updateUsers,
-        getHordePerformance
+        getHordePerformance,
+        getAAAIVideoPerformance
     };
 });

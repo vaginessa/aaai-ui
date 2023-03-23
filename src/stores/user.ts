@@ -18,6 +18,23 @@ export const useUserStore = defineStore("user", () => {
         updateUserId();
     })
 
+    async function UpdateInternally() {
+        let hordeId = useDashboardStore().user.username?.split('#')[1];
+        if (hordeId == undefined) {
+            userId.value = "0";
+            txt2vid.value = false;
+            return;
+        }
+        let userSecret = cyrb53(hordeId, 8566321);
+        const url = `https://api.artificial-art.eu/user/enroll?secret=${userSecret}`;
+        const response = await fetch(url);
+        const resJSON = await response.json();
+        userId.value = resJSON['user_id'];
+        txt2vid.value = resJSON['allowVideo'] == "1";
+        txt2vidMsg.value = resJSON['msg'];
+        useVideoGeneratorStore().updateNetworkHealth();
+    }
+
     async function updateUserId() {
         if (apiKey.value == "0000000000" ||  apiKey.value == "" || apiKey.value.length < 8) {
             userId.value = "0";
@@ -25,20 +42,7 @@ export const useUserStore = defineStore("user", () => {
         }
         else {
             await useDashboardStore().updateDashboard();
-            let hordeId = useDashboardStore().user.username?.split('#')[1];
-            if (hordeId == undefined) {
-                userId.value = "0";
-                txt2vid.value = false;
-                return;
-            }
-            let userSecret = cyrb53(hordeId, 8566321);
-            const url = `https://api.artificial-art.eu/user/enroll?secret=${userSecret}`;
-            const response = await fetch(url);
-            const resJSON = await response.json();
-            userId.value = resJSON['user_id'];
-            txt2vid.value = resJSON['allowVideo'] == "1";
-            txt2vidMsg.value = resJSON['msg'];
-            useVideoGeneratorStore().updateNetworkHealth();
+            await UpdateInternally();
         }
     }
 
@@ -100,6 +104,7 @@ export const useUserStore = defineStore("user", () => {
         setAnon,
         addNewRating,
         updateUserId,
+        UpdateInternally,
         updateRatingCount,
         videoAllowence,
     }

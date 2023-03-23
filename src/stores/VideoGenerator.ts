@@ -130,12 +130,18 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         const url = `https://api.artificial-art.eu/video/push`;
         const response = await fetch(url, {
             method: 'POST',
-            body: JSON.stringify({UserID: useUserStore().userId, Payload: Payload}),
+            body: JSON.stringify({UserID: useUserStore().userId, Payload: Payload, TotalFrames: ((params.value.fps || 1) * (params.value.desired_duration || 1))}),
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'} });
 
         const resAddJSON = await response.json();
 
-        let requestRunning = true;
+        let requestRunning = resAddJSON['success'];
+
+        if(!requestRunning) {
+            generating.value = false;
+            useUserStore().UpdateInternally();
+            return;
+        }
         
         while (requestRunning) {
             await sleep(1250);
