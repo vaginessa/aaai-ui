@@ -5,6 +5,7 @@ import { computed, reactive, ref } from "vue";
 import { useUserStore } from "./user";
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
 import { useOptionsStore } from "./options";
+import { validateResponse } from "@/utils/validate";
 
 export type ModelGenerationVideo = {
     prompts?: string[];
@@ -22,6 +23,11 @@ export type ModelGenerationVideo = {
     interpolate?: string; //None | FilmNet
     timestointerpolate?: number;
 };
+
+export interface IModelData {
+    ID?: number;
+    Name?: string;
+}
 
 function getDefaultStore() {
     MersenneTwister(Math.random());
@@ -109,7 +115,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         params.value.upsampler = "None";
 
         const Payload = {
-            "Model": AvailableModels.indexOf(params.value.model || "Deliberate"),
+            "Model": AvailableModels.value.indexOf(params.value.model || "Deliberate"),
             "FPS": params.value.fps,
             "Duration": params.value.desired_duration,
             "Prompt": {
@@ -235,6 +241,21 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         return TotalFrame + " Frames";
     }
 
+    const AvailableModels = ref<string[]>([]);
+    
+    async function updateAvailableModels() {
+        const response = await fetch(`https://api.artificial-art.eu/video/models`);
+        const resJSON = await response.json();
+        if (!validateResponse(response, resJSON, 200, "Failed to get available models")) return;
+        const jsonModels: IModelData[] = resJSON['models']
+        AvailableModels.value = [];
+        jsonModels.forEach((el) => {
+            if(el.Name != undefined) {
+                AvailableModels.value.push(el.Name);
+            }
+        });
+    }
+
     const AvailableSamplers = [
         "DDIM", 
         "DPM", 
@@ -249,50 +270,6 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         "L1",
         "Style",
         "VGG"
-    ];
-
-    const AvailableModels = [
-        "A Certainty",
-        "Abyss Orange Mix 2",
-        "Abyss Orange Mix 2 - Hardcore",
-        "Abyss Orange Mix 3",
-        "Anything v4.5",
-        "Ares Mix",
-        "Babes",
-        "Cheese Daddys",
-        "Cider Mix",
-        "Counterfeit V2.5",
-        "Creepy Diffusion",
-        "Crosskemono",
-        "Deliberate",
-        "Deliberate UberX",
-        "Dumb Monkey",
-        "Dreamlike Photoreal 2.0",
-        "Dreamshaper",
-        "Dungeons & Diffusion",
-        "Epic Diffusion",
-        "Fantasy Mix",
-        "Foxya NSFW",
-        "Ghibli Diffusion",
-        "Grapefruit",
-        "HARDBlend",
-        "Hassanblend 1.5.1.2",
-        "Hentai Diffusion",
-        "Inkpunk Diffusion",
-        "Lawlass Yiffymix",
-        "Lucids Mix",
-        "Map Unfurnished",
-        "Meina Hentai",
-        "Openjourney",
-        "Pastel mix",
-        "PerfectWorld",
-        "Realistic Vision",
-        "Real Elden Apocalypse",
-        "Sunshine Mix & Sunlight Mix",
-        "URPM",
-        "Waifu Diffusion",
-        "Wondermix V2",
-        "Yiffymix"
     ];
 
     function deleteVideo() {
@@ -364,6 +341,8 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         a.click();     
         document.body.removeChild(a);
     }
+
+    updateAvailableModels()
 
     return {
         AvailableInterpolations,
