@@ -296,6 +296,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         if(useOptionsStore().shareWithLaion === "Enabled") horde_tax = 1;
         if(kudos < 10) horde_tax -= 1;
         kudos += horde_tax; 
+        if(slow_workers.value == false) kudos *= 1.2; 
         return kudos;
     }
 
