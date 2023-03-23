@@ -99,8 +99,10 @@ useIntersectionObserver(
                             <div style="float:left; min-width: 20%;">{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}x{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}</div>
                             <div style="float:left; width: 55%;">{{worker.name}}</div>
                             
-                            <el-button v-if="optStore.isWorkerWhitelisted(worker)" style="width: 25%;border: none;" @click="() => optStore.addWorkerToSelection(worker)">Add to {{optStore.getListMode()}}</el-button>
-                            <el-button v-else style="width: 25%;border: none;color: #777;">---</el-button>
+                            <el-button v-if="!optStore.isWorkerWhitelisted(worker)" style="width: 25%;border: none;color: #777;" @click="() => optStore.delWorkerToSelection(worker)">---</el-button>
+                            <el-button v-else-if="optStore.workerLimit()" style="width: 25%;border: none;color: #777;"></el-button>
+                            <el-button v-else-if="optStore.isWorkerWhitelisted(worker)" style="width: 25%;border: none;" @click="() => optStore.addWorkerToSelection(worker)">Add to {{optStore.getListMode()}}</el-button>
+                            
                         </div>
                     </el-collapse-item>
                 </el-collapse>

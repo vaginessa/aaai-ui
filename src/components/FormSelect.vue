@@ -15,6 +15,7 @@ const props = defineProps<{
     prop: string;
     options: any[];
     multiple?: boolean;
+    multiplelimit?: number;
     info?: string;
     filterable?: boolean;
     labelStyle?: string;
@@ -38,7 +39,7 @@ function onChanged(value: any) {
                 <slot name="label">{{label}}</slot>
             </FormLabel>
         </template>
-        <el-select v-if="grouping" :model-value="modelValue" :filterable="filterable" :multiple="multiple" :placement="placement" @change="onChanged" placeholder="Select">
+        <el-select v-if="grouping" :model-value="modelValue" :multiple-limit="multiplelimit" :filterable="filterable" :multiple="multiple" :placement="placement" @change="onChanged" placeholder="Select">
             <el-option-group
             v-for="group in options"
             :key="group.label"
@@ -52,7 +53,7 @@ function onChanged(value: any) {
                 />
             </el-option-group>
         </el-select>
-        <el-select v-else :model-value="modelValue" :filterable="filterable" :multiple="multiple" :placement="placement" @change="onChanged" placeholder="Select">
+        <el-select v-else :model-value="modelValue" :multiple-limit="multiplelimit" :filterable="filterable" :multiple="multiple" :placement="placement" @change="onChanged" placeholder="Select">
                 <el-option
                     v-for="item in options"
                     :key="item"

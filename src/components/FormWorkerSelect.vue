@@ -19,6 +19,7 @@ workerStore.updateWorkers();
         multiple
         placement="top"
         class="multi-model-select"
+        :multiplelimit="5"
     >
     </form-select>
 </template>

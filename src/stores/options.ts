@@ -1,12 +1,10 @@
 import { defineStore } from "pinia";
 import { useLocalStorage } from '@vueuse/core'
 import { ref, computed, watch, onMounted } from 'vue';
-import { useWorkerStore } from '@/stores/workers';
 import type { WorkerDetailsStable } from "@/types/stable_horde";
 
 
 type IToggle = "Enabled" | "Disabled";
-type IModeToggle = "Whitelist" | "Blacklist";
 type IPictureType = "WEBP" | "PNG" | "JPG";
 
 export const useOptionsStore = defineStore("options", () => {
@@ -18,32 +16,15 @@ export const useOptionsStore = defineStore("options", () => {
     const zipMetaData = useLocalStorage<IToggle>("zipMetaData", "Enabled");
     const useBeta = useLocalStorage<IToggle>("useBeta", "Disabled");
     const useWorkers = useLocalStorage<string[]>("usedWorkers",[]);
-    const workerListMode = useLocalStorage<IModeToggle>("workerListMode", "Whitelist"); 
     const pictureDownloadType = useLocalStorage<IPictureType>("downloadType", "JPG");
-
-    const workerStore = useWorkerStore();
 
     const getWokersToUse = computed<string[]>(() => {
         var allowedWorkers: string[] = [];
-        if (workerListMode.value === 'Whitelist') {
-            useWorkers.value.forEach(el => {
-                allowedWorkers.push(el);
-            });
-        } else {
-            workerStore.workers.forEach(newWorker => {
-                if(useWorkers.value.length == 0) return allowedWorkers;
-                let include = true;
-                useWorkers.value.forEach(exluded => {
-                    if((newWorker.id || "") ==  exluded) {
-                        include = false;
-                        return;
-                    }                    
-                });
-                if(include) {
-                    allowedWorkers.push(newWorker.id || "");
-                }
-            });
-        }
+
+        useWorkers.value.forEach(el => {
+            allowedWorkers.push(el);
+        });
+
         return allowedWorkers;
     });
 
@@ -51,12 +32,25 @@ export const useOptionsStore = defineStore("options", () => {
         return !useWorkers.value.find(element => worker.id == element)
     }
 
+    function workerLimit() {
+        if (useWorkers.value.length < 5) {
+            return false;
+        }
+        return true;
+    }
+
     function getListMode() {
-        return workerListMode.value;
+        return "Whitelist";
     }
 
     function addWorkerToSelection(worker: WorkerDetailsStable) {
-        useWorkers.value.push(worker.id as string);
+        if (useWorkers.value.length < 5) {
+            useWorkers.value.push(worker.id as string);
+        }
+    }
+
+    function delWorkerToSelection(worker: WorkerDetailsStable) {
+        useWorkers.value = useWorkers.value.filter(obj => obj !== worker.id as string);
     }
     
     const colorMode = useLocalStorage("selectedColorMode", "dark");
@@ -91,14 +85,15 @@ export const useOptionsStore = defineStore("options", () => {
         zipMetaData,
         useBeta,
         useWorkers,
-        workerListMode,
         shareWithLaion,
         pictureDownloadType,
         // Computed
         getWokersToUse,
         // Actions
         isWorkerWhitelisted,
+        workerLimit,
         getListMode,
-        addWorkerToSelection
+        addWorkerToSelection,
+        delWorkerToSelection
     };
 });
