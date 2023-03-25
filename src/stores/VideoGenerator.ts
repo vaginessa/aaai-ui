@@ -291,11 +291,17 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
 
     const AvailableSamplers = [
         "DDIM", 
-        "DPM", 
+        "DPM",
+        "DDPM", 
+        "DEIS",
         "EulerA", 
-        "Euler", 
+        "Euler",
+        "Heun", 
+        "K_DPM2_A",
+        "K_DPM2",
         "LMSD", 
-        "PNDM"
+        "PNDM",
+        "UniPC",
     ];
 
     const AvailableInterpolations = [
