@@ -115,6 +115,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         params.value.upsampler = "None";
 
         const Payload = {
+            "Mode": "Video",
             "Model": AvailableModels.value.indexOf(params.value.model || "Deliberate"),
             "FPS": params.value.fps,
             "Duration": params.value.desired_duration,
@@ -158,29 +159,49 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             const resJSON = await response.json();
 
             if(resJSON["success"]) {
-                totalFrames.value = resJSON["total"];
-                currentFrame.value = resJSON["frame"];
+                
+                queueStatus.value = resJSON["msg"];
 
-                if(resJSON['queue'] > 0 && resJSON["total"] == 0 && resJSON["frame"] == null) {
-                    QueuePosition.value = resJSON['queue'];
-                    queueStatus.value = `queue position ${resJSON['queue']}`;
-                } else {
-                    if(resJSON["total"] > 0 && resJSON["frame"] > 0) {
-                        progress.value = (resJSON["frame"] / resJSON["total"]) * 100;
+                if(resJSON["state"] == 0) {
+                    progress.value = 0;
+                    if(queueStatus.value == "") {
+                        if(resJSON['queue'] > 0) {
+                            QueuePosition.value = resJSON['queue'];
+                            queueStatus.value = `Queue Position ${resJSON['queue']}`;
+                        } else {
+                            queueStatus.value = "Waiting";
+                        }
+                    }
+                } else if(resJSON["state"] == 10) {
+                    totalFrames.value = resJSON["raw_total"];
+                    currentFrame.value = resJSON["raw_count"];
+                    if(resJSON["raw_total"] > 0 && resJSON["raw_count"] > 0) {
+                        progress.value = (resJSON["raw_count"] / resJSON["raw_total"]) * 100;
                     } else {
                         progress.value = 0;
                     }
-                    if(resJSON['finished'] == 1) {
-                        queueStatus.value = "finished";
-                        requestRunning = false;
-                    } else if(resJSON['generating'] == 1) {
-                        if (resJSON["total"] == resJSON["frame"]) {
-                            queueStatus.value = "interpolating";
-                        } else {
-                            queueStatus.value = "generating";
-                        }
+                } else if(resJSON["state"] == 20) {
+                    totalFrames.value = resJSON["intl_total"];
+                    currentFrame.value = resJSON["intl_count"];
+                    if(resJSON["intl_total"] > 0 && resJSON["intl_count"] > 0) {
+                        progress.value = (resJSON["intl_count"] / resJSON["intl_total"]) * 100;
+                    } else {
+                        progress.value = 0;
+                    }
+                } else if(resJSON["state"] == 99) {
+                    totalFrames.value = resJSON["video_total"];
+                    currentFrame.value = resJSON["video_count"];
+                    if(resJSON["video_total"] > 0 && resJSON["video_count"] > 0) {
+                        progress.value = (resJSON["video_count"] / resJSON["video_total"]) * 100;
+                    } else {
+                        progress.value = 0;
                     }
                 }
+
+                if(resJSON['finished'] == 1) {
+                    requestRunning = false;
+                }
+
             }
         }
 
@@ -287,22 +308,24 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const minFPS = ref(1);
     const maxFPS = computed(() => {
         if((params.value.timestointerpolate || 0) == 1)
-            return 8;
+            return 10;
         if((params.value.timestointerpolate || 0) == 2)
-            return 6;
+            return 8;
         if((params.value.timestointerpolate || 0) == 3)
-            return 4;
+            return 6;
         if((params.value.timestointerpolate || 0) == 4)
+            return 4;
+        if((params.value.timestointerpolate || 0) == 5)
             return 2;
         if(optionsStore.allowLargerParams)
-            return 20;
-        return 10;
+            return 24;
+        return 12;
     });
     const minDuration = ref(1);
     const maxDuration = computed(() => {
         if(optionsStore.allowLargerParams)
-            return 10;
-        return 5;
+            return 15;
+        return 10;
     });
     const minWidth = ref(64);
     const maxWidth = ref(768);
@@ -313,11 +336,11 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const minSteps = ref(1);
     const maxSteps = computed(() => {
         if(optionsStore.allowLargerParams)
-            return 100;
-        return 50;
+            return 150;
+        return 75;
     });
     const minTimestointerpolate = ref(1);
-    const maxTimestointerpolate = ref(4);
+    const maxTimestointerpolate = ref(5);
 
     const generating = ref(false);
     const cancelled = ref(false);
