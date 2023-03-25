@@ -134,10 +134,12 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             "TimesToInterpolate": params.value.timestointerpolate
         }
 
+        const calculatedTotalFrames = ((params.value.fps || 1) * (params.value.desired_duration || 1) - 1) * (2**(params.value.timestointerpolate || 1) - 1)
+
         const url = `https://api.artificial-art.eu/video/push`;
         const response = await fetch(url, {
             method: 'POST',
-            body: JSON.stringify({UserID: useUserStore().userId, Payload: Payload, TotalFrames: ((params.value.fps || 1) * (params.value.desired_duration || 1))}),
+            body: JSON.stringify({UserID: useUserStore().userId, Payload: Payload, TotalFrames: calculatedTotalFrames}),
             headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'} });
 
         const resAddJSON = await response.json();
@@ -258,8 +260,8 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const params = useLocalStorage<ModelGenerationVideo>("videoParams", getDefaultStore());
 
     function getTime() {
-        let TotalFrame = (params.value.fps || 1) * (params.value.desired_duration || 1);
-        return TotalFrame + " Frames";
+        const calculatedTotalFrames = ((params.value.fps || 1) * (params.value.desired_duration || 1) - 1) * (2**(params.value.timestointerpolate || 1) - 1)
+        return calculatedTotalFrames + " Frames";
     }
 
     const AvailableModels = ref<string[]>([]);
