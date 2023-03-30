@@ -13,7 +13,8 @@ import {
     Clock,
     FolderChecked,
     FolderOpened,
-TrendCharts
+    MagicStick,
+    TrendCharts
 } from '@element-plus/icons-vue';
 import { useGeneratorStore } from '@/stores/generator';
 import FormInput from './FormInput.vue';
@@ -110,6 +111,11 @@ function showNsfwNotification(event: string) {
             </el-tooltip>
         </template>
         <template #inline>
+            <el-tooltip content="Generate Prompt" placement="right">
+                <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
+                    store.generatePrompt();
+                }" :icon="MagicStick"/>
+            </el-tooltip>
             <el-tooltip content="Prompt History" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="Clock "/>
             </el-tooltip>

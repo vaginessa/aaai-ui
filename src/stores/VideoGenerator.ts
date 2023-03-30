@@ -74,6 +74,34 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const QueuePosition = ref(0);
     const latestSeed = ref();
 
+    async function generatePrompt(id: number) {
+        document.getElementById('ovl')?.classList.add('active');
+        MersenneTwister(Math.random());
+        let par = {UserID: useUserStore().userId, Prompt: "", Seed: 0}
+        if(params.value.prompts !== undefined && params.value.prompts[id] != "") {
+            par.Prompt = params.value.prompts[id]
+        }
+        par.Seed = genrand_int32()
+        const url = `https://api.artificial-art.eu/prompt/query`;
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(par),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'} });
+        const resJSON = await response.json();
+        let requestRunning = resJSON['success'];
+        while (requestRunning) {
+            await sleep(1250);
+            const url = `https://api.artificial-art.eu/prompt/get?u=${useUserStore().userId}&j=${resJSON['uid']}`;
+            const response = await fetch(url);
+            const resStatJSON = await response.json();
+            if (resStatJSON['success']) {
+                params.value.prompts[id] = resStatJSON['prompt']
+                requestRunning = false
+                document.getElementById('ovl')?.classList.remove('active');
+            }
+        }
+    }
+
     async function generateVideo() {
         
         if (LastJobID.value !== "" ) {
@@ -420,6 +448,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         getTime,
         getProgressWriting,
         deleteVideo,
-        downloadVideo
+        downloadVideo,
+        generatePrompt
     }
 })

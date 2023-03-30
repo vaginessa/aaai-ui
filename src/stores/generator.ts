@@ -350,6 +350,34 @@ export const useGeneratorStore = defineStore("generator", () => {
         return true;
     }
 
+    async function generatePrompt() {
+        document.getElementById('ovl')?.classList.add('active');
+        MersenneTwister();
+        let par = {UserID: useUserStore().userId, Prompt: "", Seed: 0}
+        if(prompt.value !== undefined && prompt.value != "") {
+            par.Prompt = prompt.value
+        }
+        par.Seed = genrand_int32()
+        const url = `https://api.artificial-art.eu/prompt/query`;
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(par),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'} });
+        let resJSON = await response.json();
+        let requestRunning = resJSON['success'];
+        while (requestRunning) {
+            await sleep(1250);
+            const url = `https://api.artificial-art.eu/prompt/get?u=${useUserStore().userId}&j=${resJSON['uid']}`;
+            const response = await fetch(url);
+            let resStatJSON = await response.json();
+            if (resStatJSON['success']) {
+                prompt.value = resStatJSON['prompt']
+                requestRunning = false
+                document.getElementById('ovl')?.classList.remove('active');
+            }
+        }
+    }
+
     const generateFormBaseRules = reactive<FormRules>({
         prompt: [{
             required: true,
@@ -1032,5 +1060,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         removeFromPromptHistory,
         generateFormBaseRules,
         checkIfInpainting,
+        generatePrompt,
     };
 });
