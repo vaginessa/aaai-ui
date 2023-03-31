@@ -772,7 +772,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                     rated: 0,
                     control_net: params?.control_type?.toString(),
                     generation_time: (performance.now() / 1000) - (image.started || 0),
-                    generation_date: new Date().toLocaleString()
+                    generation_date: new Date().toISOString()
                 }
             })
         )
