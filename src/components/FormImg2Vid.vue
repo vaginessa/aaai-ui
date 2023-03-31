@@ -9,6 +9,9 @@ import { convertToBase64 } from '@/utils/base64';
 import { ref } from 'vue';
 import { loadURL as base64Image, toBase64URL } from "../utils/base64";
 import { encode } from "image-js";
+import FormOnOffButton from './FormOnOffButton.vue';
+import { Check, Close } from '@element-plus/icons-vue';
+import FormSlider from './FormSlider.vue';
 
 const store = useVideoGeneratorStore();
 
@@ -85,16 +88,17 @@ async function handleChange(uploadFile: UploadFile) {
                         Reset
                     </el-button>
                 </div>
-                <el-card class="center-both" >
+                <el-card class="center-both" style="width: 100%;display: block;" >
                     <el-upload
                         drag
                         ref="upload"
                         :auto-upload="false"
                         @change="handleChange"
                         :limit="1"
+                        style="max-width: 500px;margin: auto;"
                         v-if="store.sourceImage == ''"
                     >
-                        <el-icon :size="100"><upload-filled /></el-icon>
+                        <el-icon :size="100" style="max-width: 250px;"><upload-filled /></el-icon>
                         <div>Drop file here OR <em>click to upload</em></div>
                         <template #tip>
                             <div>
@@ -109,7 +113,17 @@ async function handleChange(uploadFile: UploadFile) {
                             </div>
                         </template>
                     </el-upload>
-                    <img v-else :src="store.sourceImage" />
+                    <div v-else style="display: flex;align-content: center;justify-content: center;">
+                        <img :src="store.sourceImage" style="max-width:100%;max-height: 500px;" />
+                    </div>
+                    <div v-if="store.sourceImage != ''" style="margin-top: 25px;margin-bottom:50px;width: 100%;">
+                        <form-on-off-button prop="boomerang" label="Bommerang" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.boomerang_clip" info="Zoom In and Out. After the inital move, reverse back to the begining!" />
+                        <form-slider label="Shift amount x" prop="shiftAmountX" v-model="store.parallaxParams.shift_amount_x" :min="-1300" :max="1300" info="The X cordinate for the target point. WARNING: Valid values depend on source image and zoom amount."/>
+                        <form-slider label="Shift amount y" prop="shiftAmountY" v-model="store.parallaxParams.shift_amount_y" :min="-1300" :max="1300" info="The Y cordinate for the target point. WARNING: Valid values depend on source image and zoom amount." />
+                        <form-slider label="Zoom amount" prop="zoomAmount" v-model="store.parallaxParams.zoom_amount" :min="1.1" :max="2" :step="0.05" />
+                        <form-slider label="Zoom duration" prop="zoomDuration" v-model="store.parallaxParams.zoom_duration" :min="0.2" :max="10" :step="0.05" />
+                        <form-slider label="Frame rate" prop="frameRate" v-model="store.parallaxParams.frame_rate" :min="1" :max="100" />
+                    </div>
                 </el-card>
             </div>
             <div class="main">

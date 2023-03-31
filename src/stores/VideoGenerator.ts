@@ -24,13 +24,8 @@ export type ModelGenerationVideo = {
     timestointerpolate?: number;
 };
 
-export interface IModelData {
-    ID?: number;
-    Name?: string;
-}
-
 function getDefaultStore() {
-    MersenneTwister(Math.random());
+    MersenneTwister();
     return <ModelGenerationVideo>{
         prompts: [""],
         neg_prompts: "",
@@ -47,6 +42,31 @@ function getDefaultStore() {
         interpolate: "None",
         timestointerpolate: 2
     }
+}
+
+export type ModelGenerationParallaxVideo = {
+    boomerang_clip?: boolean;
+    frame_rate?: number;
+    shift_amount_x?: number;
+    shift_amount_y?: number;
+    zoom_amount?: number;
+    zoom_duration?: number;
+};
+
+function getDefaultParallaxStore() {
+    return <ModelGenerationParallaxVideo>{
+        boomerang_clip: true,
+        frame_rate: 25,
+        shift_amount_x: 100,
+        shift_amount_y: 100,
+        zoom_amount: 1.25,
+        zoom_duration: 3.0
+    }
+}
+
+export interface IModelData {
+    ID?: number;
+    Name?: string;
 }
 
 const generateFormBaseRules = reactive<FormRules>({
@@ -92,10 +112,17 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                 message: `No file found! ...`,
                 type: 'error',
             });
+            generating.value = false;
             return;
         }
         const Payload = {
             "Mode": "Parallax",
+            "boomerang_clip": parallaxParams.value.boomerang_clip,
+            "frame_rate": parallaxParams.value.frame_rate,
+            "shift_amount_x": parallaxParams.value.shift_amount_x,
+            "shift_amount_y": parallaxParams.value.shift_amount_y,
+            "zoom_amount": parallaxParams.value.zoom_amount,
+            "zoom_duration": parallaxParams.value.zoom_duration,
             "Image": sourceImage.value
         }
         const url = `https://api.artificial-art.eu/video/push`;
@@ -106,12 +133,12 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         const resAddJSON = await response.json();
         let requestRunning = resAddJSON['success'];
         if(!requestRunning) {
-            generating.value = false;
             useUserStore().UpdateInternally();
             ElMessage({
                 message: `Error while requesting! ${requestRunning['msg']}...`,
                 type: 'error',
             });
+            generating.value = false;
             return;
         }
         while (requestRunning) {
@@ -132,34 +159,18 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                             queueStatus.value = "Waiting";
                         }
                     }
-                } else if(resJSON["state"] == 10) {
-                    totalFrames.value = resJSON["raw_total"];
-                    currentFrame.value = resJSON["raw_count"];
-                    if(resJSON["raw_total"] > 0 && resJSON["raw_count"] > 0) {
-                        progress.value = (resJSON["raw_count"] / resJSON["raw_total"]) * 100;
-                    } else {
-                        progress.value = 0;
-                    }
-                } else if(resJSON["state"] == 20) {
-                    totalFrames.value = resJSON["intl_total"];
-                    currentFrame.value = resJSON["intl_count"];
-                    if(resJSON["intl_total"] > 0 && resJSON["intl_count"] > 0) {
-                        progress.value = (resJSON["intl_count"] / resJSON["intl_total"]) * 100;
-                    } else {
-                        progress.value = 0;
-                    }
-                } else if(resJSON["state"] == 99) {
-                    totalFrames.value = resJSON["video_total"];
-                    currentFrame.value = resJSON["video_count"];
-                    if(resJSON["video_total"] > 0 && resJSON["video_count"] > 0) {
-                        progress.value = (resJSON["video_count"] / resJSON["video_total"]) * 100;
-                    } else {
-                        progress.value = 0;
-                    }
                 }
-
                 if(resJSON['finished'] == 1) {
                     requestRunning = false;
+                }
+                // ugly but it will do for now
+                if(queueStatus.value == 'Job errored out!') {
+                    ElMessage({
+                        message: `Error while rendering, most likely wrong shift values! ${requestRunning['msg']}...`,
+                        type: 'error',
+                    });
+                    requestRunning = false;
+                    cancelled.value = true;
                 }
             }
         }
@@ -167,6 +178,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             LastJobID.value = "";
             videoUrl.value = "none";
             cancelled.value = false;
+            generating.value = false;
             const url = `https://api.artificial-art.eu/video/cancel?jobid=${resAddJSON['job_id']}`;
             await fetch(url);
         } else {
@@ -409,6 +421,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const generateMsg = ref('');
 
     const params = useLocalStorage<ModelGenerationVideo>("videoParams", getDefaultStore());
+    const parallaxParams = useLocalStorage<ModelGenerationParallaxVideo>("parallaxParams", getDefaultParallaxStore());
 
     function getTime() {
         var calculatedTotalFrames = 0;
@@ -569,6 +582,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         downloadVideo,
         generatePrompt,
         sourceImage,
-        generateParallaxClicked
+        generateParallaxClicked,
+        parallaxParams
     }
 })

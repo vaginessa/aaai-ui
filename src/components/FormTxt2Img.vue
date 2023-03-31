@@ -9,11 +9,8 @@ import FormOnOffButton from './FormOnOffButton.vue';
 import FormPromptInput from './FormPromptInput.vue';
 import FormImagePreview from './FormImagePreview.vue';
 import { useGeneratorStore } from '@/stores/generator';
-import { useUIStore } from '@/stores/ui';
-import { useWorkerStore } from '@/stores/workers';
 import { useCanvasStore } from '@/stores/canvas';
 import { Check, Close } from '@element-plus/icons-vue';
-import { or } from 'image-js';
 
 const store = useGeneratorStore();
 const canvasStore = useCanvasStore();
