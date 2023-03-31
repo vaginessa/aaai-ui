@@ -90,6 +90,10 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         generateVideo();
     }
 
+    function resetParallaxParams() {
+        parallaxParams.value = getDefaultParallaxStore();
+    }
+
     const LastJobID = ref("");
     const QueuePosition = ref(0);
     const latestSeed = ref();
@@ -583,6 +587,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         generatePrompt,
         sourceImage,
         generateParallaxClicked,
-        parallaxParams
+        parallaxParams,
+        resetParallaxParams
     }
 })

@@ -80,12 +80,20 @@ async function handleChange(uploadFile: UploadFile) {
             <div class="sidebar">
                 <div style="margin-bottom:8px;">
                     <el-button
-                        type="primary"
+                        type="warning"
                         :disabled="store.sourceImage == ''"
-                        style="width: 100%;font-size: 0.9em;"
+                        style="width: 49%;font-size: 0.9em;"
                         @click="store.sourceImage = ''"
                     >
-                        Reset
+                        Reset Image
+                    </el-button>
+                    <el-button
+                        type="warning"
+                        :disabled="store.sourceImage == ''"
+                        style="width: 49%;font-size: 0.9em;"
+                        @click="store.resetParallaxParams()"
+                    >
+                        Reset Parameters
                     </el-button>
                 </div>
                 <el-card class="center-both" style="width: 100%;display: block;" >

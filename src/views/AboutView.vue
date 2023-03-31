@@ -12,6 +12,7 @@ import BaseLink from '@/components/BaseLink.vue';
         <hr>
         <div>If you are in need of an API-Key you can get one over at <BaseLink :router="false" href="https://stablehorde.net/register">https://stablehorde.net/register</BaseLink></div>
         <hr>
+        <div><br/>DadJokes by <BaseLink :router="false" href="https://icanhazdadjoke.com/">icanhazdadjoke.com</BaseLink></div>
         <div><br/>Based on the original development by <BaseLink :router="false" href="https://aqualxx.github.io/stable-ui/">aqualxx#5004</BaseLink></div>
         <div><br/>Powerd by <BaseLink :router="false" href="https://stablehorde.net/">horde network</BaseLink> (<BaseLink :router="false" href="https://discord.gg/3DxrhksKzn">Discord</BaseLink>).</div>
     </div>
