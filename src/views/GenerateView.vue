@@ -65,9 +65,9 @@ handleUrlParams();
         :class="isMobile ? 'mobile-generator-types' : 'generator-types'"
     >
         <GeneratorMenuItem index="Txt2Img"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" />
+        <GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Img2Vid"       :icon-one="PictureFilled"       :icon-two="VideoCameraFilled" :isMobile="isMobile" />
-        <GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" />
         <!--GeneratorMenuItem index="Img2Txt"    :icon-one="PictureFilled"       :icon-two="Comment" :isMobile="isMobile" /-->
         <!--GeneratorMenuItem index="Txt2Txt"    :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
         <GeneratorMenuItem index="Rating"        :icon-one="StarEdit24Regular"   :isMobile="isMobile" />
