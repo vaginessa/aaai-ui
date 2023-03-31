@@ -13,6 +13,7 @@ import { useLiveQuery } from "@/utils/useLiveQuery";
 import { DEBUG_MODE } from "@/constants";
 
 export interface ImageData {
+    generation_date?: string;
     id: number;
     jobId?: string;
     image: string;

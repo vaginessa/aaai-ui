@@ -82,7 +82,7 @@ interface IPromptHistory {
     timestamp: number;
 }
 
-type IGeneratorType = 'Txt2Img' | 'Txt2Vid' | 'Img2Img' | 'Rating'
+type IGeneratorType = 'Txt2Img' | 'Txt2Vid' | 'Img2Vid' | 'Img2Img' | 'Rating'
 type IMultiModel = "Enabled" | "Disabled"
 type IGroupedModel ={ label: string; options: {label: string; value: string;}[] }[];
 
@@ -771,7 +771,8 @@ export const useGeneratorStore = defineStore("generator", () => {
                     starred: 0,
                     rated: 0,
                     control_net: params?.control_type?.toString(),
-                    generation_time: (performance.now() / 1000) - (image.started || 0)
+                    generation_time: (performance.now() / 1000) - (image.started || 0),
+                    generation_date: new Date().toLocaleString()
                 }
             })
         )

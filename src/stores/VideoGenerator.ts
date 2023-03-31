@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
-import type { FormRules } from "element-plus";
+import { ElMessage, type FormRules } from "element-plus";
 import { computed, reactive, ref } from "vue";
 import { useUserStore } from "./user";
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
@@ -74,6 +74,108 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const QueuePosition = ref(0);
     const latestSeed = ref();
 
+    const sourceImage = ref("");
+
+
+    async function generateParallaxClicked() {
+        if (LastJobID.value !== "" ) {
+            videoUrl.value = 'none'
+            const url = `https://api.artificial-art.eu/video/get?jobid=${LastJobID.value}`;
+            fetch(url);
+            LastJobID.value = "";
+        }
+        MersenneTwister();
+        generating.value = true;
+        queueStatus.value = "Waiting";
+        if(sourceImage.value === undefined || sourceImage.value === '') {
+            ElMessage({
+                message: `No file found! ...`,
+                type: 'error',
+            });
+            return;
+        }
+        const Payload = {
+            "Mode": "Parallax",
+            "Image": sourceImage.value
+        }
+        const url = `https://api.artificial-art.eu/video/push`;
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({UserID: useUserStore().userId, Payload: Payload, TotalFrames: 0}),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'} });
+        const resAddJSON = await response.json();
+        let requestRunning = resAddJSON['success'];
+        if(!requestRunning) {
+            generating.value = false;
+            useUserStore().UpdateInternally();
+            ElMessage({
+                message: `Error while requesting! ${requestRunning['msg']}...`,
+                type: 'error',
+            });
+            return;
+        }
+        while (requestRunning) {
+            await sleep(1250);
+            if (cancelled.value) break;
+            const url = `https://api.artificial-art.eu/video/status?jobid=${resAddJSON['job_id']}`;
+            const response = await fetch(url);
+            const resJSON = await response.json();
+            if(resJSON["success"]) {
+                queueStatus.value = resJSON["msg"];
+                if(resJSON["state"] == 0) {
+                    progress.value = 0;
+                    if(queueStatus.value == "") {
+                        if(resJSON['queue'] > 0) {
+                            QueuePosition.value = resJSON['queue'];
+                            queueStatus.value = `Queue Position ${resJSON['queue']}`;
+                        } else {
+                            queueStatus.value = "Waiting";
+                        }
+                    }
+                } else if(resJSON["state"] == 10) {
+                    totalFrames.value = resJSON["raw_total"];
+                    currentFrame.value = resJSON["raw_count"];
+                    if(resJSON["raw_total"] > 0 && resJSON["raw_count"] > 0) {
+                        progress.value = (resJSON["raw_count"] / resJSON["raw_total"]) * 100;
+                    } else {
+                        progress.value = 0;
+                    }
+                } else if(resJSON["state"] == 20) {
+                    totalFrames.value = resJSON["intl_total"];
+                    currentFrame.value = resJSON["intl_count"];
+                    if(resJSON["intl_total"] > 0 && resJSON["intl_count"] > 0) {
+                        progress.value = (resJSON["intl_count"] / resJSON["intl_total"]) * 100;
+                    } else {
+                        progress.value = 0;
+                    }
+                } else if(resJSON["state"] == 99) {
+                    totalFrames.value = resJSON["video_total"];
+                    currentFrame.value = resJSON["video_count"];
+                    if(resJSON["video_total"] > 0 && resJSON["video_count"] > 0) {
+                        progress.value = (resJSON["video_count"] / resJSON["video_total"]) * 100;
+                    } else {
+                        progress.value = 0;
+                    }
+                }
+
+                if(resJSON['finished'] == 1) {
+                    requestRunning = false;
+                }
+            }
+        }
+        if (cancelled.value) {
+            LastJobID.value = "";
+            videoUrl.value = "none";
+            cancelled.value = false;
+            const url = `https://api.artificial-art.eu/video/cancel?jobid=${resAddJSON['job_id']}`;
+            await fetch(url);
+        } else {
+            LastJobID.value = resAddJSON['job_id'];
+            videoUrl.value = `https://api.artificial-art.eu/AIVideos/${resAddJSON['job_id']}.mp4`;
+        }
+        generating.value = false;
+    }
+
     async function generatePrompt(id: number) {
         document.getElementById('ovl')?.classList.add('active');
         MersenneTwister(Math.random());
@@ -111,7 +213,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             LastJobID.value = "";
         }
 
-        MersenneTwister(Math.random());
+        MersenneTwister();
 
         generating.value = true;
         progress.value = 0;
@@ -119,8 +221,20 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         totalFrames.value = 0;
         queueStatus.value = "waiting";
 
-        if(params.value.prompts === undefined || params.value.seed === undefined)
-            return; // Add error handling
+        if(params.value.prompts === undefined) {
+            ElMessage({
+                message: `No Prompt is set! ...`,
+                type: 'error',
+            });
+            return;
+        }
+        if(params.value.seed === undefined) {
+            ElMessage({
+                message: `No Seed is set! ...`,
+                type: 'error',
+            });
+            return;
+        }
 
         params.value.seed.forEach((seed, index) => {
             if(seed == undefined || seed as any == '')
@@ -182,6 +296,10 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         if(!requestRunning) {
             generating.value = false;
             useUserStore().UpdateInternally();
+            ElMessage({
+                message: `Error while requesting! ${requestRunning['msg']}...`,
+                type: 'error',
+            });
             return;
         }
         
@@ -449,6 +567,8 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         getProgressWriting,
         deleteVideo,
         downloadVideo,
-        generatePrompt
+        generatePrompt,
+        sourceImage,
+        generateParallaxClicked
     }
 })

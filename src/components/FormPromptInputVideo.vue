@@ -78,6 +78,11 @@ function getStyle(key: string) {
                         vStore.params.prompts?.push('');
                     }" :icon="Plus"/>
                 </el-tooltip>
+                <el-tooltip content="Generate Prompt" placement="right">
+                    <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
+                        vStore.generatePrompt(index);
+                    }" :icon="MagicStick"/>
+                </el-tooltip>
                 <el-tooltip content="Prompt History" placement="right" v-if="index == 0">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="Clock "/>
                 </el-tooltip>
