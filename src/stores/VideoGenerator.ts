@@ -46,21 +46,31 @@ function getDefaultStore() {
 
 export type ModelGenerationParallaxVideo = {
     boomerang_clip?: boolean;
+    predict_music?: boolean;
+    autozoom?: boolean;
     frame_rate?: number;
-    shift_amount_x?: number;
-    shift_amount_y?: number;
     zoom_amount?: number;
     zoom_duration?: number;
+    start_x_offset?: number;
+    start_y_offset?: number;
+    end_x_offset?: number;
+    end_y_offset?: number;
 };
 
 function getDefaultParallaxStore() {
     return <ModelGenerationParallaxVideo>{
         boomerang_clip: true,
+        predict_music: false,
+        autozoom: true,
         frame_rate: 25,
         shift_amount_x: 100,
         shift_amount_y: 100,
         zoom_amount: 1.25,
-        zoom_duration: 3.0
+        zoom_duration: 3.0,
+        start_x_offset: 0,
+        start_y_offset: 0,
+        end_x_offset: 0,
+        end_y_offset: 0,
     }
 }
 
@@ -122,9 +132,13 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         const Payload = {
             "Mode": "Parallax",
             "boomerang_clip": parallaxParams.value.boomerang_clip,
+            "autozoom": parallaxParams.value.autozoom,
+            "start_x_offset": parallaxParams.value.start_x_offset,
+            "start_y_offset": parallaxParams.value.start_y_offset,
+            "end_x_offset": parallaxParams.value.end_x_offset,
+            "end_y_offset": parallaxParams.value.end_y_offset,
+            "predict_music": parallaxParams.value.predict_music,
             "frame_rate": parallaxParams.value.frame_rate,
-            "shift_amount_x": parallaxParams.value.shift_amount_x,
-            "shift_amount_y": parallaxParams.value.shift_amount_y,
             "zoom_amount": parallaxParams.value.zoom_amount,
             "zoom_duration": parallaxParams.value.zoom_duration,
             "Image": sourceImage.value
