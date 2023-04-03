@@ -400,8 +400,6 @@ export const useGeneratorStore = defineStore("generator", () => {
         if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed("Failed to generate: No model selected.");
         if (multiControlTypeSelect.value === "Enabled" && selectedControlTypeMultiple.value.length === 0 && generatorType.value === "Img2Img") return generationFailed("Failed to generate: No control type selected.");
 
-        MersenneTwister(undefined);
-
         const canvasStore = useCanvasStore();
         const optionsStore = useOptionsStore();
         const uiStore = useUIStore();
@@ -437,13 +435,24 @@ export const useGeneratorStore = defineStore("generator", () => {
 
         // Cache parameters so the user can't mutate the output data while it's generating
         const paramsCached: GenerationInput[] = [];
+        let firstSeed = "";
+        if (params.value.seed !== undefined && params.value.seed != "") {
+            var numberSeed: number = +params.value.seed;
+            if(isNaN(numberSeed) || numberSeed == 0) {
+                MersenneTwister();
+                firstSeed = genrand_int32().toString();
+            } else {
+                MersenneTwister(numberSeed);
+                firstSeed = numberSeed.toString();
+            }
+        }
 
         // Get all prompt matrices (example: {vase|pot}) + models and try to spread the batch size evenly
         const newPrompts = promptMatrix();
         const plannedSeeds = [];
         const requestCount = totalImageCount.value / (params.value.n || 1);
         for (let i = 0; i < (params.value.n || 1); i++) {
-            plannedSeeds.push(params.value.seed == "" ? genrand_int32().toString() : params.value.seed);
+            plannedSeeds.push(i == 0 ? firstSeed : genrand_int32().toString());
         }
 
         for (let i = 0; i < requestCount; i++) {
@@ -457,7 +466,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                     prompt: currentPrompt,
                     params: {
                         ...params.value,
-                        seed: params.value.seed == "" ? plannedSeeds[iN] : params.value.seed,
+                        seed: plannedSeeds[iN],
                         seed_variation: params.value.seed === "" ? 1000 : 1,
                         post_processing: params.value.post_processing || [],
                         sampler_name: currentSampler,
