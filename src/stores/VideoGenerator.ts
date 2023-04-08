@@ -10,15 +10,18 @@ import { validateResponse } from "@/utils/validate";
 export type ModelGenerationVideo = {
     prompts?: string[];
     neg_prompts?: string;
+    neg_decoder_prompt?: string;
     seed?: number[];
     sampler?: string;
     model?: string;
     steps?: number;
+    prior_steps?: number;
     height?: number;
     width?: number;
     desired_duration?: number;
     fps?: number;
     cfg_scale?: number;
+    prior_cfg_scale?: number;
     upsampler?: string; //None | RealESRGAN for now
     interpolate?: string; //None | FilmNet
     timestointerpolate?: number;
@@ -29,15 +32,18 @@ function getDefaultStore() {
     return <ModelGenerationVideo>{
         prompts: [""],
         neg_prompts: "",
+        neg_decoder_prompt: "",
         seed: [genrand_int32()],
         sampler: "Euler",
         model: "Deliberate",
         steps: 30,
+        prior_steps: 25,
         height: 512,
         width: 512,
         desired_duration: 5,
         fps: 10,
         cfg_scale: 6,
+        prior_cfg_scale: 4,
         upsampler: "None",
         interpolate: "None",
         timestointerpolate: 2
@@ -110,6 +116,93 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
 
     const sourceImage = ref("");
 
+    async function generateImageClicked() {
+        if (LastJobID.value !== "" ) {
+            videoUrl.value = 'none'
+            const url = `https://api.artificial-art.eu/video/get?jobid=${LastJobID.value}`;
+            fetch(url);
+            LastJobID.value = "";
+        }
+        MersenneTwister();
+        generating.value = true;
+        queueStatus.value = "Waiting";
+
+        const Payload = {
+            "Mode": "Picture",
+            "Prompt": params.value.prompts ? params.value.prompts[0] : "",
+            "NegPriorPrompt": params.value.neg_prompts || "",
+            "NegDecPrompt": params.value.neg_decoder_prompt || "",
+            "Width": params.value.width,
+            "Height": params.value.height,
+            "GuidanceScale": params.value.cfg_scale,
+            "PriorGuidanceScale": params.value.prior_cfg_scale,
+            "Steps": params.value.steps,
+            "PriorSteps": params.value.prior_steps,
+            "Model": AvailableModels.value.indexOf(params.value.model || "Deliberate"),
+            "Scheduler": params.value.sampler,
+        }
+        const url = `https://api.artificial-art.eu/video/push`;
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({UserID: useUserStore().userId, Payload: Payload, TotalFrames: 0}),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'} });
+        const resAddJSON = await response.json();
+        let requestRunning = resAddJSON['success'];
+        if(!requestRunning) {
+            useUserStore().UpdateInternally();
+            ElMessage({
+                message: `Error while requesting! ${requestRunning['msg']}...`,
+                type: 'error',
+            });
+            generating.value = false;
+            return;
+        }
+        while (requestRunning) {
+            await sleep(1250);
+            if (cancelled.value) break;
+            const url = `https://api.artificial-art.eu/video/status?jobid=${resAddJSON['job_id']}`;
+            const response = await fetch(url);
+            const resJSON = await response.json();
+            if(resJSON["success"]) {
+                queueStatus.value = resJSON["msg"];
+                if(resJSON["state"] == 0) {
+                    progress.value = 0;
+                    if(queueStatus.value == "") {
+                        if(resJSON['queue'] > 0) {
+                            QueuePosition.value = resJSON['queue'];
+                            queueStatus.value = `Queue Position ${resJSON['queue']}`;
+                        } else {
+                            queueStatus.value = "Waiting";
+                        }
+                    }
+                }
+                if(resJSON['finished'] == 1) {
+                    requestRunning = false;
+                }
+                // ugly but it will do for now
+                if(queueStatus.value == 'Job errored out!') {
+                    ElMessage({
+                        message: `Error while rendering, most likely wrong shift values! ${requestRunning['msg']}...`,
+                        type: 'error',
+                    });
+                    requestRunning = false;
+                    cancelled.value = true;
+                }
+            }
+        }
+        if (cancelled.value) {
+            LastJobID.value = "";
+            videoUrl.value = "none";
+            cancelled.value = false;
+            generating.value = false;
+            const url = `https://api.artificial-art.eu/video/cancel?jobid=${resAddJSON['job_id']}`;
+            await fetch(url);
+        } else {
+            LastJobID.value = resAddJSON['job_id'];
+            videoUrl.value = `https://api.artificial-art.eu/AIVideos/${resAddJSON['job_id']}.png`;
+        }
+        generating.value = false;
+    }
 
     async function generateParallaxClicked() {
         if (LastJobID.value !== "" ) {
@@ -464,6 +557,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                 AvailableModels.value.push(el.Name);
             }
         });
+        AvailableModels.value.push('Kandinsky');
     }
 
     const AvailableSamplers = [
@@ -519,8 +613,8 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     const minDuration = ref(1);
     const maxDuration = computed(() => {
         if(optionsStore.allowLargerParams)
-            return 15;
-        return 10;
+            return 20;
+        return 15;
     });
     const minWidth = ref(64);
     const maxWidth = ref(768);
@@ -602,6 +696,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         sourceImage,
         generateParallaxClicked,
         parallaxParams,
-        resetParallaxParams
+        resetParallaxParams,
+        generateImageClicked
     }
 })
