@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { useVideoGeneratorStore } from '@/stores/VideoGenerator';
+import { useLanguageStore } from '@/stores/i18n';
 import { ElForm, ElMessage, ElButton, ElCard, ElProgress, ElRow, ElCol, ElUpload, type UploadFile, type UploadRawFile, ElInput } from 'element-plus';
 import { UploadFilled, Download  } from '@element-plus/icons-vue';
 import FormPun from './FormPuns.vue';
@@ -14,6 +15,7 @@ import { Check, Close } from '@element-plus/icons-vue';
 import FormSlider from './FormSlider.vue';
 
 const store = useVideoGeneratorStore();
+const lang = useLanguageStore();
 
 const WebURL = ref("");
 
@@ -125,8 +127,8 @@ async function handleChange(uploadFile: UploadFile) {
                         <img :src="store.sourceImage" style="max-width:100%;max-height: 500px;" />
                     </div>
                     <div v-if="store.sourceImage != ''" style="margin-top: 25px;margin-bottom:50px;width: 100%;">
-                        <form-on-off-button prop="boomerang" label="Bommerang" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.boomerang_clip" info="Zoom In and Out. After the inital move, reverse back to the begining!" />
-                        <form-on-off-button prop="autozoom" label="Autozoom" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.autozoom" info="Try's to generate the most intresting Zoom!" />
+                        <form-on-off-button prop="boomerang" label="Bommerang" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.boomerang_clip" :info ="lang.GetText(`ttboomerang`)" />
+                        <form-on-off-button prop="autozoom" label="Autozoom" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.autozoom" :info ="lang.GetText(`ttautozoom`)" />
                         <form-slider v-if="store.parallaxParams.autozoom == false" label="Start X Offset" prop="startXOffset" v-model="store.parallaxParams.start_x_offset" :min="-1024" :max="1024" />
                         <form-slider v-if="store.parallaxParams.autozoom == false" label="Start Y Offset" prop="startYOffset" v-model="store.parallaxParams.start_y_offset" :min="-1024" :max="1024" />
                         <form-slider v-if="store.parallaxParams.autozoom == false" label="End X Offset" prop="endXOffset" v-model="store.parallaxParams.end_x_offset" :min="-1024" :max="1024" />

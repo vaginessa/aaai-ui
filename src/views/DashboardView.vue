@@ -46,8 +46,8 @@ const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.ap
     <div class="dashboard">
         <div>
             <div v-if="signedIn">
-                <div class="dashboard-title">Welcome back, {{dashStore.user.username}}</div>
-                <el-row :gutter="breakLabels ? 0 : 20" justify="space-around" style="width: 100%; margin-bottom: 2rem;">
+                <div class="dashboard-title">You are logged in as {{dashStore.user.username}}</div>
+                <el-row :gutter="breakLabels ? 0 : 20" justify="center" style="width: 100%; margin-bottom: 2rem;">
                     <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Money"   label="Kudos"           :content="dashStore.user.kudos?.toLocaleString()"                       color="var(--el-color-success)" /></el-col>
                     <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Picture" label="Requested (Img|Int|Txt)"       :content="dashStore.user.records?.request?.image?.toLocaleString() + ' | ' + dashStore.user.records?.request?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.request?.text?.toLocaleString()" color="var(--el-color-danger)"  /></el-col>
                     <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Aim"     label="Generated (Img|Int|Txt)"       :content="dashStore.user.records?.fulfillment?.image?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.text?.toLocaleString()" color="var(--el-color-primary)" /></el-col>

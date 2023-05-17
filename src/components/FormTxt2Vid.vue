@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { useVideoGeneratorStore } from '@/stores/VideoGenerator';
+import { useLanguageStore } from '@/stores/i18n';
 import { ElForm, ElButton, ElCard, ElProgress, ElRow, ElCol } from 'element-plus';
 import FormSlider from './FormSlider.vue';
 import FormPun from './FormPuns.vue';
@@ -10,6 +11,7 @@ import FormPromptInputVideo from './FormPromptInputVideo.vue';
 import BaseLink from '@/components/BaseLink.vue';
 
 const store = useVideoGeneratorStore();
+const lang = useLanguageStore();
 
 function getAspectRatio(isWidth: boolean) {
     let width = (store.params.width || 1);
@@ -60,17 +62,17 @@ function getAspectRatio(isWidth: boolean) {
             <div class="sidebar">
                 <form-prompt-input-video />  
                 <FormSeed-video v-if="store.params.model != 'Kandinsky'" /> 
-                <form-select v-if="store.params.model != 'Kandinsky'" label="Sampler" prop="sampler" v-model="store.params.sampler" :options="store.AvailableSamplers" />
-                <form-slider label="Steps" prop="steps" v-model="store.params.steps" :min="store.minSteps" :max="store.maxSteps" info="Keep step count between 30 to 50 for optimal generation times. Coherence typically peaks between 60 and 90 steps, with a trade-off in speed." /> 
+                <form-select v-if="store.params.model != 'Kandinsky'" label="Sampler" prop="sampler" v-model="store.params.sampler" :options="store.AvailableSamplers" :info ="lang.GetText(`ttsampler`)" />
+                <form-slider label="Steps" prop="steps" v-model="store.params.steps" :min="store.minSteps" :max="store.maxSteps" :info ="lang.GetText(`ttsteps`)" /> 
                 <form-slider v-if="store.params.model == 'Kandinsky'" label="Prior Steps" prop="priorSteps" v-model="store.params.prior_steps" :min="store.minSteps" :max="store.maxSteps" />
                 <form-slider :label="`Width ` + getAspectRatio(true)" prop="width" v-model="store.params.width" :min="store.minWidth" :max="store.maxWidth" :step="64" />
                 <form-slider label="Height" prop="height" v-model="store.params.height" :min="store.minHeight" :max="store.maxHeight" :step="64" />
-                <form-slider label="Guidance" prop="cfgScale" v-model="store.params.cfg_scale" :min="store.minCfgScale" :max="store.maxCfgScale" :step="0.5" info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
+                <form-slider label="Guidance" prop="cfgScale" v-model="store.params.cfg_scale" :min="store.minCfgScale" :max="store.maxCfgScale" :step="0.5" :info ="lang.GetText(`ttcfg`)" />
                 <form-slider v-if="store.params.model == 'Kandinsky'" label="Prior Guidance" prop="priorCfgScale" v-model="store.params.prior_cfg_scale" :min="store.minCfgScale" :max="store.maxCfgScale" :step="0.5" />
                 <form-slider v-if="store.params.model != 'Kandinsky'" label="Desired FPS" prop="desiredFPS" v-model="store.params.fps" :min="store.minFPS" :max="store.maxFPS" />
-                <form-slider v-if="store.params.model != 'Kandinsky'" label="Desired Length" prop="desiredLength" v-model="store.params.desired_duration" :min="store.minDuration" :max="store.maxDuration" />
+                <form-slider v-if="store.params.model != 'Kandinsky'" label="Desired Length" prop="desiredLength" v-model="store.params.desired_duration" :min="store.minDuration" :max="store.maxDuration" :info ="lang.GetText(`ttlength`)" />
                 <form-select label="Model" prop="model" v-model="store.params.model" :options="store.AvailableModels" :filterable="true" />
-                <form-select v-if="store.params.model != 'Kandinsky'" label="Interpolate" prop="interpolate" v-model="store.params.interpolate" :options="store.AvailableInterpolations" />
+                <form-select v-if="store.params.model != 'Kandinsky'" label="Interpolate" prop="interpolate" v-model="store.params.interpolate" :options="store.AvailableInterpolations" :info ="lang.GetText(`ttinterpolate`)"/>
                 <form-slider label="Times to Interpolate" v-if="store.params.interpolate !== 'None' && store.params.model != 'Kandinsky'" prop="timesToInterpolate" v-model="store.params.timestointerpolate" :min="store.minTimestointerpolate" :max="store.maxTimestointerpolate" />
             </div>
             <div class="main">
