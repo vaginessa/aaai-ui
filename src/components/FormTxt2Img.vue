@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useLanguageStore } from '@/stores/i18n';
 import { ElForm, ElRow, ElCol } from 'element-plus';
 import FormSlider from './FormSlider.vue';
 import FormSeed from './FormSeed.vue';
@@ -13,6 +14,7 @@ import { useCanvasStore } from '@/stores/canvas';
 import { Check, Close } from '@element-plus/icons-vue';
 
 const store = useGeneratorStore();
+const lang = useLanguageStore();
 const canvasStore = useCanvasStore();
 
 const samplerListLite = ["k_lms", "k_heun", "k_euler", "k_euler_a", "k_dpm_2", "k_dpm_2_a"]
@@ -83,7 +85,6 @@ function ShowFacefixer(): boolean {
 }
 </script>
 
-
 <template>
     <el-form
             label-position="left"
@@ -96,41 +97,41 @@ function ShowFacefixer(): boolean {
             <div class="sidebar">
                 <form-prompt-input />
                 <form-seed />
-                <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   info="k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast."/>
+                <form-select label="Sampler"            prop="sampler"        v-model="store.params.sampler_name"       :options="availableSamplers"   :info ="lang.GetText(`ttsampler`)" />
                 <form-slider label="Batch Size"         prop="batchSize"      v-model="store.params.n"                  :min="store.minImages"     :max="store.maxImages" />
-                <form-slider label="Steps"              prop="steps"          v-model="store.params.steps"              :min="store.minSteps"      :max="store.maxSteps"      info="Keep step count between 30 to 50 for optimal generation times. Coherence typically peaks between 60 and 90 steps, with a trade-off in speed." />
+                <form-slider label="Steps"              prop="steps"          v-model="store.params.steps"              :min="store.minSteps"      :max="store.maxSteps"      :info ="lang.GetText(`ttsteps`)" />
                 <form-slider :label="`Width ` + getAspectRatio(true)"              prop="width"          v-model="store.params.width"              :min="store.minWidth"      :max="store.maxWidth" :step="64"   :change="onDimensionsChange" />
                 <form-slider label="Height"             prop="height"         v-model="store.params.height"             :min="store.minHeight"     :max="store.maxHeight" :step="64"   :change="onDimensionsChange" />
-                <form-slider label="Guidance"           prop="cfgScale"       v-model="store.params.cfg_scale"          :min="store.minCfgScale"   :max="store.maxCfgScale"   :step="0.5"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative." />
-                <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   info="How many iterations will be skipped while parsing the CLIP model." />
+                <form-slider label="Guidance"           prop="cfgScale"       v-model="store.params.cfg_scale"          :min="store.minCfgScale"   :max="store.maxCfgScale"   :step="0.5"  :info ="lang.GetText(`ttcfg`)" />
+                <form-slider label="Clip Skip"          prop="clip_skip"      v-model="store.params.clip_skip"          :min="store.minClipSkip"   :max="store.maxClipSkip"   :info ="lang.GetText(`ttclipskip`)" />
                 <form-model-select />
-                <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" info="GPFGAN: Improves faces   RealESRGAN_x4plus: Upscales by 4x   CodeFormers: Improves faces" multiple />
-                <form-slider label="Face fixer"           prop="faceFixer"       v-model="store.params.facefixer_strength"          :min="0"   :max="1"   :step="0.1"  info="Higher values will make the AI respect your prompt more. Lower values allow the AI to be more creative."  v-if="ShowFacefixer()" />
+                <form-select label="Post-processors"    prop="postProcessors" v-model="store.params.post_processing"            :options="store.availablePostProcessors" :info ="lang.GetText(`ttpostprocessor`)" multiple />
+                <form-slider label="Face fixer"           prop="faceFixer"       v-model="store.params.facefixer_strength"          :min="0"   :max="1"   :step="0.1"  :info ="lang.GetText(`ttcfg`)"  v-if="ShowFacefixer()" />
                 
                 <el-row>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="tiling" label="Tiling" :icon-on="Check" :icon-off="Close" v-model="store.params.tiling" info="Creates seamless textures! You can test your resulting images here: https://www.pycheung.com/checker/" />
+                        <form-on-off-button prop="tiling" label="Tiling" :icon-on="Check" :icon-off="Close" v-model="store.params.tiling" :info ="lang.GetText(`tttiling`)" />
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" info="Improves image generation while requiring fewer steps. Mostly magic!" />
+                        <form-on-off-button prop="karras" label="Karras" :icon-on="Check" :icon-off="Close" v-model="store.params.karras" :info ="lang.GetText(`ttkarras`)" />
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="hirex_fix" label="Hires Fix" :icon-on="Check" :icon-off="Close" v-model="store.params.hires_fix" info="Improves image generation, generation im multiples passe with lower resolution at start!" :disabled="(store.params.width || 0) > 512 && (store.params.height || 0) > 512 ? false : true" disabled_info="You need to have an image that is at least 576x576!" />
+                        <form-on-off-button prop="hirex_fix" label="Hires Fix" :icon-on="Check" :icon-off="Close" v-model="store.params.hires_fix" :info ="lang.GetText(`tthiresfix`)" :disabled="(store.params.width || 0) > 512 && (store.params.height || 0) > 512 ? false : true" disabled_info="You need to have an image that is at least 576x576!" />
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="trusted_worker" label="Trusted Worker" :icon-on="Check" :icon-off="Close" v-model="store.trustedOnly" info="Only let trusted workers process my request." />
+                        <form-on-off-button prop="trusted_worker" label="Trusted Worker" :icon-on="Check" :icon-off="Close" v-model="store.trustedOnly" :info ="lang.GetText(`tttrustedworker`)" />
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="nsfw" label="NSFW" :icon-on="Check" :icon-off="Close" v-model="store.nsfw" info="Allow creation of potential nsfw material." />
+                        <form-on-off-button prop="nsfw" label="NSFW" :icon-on="Check" :icon-off="Close" v-model="store.nsfw" :info ="lang.GetText(`ttnsfw`)" />
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" info="If nsfw material is detected should it be censored." :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
+                        <form-on-off-button prop="nsfw_censored" label="Censored" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" :info ="lang.GetText(`ttcensornsfw`)" :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="slow_workers" label="Slow Worker" :icon-on="Check" :icon-off="Close" v-model="store.slow_workers" info="When True, allows slower workers to pick up this request. Disabling this incurs an extra kudos cost." />
+                        <form-on-off-button prop="slow_workers" label="Slow Worker" :icon-on="Check" :icon-off="Close" v-model="store.slow_workers" :info ="lang.GetText(`ttslowworker`)" />
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="replacement_filter" label="Replacement Filter" :icon-on="Check" :icon-off="Close" v-model="store.replacement_filter" info="If enabled, suspicious prompts are sanitized through a string replacement filter instead." />
+                        <form-on-off-button prop="replacement_filter" label="Replacement Filter" :icon-on="Check" :icon-off="Close" v-model="store.replacement_filter" :info ="lang.GetText(`ttreplacementfilter`)" />
                     </el-col>
                 </el-row>
             </div>

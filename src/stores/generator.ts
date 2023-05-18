@@ -999,6 +999,8 @@ export const useGeneratorStore = defineStore("generator", () => {
     const minHeight = ref(64);
     const maxHeight = computed(() => useOptionsStore().allowLargerParams === "Enabled" ? 3072 : 1024);
 
+    
+
     return {
         // Constants
         availablePostProcessors,
