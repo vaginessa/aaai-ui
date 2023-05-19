@@ -17,9 +17,26 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-#app {
-    height: 100%;
-    width: 80%;
+#app, .menu {
+    width: calc(100% - 8px);
+}
+
+@media only screen and (min-width: 1024px) {
+    #app, .menu {
+        max-width: 1024px;
+    }
+}
+
+@media only screen and (min-width: 1280px) {
+    #app, .menu {
+        max-width: 1280px;
+    }
+}
+
+@media only screen and (min-width: 1536px) {
+    #app, .menu {
+        max-width: 1536px;
+    }
 }
 
 .image-notification {
@@ -132,18 +149,6 @@ body {
     background-color: #e2842ba6;
     z-index: 1000;
     visibility: visible;
-}
-
-@media only screen and (max-width: 1000px) {
-    #app {
-        width: 90%;
-    }
-}
-
-@media only screen and (max-width: 700px) {
-    #app {
-        width: 100%;
-    }
 }
 
 /* ===== Scrollbar CSS ===== */
