@@ -25,7 +25,36 @@ export const useLanguageStore = defineStore("i18n", () => {
         "ttboomerang":"Zoom In and Out. After the inital move, reverse back to the begining.",
         "ttautozoom":"Tries to generate the most intresting Zoom.",
         "ttinterpolate":"Interpolation between frames will make the animation look smoother without having to render out too many frames.",
-        "ttlength":"Sets the length of the entire video in seconds, so the number of AI generated frames will be FPS*Length."
+        "ttlength":"Sets the length of the entire video in seconds, so the number of AI generated frames will be FPS*Length.",
+
+        "ttlargervalues":"Allows use of larger step values and dimension sizes if you have the kudos on hand.",
+        "ttsharelaion":"Automatically and anonymously share images with LAION (the non-profit that created the dataset that was used to train Stable Diffusion) for use in aesthetic training in order to improve future models. See the announcement at https://discord.com/channels/781145214752129095/1020707945694101564/1061980573096226826 for more information. NOTE: This option is automatically enabled for users without a valid API key. ",
+        "ttmetadata":"Downloads or Zips a JSON file with generation settings to every images.",
+
+
+        "engapikey":"API Key",
+        "engenterapikey":"Enter your API key here",
+
+        "lllargervalues":"Larger Values",
+        "llsharelaion":"Share Generated Images with LAION",
+        "llimagesperpage":"Images Per Page",
+        "llpageless":"Pageless Format",
+        "llcarouselauto":"Carousel Auto Cycle",
+        "llfileformat":"Download Fileformat",
+        "llmetadata":"Download Meta Data",
+        "llexportzip":"Export Images (ZIP File)",
+        "llimportzip":"Import Images (ZIP File)",
+        "llcolormode":"Color Mode:",
+
+        "abouttext1":"This tool provides a front-end to generate images with Stable Diffusion for free! No downloads, expensive hardware, or additional softwares are needed. We are bringing you all the latest tools in a simple, compact, and easy to understand package! Currently supporting 200+ models to cover all your realistic, artistic, anime, cartoon or other needs, with new ones being added almost every day.",
+        "abouttext2":"Looking for a place to share your art, ask questions, or have a chat with likeminded individuals? Join our ",
+        "abouttext3":"If you want to show some love and support this project, head over to ",
+        "abouttext3b":"Every donation helps us to maintain the UI, cover infrastructure costs, and potentially hire more programmers to make your experience even better!",
+        "abouttext4":"If you are in need of an API-Key you can get one at ",
+        "abouttext5":"DadJokes by ",
+        "abouttext6":"Based on the stableUI, developed by ",
+        "abouttext7":"Powerd by the ",
+
     }
 
     function GetText(name: string) {

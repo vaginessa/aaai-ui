@@ -66,6 +66,7 @@ export const useOutputStore = defineStore("outputs", () => {
         },
     );
     const currentPage = ref(1);
+    const currentLayout = useLocalStorage<"grid" | "dynamic">("currentImagesLayout", "dynamic");
     const sortBy = useLocalStorage<"Newest" | "Oldest">("sortOutputsBy", "Newest");
     const filterBy = ref<"all" | "favourited" | "unfavourited" | 'unrated'>("all");
     const currentOutputs = useLiveQuery<ImageData[], ImageData[]>(
@@ -230,6 +231,7 @@ export const useOutputStore = defineStore("outputs", () => {
         filterBy,
         currentPage,
         currentOutputs,
+        currentLayout,
         // Actions
         deleteOutput,
         deleteMultipleOutputs,
