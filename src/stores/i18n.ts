@@ -8,7 +8,8 @@ export const useLanguageStore = defineStore("i18n", () => {
 
     const english = ref("en");
     const german = ref("de");
-    
+    const hungarian =ref("hu");
+
     const GEDirectory:{[key: string]: string} = {
         "ttsampler":"k_heun und k_dpm_2 verdoppeln die Generierungszeit und die Kudos-Kosten, konvergieren aber doppelt so schnell.",
         "ttsteps":"Halten Sie die Schrittzahl zwischen 20 und 30 für optimale Generierungszeiten. Die Kohärenz erreicht in der Regel zwischen 60 und 90 Schritten ihren Höhepunkt, wobei ein Kompromiss bei der Geschwindigkeit eingegangen wird.",
@@ -273,12 +274,146 @@ export const useLanguageStore = defineStore("i18n", () => {
 
     }
 
+    const HUDirectory:{[key: string]: string} = {
+        "ttsampler":"k_heun és k_dpm_2 kétszer annyi ideig tart és kétszer annyiba kerül, de feleannyi lépés is elég.",
+        "ttsteps":"Tartsd a lépésszámot 20-30 között az optimális időtartamért. A képösszefüggőség általában 60 és 90 lépés között éri el a csúcsot, viszont sokkal tovább tart.",
+        "ttcfg":"Magasabb értéknél az AI jobban figyelembe veszi a felszólítást, de magasabb lépésszámra lehet szükség. Alacsonyabb értéknél az AI kreatívabb.",
+        "ttclipskip":"Hány iterációt ugorjon át, miközben a CLIP model értelmezi a felszólítást.",
+        "ttpostprocessor":"GPFGAN és Codeformers javítja az arcokat, RealESRGAN, NMKD, AnimeSharp: felnagyítja a képet, strip_background eltűnteti a hátteret.",
+        "tttiling":"JELENLEG NEM MŰKÖDIK COMFYUI-n! Szegély nélküli textúrát generál. Az eredményt letesztelheted itt: https://www.pycheung.com/checker/",
+        "ttkarras":"Javítja a kép generációt miközben kevesebb lépést igényel. Többnyire varázslat!",
+        "tthiresfix":"Alacsonyabb felbontáson kezdi a generálást hogy elkerülje a mutációkat, aztán felnagyítja és megtölti részletekkel.",
+        "tthiresfixx":"A felbontásnak legalább 576x576 kell lennie!",
+        "tttrustedworker":"Egyedül megbízható dolgozók vehetik fel a kérésedet, emiatt esetleg többet kell várni.",
+        "ttnsfw":"Megmutatja az NSFW jelöléssel ellátott modelleket a listán. Nincs erre szükség hogy NSFW tartalmat generálj.",
+        "ttcensornsfw":"Ez a gomb cenzorálni fogja az NSFW képeket, ha be van kapcsolva. Meglehetősen érzékeny!",
+        "ttcensornsfwx":"NSFW ki van kapcsolva!",
+        "ttslowworker":"Ha be van kapcsolva, engedi lassú dolgozóknak hogy felvegye a kérelmeket. Ha ki van kapcsolva, több kudost kell fizetni.",
+        "ttreplacementfilter" :"Ha be van kapcsolva, az etikátlan képeket generáló szavak automatikusan ki lesznek cserélve. Ha kikapcsolod, és etikátlan dolgokat próbálsz generálni, hosszú eltiltásra számíthatsz!",
+        "ttdenoise":"A végső eredmény jobban el fog térni a kezdetitől magasabb értékeknél.",
+        "ttboomerang":"Ráközelít és távolodik. A kezdeti mozgás után visszatér az eredeti állapotba.",
+        "ttautozoom":"Megpróbálja a legérdekesebb nagyítást generálni.",
+        "ttinterpolate":"Az interpoláció a képkockák között simább animációt eredményez anélkül hogy túl sok képkockát kellene generálni.",
+        "ttlength":"Megszabja a videó teljes hosszát másodpercben, tehát az AI által generált képkockák száma FPS*Hossz.",
+
+        "ttlargervalues":"Engedélyezi nagyobb lépésszám és méretek megadását, ha elegendő kudosszal rendelkezel.",
+        "ttsharelaion":"Automatikusan és névtelenul megosztja a generált képeket a LAION adatbázissal (a non-profit cég aki a Stable Diffusion-t létrehozta) hogy felhasználják a jövőbeni modellek javításához. Lásd a bejelentést: https://discord.com/channels/781145214752129095/1020707945694101564/1061980573096226826 több információért. MEGJEGYZÉS: Ez az opció automatikusan be van kapcsolva, ha nem vagy bejelentkezve az API kulcsoddal. ",
+        "ttmetadata":"Letöléskor a kép mellé csatol egy JSON fájlt a generálás részleteivel és beállításaival.",
+        "tttagautocomplete":"Használt a fel-le nyilakat hogy léptess a rendelkezésre álló szavak között, majd nyomd meg az Entert a beillesztéshez.",
+
+        "ttnegativeprompt":"Mi ne szerepeljen a képen. Nem működik? Próbáld magasabbra venni az Irányítást.",
+
+        "engapikey":"API Kulcs",
+        "engenterapikey":"Add meg az API kulcsodat itt",
+
+        "lllargervalues":"Magasabb Értékek",
+        "llsharelaion":"Oszdd meg LAION-nal",
+        "lltagautocomplete":"Szó Javaslat",
+        "llimagesperpage":"Képek Oldalanként",
+        "llpageless":"Egybefüggő Oldalak",
+        "llcarouselauto":"Automatikus Körhinta",
+        "llfileformat":"Letöltési Formátum",
+        "llmetadata":"Meta Adatok Letöltése",
+        "llexportzip":"Exportálja a Képeket (ZIP Fájl)",
+        "llimportzip":"Importálja a Képeket (ZIP Fájl)",
+        "llcolormode":"Színshéma:",
+
+        "llgenerateprompt":"Generáljon Felszólítást",
+        "llprompthistory":"Felszólítás Előzmény",
+        "descnoprompthistory":"Nem találtunk felszólítási előzményt, prónáljon meg képeket generálni!",
+        "llsearchbyprompt":"Keresés felszólítás alapján",
+        "descnomatchingprompt":"Nem talált megegyező felszólítás(oka)t a keresés alapján.",
+        "llpromptstyles":"Felszólítási Stílusok",
+        "descnostyles":"Nem találhatóak stílusok",
+        "descsearcchnostyles":"Nem talált stílus(oka)t a keresés alapján.",
+        "llsearchbystyle":"Keresés stílus alapján",
+        "llusestyle":"Használja A Stílust",
+        "llnegativeprompt":"Negatív Felszólítás",
+        "placeholdernegative":"Add meg a negatív felszólítást itt",
+        "lladdnegativeprompt":"Mentse a negatív felszólítást",
+        "llnegativeprompts":"Negatív Felszólítások",
+        "descnonegativeprompts":"Nem talált negatív felszólításokat",
+        "descnomatchingnegativeprompts":"Nem talált negatív felszólítás(oka)t a keresés alapján.",
+        "lldeletepreset":"Beállítás Törlése",
+        "llusepreset":"Beállítás Használata",
+
+        "llmodel":"Modell",
+        "llsampler":"Mintázó",
+        "llbatchsize":"Tétel Mérete",
+        "llsteps":"Lépések",
+        "llpriorsteps":"Előzetes Lépések",
+        "llwidth":"Szélesség",
+        "llheight":"Magasság",
+        "llcfg":"Irányítás",
+        "llpriorcfg":"Előzetes Irányítás",
+        "llclipskip":"Clip Átugrás",
+        "llpostprocessors":"Utó-Folyamatok",
+        "llfacefixer":"Arc Javító",
+        "lltiling":"Csempézés",
+        "llkarras":"Karras",
+        "llhiresfix":"Nagyméretű Javítás",
+        "lltrustedworker":"Megbízható Munkás",
+        "llnsfw":"NSFW",
+        "llcensornsfw":"Cenzúrázott NSFW",
+        "llslowworker":"Lassú Munkás",
+        "llreplacementfilter":"Csere-Szűrő",
+        "lldenoise":"Kezdeti Erősség",
+        "llfps":"Kívánt FPS",
+        "lllength":"Kívánt Hossz",
+        "llinterpolate":"Interpoláció",
+        "llxinterpolate":"Interpolációs Lépések",
+
+        "llboomerang":"Bumeráng",
+        "llautozoom":"Auto Zoom",
+        "llstartx":"Kezdeti X Kitérés",
+        "llstarty":"Kezdeti Y Kitérés",
+        "llendx":"Végső X Kitérés",
+        "llendy":"Végső Y Kitérés",
+        "llzoomamount":"Zoom Mennyiség",
+        "llzoomduration":"Zoom Hossza",
+        "llframerate":"Képkocka Sebesség",
+        "llmusic":"Zene Generálása",
+
+        "llsignin":"Belépéa",
+        "llloadingimage":"Kép Betöltése...",
+        "llstartrating":"Kezdj Értékelni!",
+
+        "vidattention":"FIGYELEM!",
+        "vidattention2":"Nem tudunk több kérelmet fogadni!",
+        "vidattention3":"Hogy többet megtudj, csatlakozz: ",
+
+        "abouttext1":"Ez az eszköz olyan felhasználói webfelületet biztosít, amivel ingyenesen generálhatsz képeket Stable Diffusion használatával! Nincs szükség letöltésre, drága hardverekre, vagy extra szoftverekre. Tőlünk megkapod a legújabb eszközöket egy egyszerű, kompakt, könnyen megérthető csomagban! Jelenleg 200+ modellt támogatunk, hogy lefedjük mind a valós, rajzfilm szerű, vagy művészi és egyéb szükségleteidet, és újabbakat adunk hozzá majdnem minden nap.",
+        "abouttext2":"Ha egy helyet keresel ahol megoszthatod a képeidet, kérdéseket tegyél fel vagy csetelhess hasonló érdeklődési körű emberekkel? Csatlakozz:  ",
+        "abouttext3":"Ha kiszeretnéd fejezni a háládat, vagy támogatnád ezt a projektet, látogass el: ",
+        "abouttext3b":"Minden adomány segít fenntartani ezt a kezelőfelületet, a bérleti díjakat, és esetleg több programozó felvételét, hogy élményedet még jobbá tehessük!",
+        "abouttext4":"Ha szükséged van egy API kulcsra, szerezz egyet: ",
+        "abouttext5":"Faviccek: ",
+        "abouttext6":"A StableUI alapján készült, eredeti fejlesztő: ",
+        "abouttext7":"Támogatja a ",
+
+        "dashboardtext1":"Bejelentkezve mint ",
+        "dashrequiresapikey":"Felhasználói statisztikákhoz szükség van egy API kulcsra",
+        "dashnoworkersfound":"Nem találtunk munkást",
+        "dashrequiresapikey2":"Módosítani/megtekinteni a felhasználó munkásait csak API kulccsal lehetséges",
+
+        "ratingtitle":"Kép Értékelés",
+        "ratingtext1":"Értékelj képeket a szépségük alapján hogy kudoszt szerezz és segíts ",
+        "ratingtext2":"-nak, a non-profit  szervezet aki készítette a Stable Diffusion-t, - javítsd az adatbázisukat!",
+        "ratingtext3":"Ennyi képet értékeltél eddig ",
+        "ratingtext4":" használd az API kulcsodat és kezdj kudoszt keresni.",
+        "ratingtext5":"Ennyi kép értékelése után ",
+        "ratingtext6":" ennyi kudoszt kerestél ",
+
+    }
+
     function GetText(name: string) {
         name = name.replace(/[^0-9a-z]/gi, '')
         if(currentLanguage.value == english.value)
             return ENDirectory[name]
         else if(currentLanguage.value == german.value)
             return GEDirectory[name]
+        else if(currentLanguage.value == hungarian.value)
+            return HUDirectory[name]
         else
             return "Missing Language: " + currentLanguage.value
     }
