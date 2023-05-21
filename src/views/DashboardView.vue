@@ -8,42 +8,25 @@ import {
 import {
     Comment,
     PictureFilled,
-VideoCameraFilled
+    VideoCameraFilled
 } from '@element-plus/icons-vue';
 
-import FormRating from '../components/FormRating.vue';
-import FormTxt2Img from '../components/FormTxt2Img.vue';
-import FormImg2Img from '../components/FormImg2Img.vue';
 import FormTxt2Vid from '../components/FormTxt2Vid.vue';
 import FormImg2Vid from '../components/FormImg2Vid.vue';
 
 import GeneratorMenuItem from '../components/GeneratorMenuItem.vue';
-import StarEdit24Regular from '../components/icons/StarEdit24Regular.vue';
 
-import { useUIStore } from '@/stores/ui';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import handleUrlParams from "@/router/handleUrlParams";
 import { DEBUG_MODE, dots } from "@/constants";
-import { useRatingStore } from '@/stores/rating';
-import { useUserStore } from '@/stores/user';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
 
 const store = useGeneratorStore();
-const userStore = useUserStore();
-const uiStore = useUIStore();
-
-function disableBadge() {
-    if (store.generatorType !== "Rating") uiStore.showGeneratorBadge = false;
-}
 
 function onMenuChange(key: any) {
-    if (key === "Img2Txt") return;
-    if (key === "Txt2Txt") return;
-
-    store.generatorType = key;
-    disableBadge();
+    store.generatorChaosType = key;
     if (DEBUG_MODE) console.log(key)
 }
 
@@ -53,33 +36,24 @@ onUnmounted(() => {
     clearInterval(ellipsis);
 })
 
-disableBadge();
 handleUrlParams();
 </script>
 
 <template>
     <el-menu
-        :default-active="store.generatorType"
+        :default-active="store.generatorChaosType"
         :collapse="true"
         @select="onMenuChange"
         :mode="isMobile ? 'horizontal' : 'vertical'"
         :class="isMobile ? 'mobile-generator-types' : 'generator-types'"
     >
-        <!--GeneratorMenuItem index="Txt2Img"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
-        <!--GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" /-->
         <GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Img2Vid"       :icon-one="PictureFilled"       :icon-two="VideoCameraFilled" :isMobile="isMobile" />
-        <!--GeneratorMenuItem index="Img2Txt"    :icon-one="PictureFilled"       :icon-two="Comment" :isMobile="isMobile" /-->
-        <!--GeneratorMenuItem index="Txt2Txt"    :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
-        <!--GeneratorMenuItem index="Rating"        :icon-one="StarEdit24Regular"   :isMobile="isMobile" /-->
     </el-menu>
     <div class="form">
 
-        <!--FormTxt2Img v-if="store.generatorType === 'Txt2Img'" /-->
-        <FormTxt2Vid v-if="store.generatorType === 'Txt2Vid'" />
-        <FormImg2Vid v-if="store.generatorType === 'Img2Vid'" />
-        <!--FormImg2Img v-if="store.generatorType === 'Img2Img'" /-->
-        <!--FormRating v-if="store.generatorType === 'Rating'" /-->
+        <FormTxt2Vid v-if="store.generatorChaosType === 'Txt2Vid'" />
+        <FormImg2Vid v-if="store.generatorChaosType === 'Img2Vid'" />
 
     </div>
 </template>

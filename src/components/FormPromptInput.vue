@@ -27,10 +27,12 @@ import { useUIStore } from '@/stores/ui';
 import { formatDate } from '@/utils/format';
 import { useLanguageStore } from '@/stores/i18n';
 import { onKeyStroke } from '@vueuse/core';
+import { useVideoGeneratorStore } from '@/stores/VideoGenerator';
 const lang = useLanguageStore();
 const store = useGeneratorStore();
 const tagStore = useTagsStore();
 const uiStore = useUIStore();
+const vStore = useVideoGeneratorStore();
 const promptLibrary = ref(false);
 const selectStyle = ref(false);
 
@@ -201,7 +203,7 @@ onKeyStroke("Enter", (e) => {
             <el-tooltip :content="lang.GetText(`llgenerateprompt`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
                     store.generatePrompt();
-                }" :icon="MagicStick"/>
+                }" :disabled="vStore.generateLock" :icon="MagicStick"/>
             </el-tooltip>
             <el-tooltip :content="lang.GetText(`llprompthistory`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="Clock "/>

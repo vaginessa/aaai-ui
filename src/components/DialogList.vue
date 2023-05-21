@@ -59,8 +59,7 @@ const filteredList = computed(() => props.list.filter(el => el.includes(search.v
             <ul style="list-style: none; padding: 0">
                 <li v-for="item in filteredList" :key="item" class="list-item">
                     <slot name="item" :item="item">{{item}}</slot>
-                    <el-divider style="margin: 12px 0" />
-                    <div style="display: flex; justify-content:space-between;">
+                    <div style="display: flex; justify-content:space-between;margin-top:10px;">
                         <slot name="actions" :item="item" :handleUse="handleUse" :handleDelete="handleDelete" :handleClose="handleClose">
                             <el-button class="small-btn" @click="() => handleUse(item)">{{ useText }}</el-button>
                             <el-button class="small-btn" type="danger" @click="() => handleDelete(item)" v-if="deleteText !== undefined">{{ deleteText }}</el-button>
@@ -85,7 +84,8 @@ const filteredList = computed(() => props.list.filter(el => el.includes(search.v
 }
 
 .list-item {
-    background-color: #171717;
+    background-color: #2d3338;
+    border-radius: 5px;
     padding: 1rem;
     margin: 10px 0;
 }
