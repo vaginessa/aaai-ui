@@ -17,6 +17,7 @@ import {
     TrendCharts
 } from '@element-plus/icons-vue';
 import { useGeneratorStore } from '@/stores/generator';
+import { useTagsStore, type TagList } from '@/stores/tags';
 import FormInput from './FormInput.vue';
 import DialogList from './DialogList.vue';
 import Star12Filled from './icons/Star12Filled.vue';
@@ -24,7 +25,11 @@ import Star12Regular from './icons/Star12Regular.vue';
 import { computed, ref } from 'vue';
 import { useUIStore } from '@/stores/ui';
 import { formatDate } from '@/utils/format';
+import { useLanguageStore } from '@/stores/i18n';
+import { onKeyStroke } from '@vueuse/core';
+const lang = useLanguageStore();
 const store = useGeneratorStore();
+const tagStore = useTagsStore();
 const uiStore = useUIStore();
 const promptLibrary = ref(false);
 const selectStyle = ref(false);
@@ -85,6 +90,68 @@ function showNsfwNotification(event: string) {
     nsfwBong.value = false;
   }
 }
+const promptFocused = ref(false);
+const selectedIndex = ref(0);
+const maxTags = 8;
+const currentWord = computed(() => store.prompt.split(' ')[store.prompt.split(' ').length - 1]);
+const filteredTags = computed(() => {
+    const tags = tagStore.currentTags.tags;
+    const idx = binarySearch(tags, currentWord.value);
+    if (idx < 0) {
+        return [];
+    }
+    const filtered = [tags[idx]];
+    for (let i = idx + 1; i < tags.length; i++) {
+        const el = tags[i];
+        if (el.name.startsWith(currentWord.value)) {
+            filtered.push(el);
+        } else {
+            break;
+        }
+    }
+    const numberFormatter = Intl.NumberFormat(undefined, { notation: "compact" });
+    return filtered.sort((a,b) => b.postCount - a.postCount).slice(0, maxTags).map(el => ({ ...el, postCount: numberFormatter.format(el.postCount) }));
+})
+function binarySearch(arr: TagList[], target: string) {
+    let low = 0;
+    let high = arr.length - 1;
+    let closestIdx = -1;
+    while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        const cmp = arr[mid].name.localeCompare(target);
+        if (cmp <= 0) {
+            closestIdx = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    return closestIdx;
+}
+function pushTag(index: number) {
+    const selectedTag = filteredTags.value[index].name;
+    const a = store.prompt.split(currentWord.value);
+    a.pop();
+    store.prompt = a.join(currentWord.value) + selectedTag + ", ";
+}
+onKeyStroke("ArrowDown", (e) => {
+    if (!promptFocused.value || tagStore.currentTags.tags.length === 0) return;
+    e.preventDefault();
+    if (selectedIndex.value >= maxTags - 1) return;
+    selectedIndex.value++;
+});
+onKeyStroke("ArrowUp", (e) => {
+    if (!promptFocused.value || tagStore.currentTags.tags.length === 0) return;
+    e.preventDefault();
+    if (selectedIndex.value <= 0) return;
+    selectedIndex.value--;
+});
+onKeyStroke("Enter", (e) => {
+    if (!promptFocused.value || tagStore.currentTags.tags.length === 0) return;
+    e.preventDefault();
+    pushTag(selectedIndex.value);
+    selectedIndex.value = 0;
+});
 </script>
 
 <template>
@@ -95,7 +162,7 @@ function showNsfwNotification(event: string) {
         </div>
         <div class="clear">&nbsp;</div>
     </div>
-    <form-input :change="showNsfwNotification" prop="prompt" :spanWidth=3 v-model="store.prompt" :autosize="{ minRows: 2 }" resize="vertical" type="textarea" placeholder="Enter prompt here" label-position="top" label-style="justify-content: space-between; width: 100%;">
+    <form-input :change="showNsfwNotification" prop="prompt" :spanWidth=3 v-model="store.prompt" :autosize="{ minRows: 2 }" resize="vertical" type="textarea" placeholder="Enter prompt here" label-position="top" label-style="justify-content: space-between; width: 100%;" @focus="promptFocused = true" @blur="promptFocused = false">
         <template #label>
             <div>Prompt</div>
             <el-tooltip content="Add trigger (dreambooth)" placement="top" v-if="store.selectedModelData?.trigger">
@@ -111,26 +178,47 @@ function showNsfwNotification(event: string) {
             </el-tooltip>
         </template>
         <template #inline>
-            <el-tooltip content="Generate Prompt" placement="right">
+            <div style="margin-top: -3px; position: relative">
+                <div
+                    style="position: absolute; z-index: 5; margin-top: 3px;"
+                    v-if="tagStore.currentTags.tags.length !== 0 && promptFocused"
+                    @focus="promptFocused = true"
+                    @blur="promptFocused = false"
+                >
+                    <div
+                        v-for="(tag, index) in filteredTags"
+                        :key="tag.name"
+                        class="tag-select"
+                        :style="{
+                            backgroundColor: selectedIndex === index ? `rgb(100, 100, 100)` : index % 2 === 0 ? `rgb(48, 48, 48)` : `rgb(58, 58, 58)`
+                        }"
+                        @mousedown.prevent="pushTag(index)"
+                    >
+                        <span :style="{ color: tag.color }">{{ tag.name }}</span>
+                        <span>{{ tag.postCount }}</span>
+                    </div>
+                </div>
+            <el-tooltip :content="lang.GetText(`llgenerateprompt`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
                     store.generatePrompt();
                 }" :icon="MagicStick"/>
             </el-tooltip>
-            <el-tooltip content="Prompt History" placement="right">
+            <el-tooltip :content="lang.GetText(`llprompthistory`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="Clock "/>
             </el-tooltip>
-            <el-tooltip content="Prompt Styles" placement="right">
+            <el-tooltip :content="lang.GetText(`llpromptstyles`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() => selectStyle = true" :icon="TrendCharts"/>
             </el-tooltip>
+            </div>
         </template>
     </form-input>
     <DialogList
         v-model="promptLibrary"
         :list="sortedPromptHistory"
-        title="Prompt History"
-        empty-description="No prompt history found - try generating an image!"
-        search-text="Search by prompt"
-        search-empty-description="Found no matching prompt(s) from your search."
+        :title="lang.GetText(`llprompthistory`)"
+        :empty-description="lang.GetText(`descnoprompthistory`)"
+        :search-text="lang.GetText(`llsearchbyprompt`)"
+        :search-empty-description="lang.GetText(`descnomatchingprompt`)"
         @use="prompt => store.prompt = prompt"
         @delete="store.removeFromPromptHistory"
     >
@@ -153,11 +241,11 @@ function showNsfwNotification(event: string) {
         v-if="selectStyle"
         v-model="selectStyle"
         :list="Object.keys(store.styles).filter(el => el !== 'raw' && el.includes(searchStyle))"
-        title="Prompt Styles"
-        empty-description="No styles found"
-        search-empty-description="Found no matching style(s) from your search."
-        searchText="Search by style"
-        useText="Use Style"
+        :title="lang.GetText(`llpromptstyles`)"
+        :empty-description="lang.GetText(`descnostyles`)"
+        :search-empty-description="lang.GetText(`descsearcchnostyles`)"
+        :searchText="lang.GetText(`llsearchbystyle`)"
+        :useText="lang.GetText(`llusestyle`)"
         @use="handleUseStyle"
         width="50%"
     >
@@ -189,35 +277,35 @@ function showNsfwNotification(event: string) {
         </template>
     </DialogList>
     <form-input
-        label="Negative Prompt"
+        :label="lang.GetText(`llnegativeprompt`)"
         prop="negativePrompt"
         v-model="store.negativePrompt"
         autosize
         resize="vertical"
         type="textarea"
-        placeholder="Enter negative prompt here"
-        info="What to exclude from the image. Not working? Try increasing the guidance."
+        :placeholder="lang.GetText(`placeholdernegative`)"
+        :info="lang.GetText(`ttnegativeprompt`)"
         label-position="top"
         :spanWidth=3
     >
         <template #inline>
-            <el-tooltip content="Add Negative Prompt" placement="right">
+            <el-tooltip :content="lang.GetText(`lladdnegativeprompt`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => store.pushToNegativeLibrary(store.negativePrompt)" :icon="FolderChecked"/>
             </el-tooltip>
-            <el-tooltip content="Negative Prompts" placement="right">
+            <el-tooltip :content="lang.GetText(`llnegativeprompts`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() =>  negativePromptLibrary = true" :icon="FolderOpened"/>
             </el-tooltip>
         </template>
     </form-input>
     <DialogList
         v-model="negativePromptLibrary"
-        title="Negative Prompts"
+        :title="lang.GetText(`llnegativeprompts`)"
         :list="store.negativePromptLibrary"
-        empty-description="No negative prompts found"
-        search-empty-description="Found no matching negative prompt(s) from your search."
-        search-text="Search by prompt"
-        deleteText="Delete preset"
-        useText="Use preset"
+        :empty-description="lang.GetText(`descnonegativeprompts`)"
+        :search-empty-description="lang.GetText(`descnomatchingnegativeprompts`)"
+        :search-text="lang.GetText(`llsearchbyprompt`)"
+        :deleteText="lang.GetText(`lldeletepreset`)"
+        :useText="lang.GetText(`llusepreset`)"
         @use="negPrompt => store.negativePrompt = negPrompt"
         @delete="store.removeFromNegativeLibrary"
     />
@@ -272,7 +360,7 @@ h4, h5 {
     height: 30px;
 }
 
-.trigger-select .el-input__wrapper {
+:deep(.trigger-select .el-input__wrapper) {
     padding: 0;
 }
 
@@ -280,7 +368,19 @@ h4, h5 {
     margin: 0;
 }
 
-.trigger-select .el-input__suffix, .trigger-select .el-input__suffix-inner {
+:deep(.trigger-select .el-input__suffix, .trigger-select .el-input__suffix-inner) {
     width: 100%
 }
+.tag-select {
+    display: flex;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 0px 8px;
+    width: 240px;
+}
+
+.tag-select:hover {
+    background-color: rgb(100, 100, 100) !important;
+}
+
 </style>

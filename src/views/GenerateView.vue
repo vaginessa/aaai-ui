@@ -1,13 +1,24 @@
+<!--HORDE GENERATE VIEW/-->
 <script setup lang="ts">
-import { onUnmounted } from 'vue';
+import { onUnmounted, computed, reactive, ref } from 'vue';
 import { useGeneratorStore } from '@/stores/generator';
 import {
-    ElMenu
+    ElMenu,
+    ElUpload,
+    ElIcon,
+    ElCheckbox,
+    ElCheckboxGroup,
+    ElImage,
+    type UploadFile,
+    type UploadRawFile,
 } from 'element-plus';
 import {
     Comment,
     PictureFilled,
-VideoCameraFilled
+    VideoCameraFilled,
+    MagicStick,
+    UploadFilled,
+    Refresh,
 } from '@element-plus/icons-vue';
 
 import FormRating from '../components/FormRating.vue';
@@ -15,6 +26,8 @@ import FormTxt2Img from '../components/FormTxt2Img.vue';
 import FormImg2Img from '../components/FormImg2Img.vue';
 import FormTxt2Vid from '../components/FormTxt2Vid.vue';
 import FormImg2Vid from '../components/FormImg2Vid.vue';
+import InterrogationView from '@/components/InterrogationView.vue';
+import { useEllipsis } from '@/utils/useEllipsis';
 
 import GeneratorMenuItem from '../components/GeneratorMenuItem.vue';
 import StarEdit24Regular from '../components/icons/StarEdit24Regular.vue';
@@ -25,7 +38,12 @@ import handleUrlParams from "@/router/handleUrlParams";
 import { DEBUG_MODE, dots } from "@/constants";
 import { useRatingStore } from '@/stores/rating';
 import { useUserStore } from '@/stores/user';
+import BrushFilled from '../components/icons/BrushFilled.vue';
+import ImageSearch from '../components/icons/ImageSearch.vue';
+import { useInterrogationStore } from '@/stores/interrogation';
+import { convertToBase64 } from '@/utils/base64';
 
+const interrogationStore = useInterrogationStore();
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
 
@@ -34,7 +52,7 @@ const userStore = useUserStore();
 const uiStore = useUIStore();
 
 function disableBadge() {
-    if (store.generatorType !== "Rating") uiStore.showGeneratorBadge = false;
+    if (!store.validGeneratorTypes.includes(store.generatorType)) uiStore.showGeneratorBadge = false;
 }
 
 function onMenuChange(key: any) {
@@ -66,19 +84,21 @@ handleUrlParams();
     >
         <GeneratorMenuItem index="Txt2Img"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" />
         <GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" />
-        <GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile" />
-        <GeneratorMenuItem index="Img2Vid"       :icon-one="PictureFilled"       :icon-two="VideoCameraFilled" :isMobile="isMobile" />
+        <!--GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile" /-->
+        <!--GeneratorMenuItem index="Img2Vid"       :icon-one="PictureFilled"       :icon-two="VideoCameraFilled" :isMobile="isMobile" /-->
         <!--GeneratorMenuItem index="Img2Txt"    :icon-one="PictureFilled"       :icon-two="Comment" :isMobile="isMobile" /-->
         <!--GeneratorMenuItem index="Txt2Txt"    :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
         <GeneratorMenuItem index="Rating"        :icon-one="StarEdit24Regular"   :isMobile="isMobile" />
+        <GeneratorMenuItem index="Interrotagion"        :icon-one="ImageSearch"   :isMobile="isMobile" />
     </el-menu>
     <div class="form">
 
         <FormTxt2Img v-if="store.generatorType === 'Txt2Img'" />
-        <FormTxt2Vid v-if="store.generatorType === 'Txt2Vid'" />
-        <FormImg2Vid v-if="store.generatorType === 'Img2Vid'" />
+        <!--FormTxt2Vid v-if="store.generatorType === 'Txt2Vid'" /-->
+        <!--FormImg2Vid v-if="store.generatorType === 'Img2Vid'" /-->
         <FormImg2Img v-if="store.generatorType === 'Img2Img'" />
         <FormRating v-if="store.generatorType === 'Rating'" />
+        <FormRating v-if="store.generatorType === 'Interrogation'" />
 
     </div>
 </template>

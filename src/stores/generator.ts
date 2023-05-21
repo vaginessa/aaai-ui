@@ -82,13 +82,13 @@ interface IPromptHistory {
     timestamp: number;
 }
 
-type IGeneratorType = 'Txt2Img' | 'Txt2Vid' | 'Img2Vid' | 'Img2Img' | 'Rating'
+type IGeneratorType = 'Txt2Img' | 'Txt2Vid' | 'Img2Vid' | 'Img2Img' | 'Rating' | 'Interrogation'
 type IMultiModel = "Enabled" | "Disabled"
 type IGroupedModel ={ label: string; options: {label: string; value: string;}[] }[];
 
 export const useGeneratorStore = defineStore("generator", () => {
     const canvasStore = useCanvasStore();
-
+    const validGeneratorTypes = ['Text2Img', 'Img2Img', 'Inpainting'];
     const generatorType = useLocalStorage<IGeneratorType>("generationType", "Txt2Img");
 
     const prompt = useLocalStorage("lastPrompt", "")
@@ -1005,6 +1005,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         // Constants
         availablePostProcessors,
         availableControlType,
+        validGeneratorTypes,
         // Variables
         generatorType,
         prompt,

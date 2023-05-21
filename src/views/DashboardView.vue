@@ -1,156 +1,231 @@
+<!--CHAOS GENERATE VIEW/-->
 <script setup lang="ts">
+import { onUnmounted } from 'vue';
+import { useGeneratorStore } from '@/stores/generator';
 import {
-    ElRow,
-    ElCol,
-    ElCard,
-    ElEmpty,
-    ElIcon,
-    ElTable,
-    ElTableColumn
-} from "element-plus";
+    ElMenu
+} from 'element-plus';
 import {
-    Money,
-    Aim,
-    Picture,
-    Lock
-} from "@element-plus/icons-vue"
-import DataLabel from '../components/DataLabel.vue'
-import WorkerEditor from '../components/WorkerEditor.vue';
+    Comment,
+    PictureFilled,
+VideoCameraFilled
+} from '@element-plus/icons-vue';
+
+import FormRating from '../components/FormRating.vue';
+import FormTxt2Img from '../components/FormTxt2Img.vue';
+import FormImg2Img from '../components/FormImg2Img.vue';
+import FormTxt2Vid from '../components/FormTxt2Vid.vue';
+import FormImg2Vid from '../components/FormImg2Vid.vue';
+
+import GeneratorMenuItem from '../components/GeneratorMenuItem.vue';
+import StarEdit24Regular from '../components/icons/StarEdit24Regular.vue';
+
+import { useUIStore } from '@/stores/ui';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
-import { computed } from 'vue';
-import { useDashboardStore } from '@/stores/dashboard';
+import handleUrlParams from "@/router/handleUrlParams";
+import { DEBUG_MODE, dots } from "@/constants";
+import { useRatingStore } from '@/stores/rating';
 import { useUserStore } from '@/stores/user';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
+const isMobile = breakpoints.smallerOrEqual('md');
 
-const breakLabels = breakpoints.smallerOrEqual('xl');
-const breakLabelsMore = breakpoints.smallerOrEqual('lg');
-
-const dashStore = useDashboardStore();
+const store = useGeneratorStore();
 const userStore = useUserStore();
+const uiStore = useUIStore();
 
-// Max: 24 for each col
-const spanLabels = computed(() => breakLabels.value ? breakLabelsMore.value ? 20 : 10 : 5);
-const spanAmount = computed(() => breakLabels.value ? 24 : 12);
-
-const sortChange = function(column: any) {
-    dashStore.leaderboardOrderProp = column.prop;
-    dashStore.leaderboardOrder = column.order;
-    dashStore.updateLeaderboard();
+function disableBadge() {
+    if (store.generatorType !== "Rating") uiStore.showGeneratorBadge = false;
 }
 
-const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.apiKey != '' && userStore.userId != "0");
+function onMenuChange(key: any) {
+    if (key === "Img2Txt") return;
+    if (key === "Txt2Txt") return;
+
+    store.generatorType = key;
+    disableBadge();
+    if (DEBUG_MODE) console.log(key)
+}
+
+const ellipsis = setInterval(() => dots.value = dots.value.length >= 3 ? "" : ".".repeat(dots.value.length+1), 1000);
+
+onUnmounted(() => {
+    clearInterval(ellipsis);
+})
+
+disableBadge();
+handleUrlParams();
 </script>
 
 <template>
-    <div class="dashboard">
-        <div>
-            <div v-if="signedIn">
-                <div class="dashboard-title">You are logged in as {{dashStore.user.username}}</div>
-                <el-row :gutter="breakLabels ? 0 : 20" justify="center" style="width: 100%; margin-bottom: 2rem;">
-                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Money"   label="Kudos"           :content="dashStore.user.kudos?.toLocaleString()"                       color="var(--el-color-success)" /></el-col>
-                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Picture" label="Requested (Img|Int|Txt)"       :content="dashStore.user.records?.request?.image?.toLocaleString() + ' | ' + dashStore.user.records?.request?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.request?.text?.toLocaleString()" color="var(--el-color-danger)"  /></el-col>
-                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Aim"     label="Generated (Img|Int|Txt)"       :content="dashStore.user.records?.fulfillment?.image?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.text?.toLocaleString()" color="var(--el-color-primary)" /></el-col>
-                </el-row>                
-            </div>
-            <div v-else>
-                <div class="api-key-required"><el-icon :size="30" style="margin-right: 10px"><Lock /></el-icon>User statistics requires an API key</div>
-            </div>
-            <el-row :gutter="breakLabels ? 0 : 20" justify="space-around" style="margin-bottom: 2rem;">
-                <el-col :span="spanAmount" class="label">
-                    <el-card style="margin-bottom: 10px;">
-                        <template #header>
-                            <strong>Horde Performance</strong>
-                        </template>
-                        <div>There are <strong>{{dashStore.performance.queued_requests}}</strong> queued requests (<strong>{{dashStore.performance.queued_megapixelsteps}}</strong> MPS) with <strong>{{dashStore.performance.worker_count}}</strong> workers (<strong>{{dashStore.performance.thread_count}}</strong> threads).</div>
-                        <div>There are <strong>{{dashStore.performance.queued_forms}}</strong> queued interrogation requests with <strong>{{dashStore.performance.interrogator_count }}</strong> interrogation workers (<strong>{{dashStore.performance.interrogator_thread_count}}</strong> threads).</div>
-                        <div>In the past minute, there have been <strong>{{dashStore.performance.past_minute_megapixelsteps}}</strong> MPS processed.</div>
-                    </el-card>
-                    <el-card style="margin-bottom: 10px;">
-                        <template #header>
-                            <strong>AAAI Video Performance</strong>
-                        </template>
-                        <div>There are <strong>{{dashStore.performanceVideo.Queue}}</strong> queued requests (<strong>{{dashStore.performanceVideo.QueuedFrames || 0}}</strong> Frames).</div>
-                        <br/>
-                        <el-table :data="dashStore.performanceTable()" stripe style="width: 100%">
-                            <el-table-column prop="type"   label="" />
-                            <el-table-column prop="videos" label="Videos" />
-                            <el-table-column prop="frames" label="Frames" />
-                            <el-table-column prop="uesers" label="Users" />
-                        </el-table>
-                    </el-card>
-                </el-col>
-                <el-col :span="spanAmount" class="label">
-                    <el-card v-if="signedIn">
-                        <template #header><strong>Your Workers</strong></template>
-                        <div class="user-workers" v-if="dashStore.userWorkers.length !== 0">
-                            <WorkerEditor
-                                v-for="worker in dashStore.userWorkers"
-                                :key="worker.id"
-                                :worker="worker"
-                            />
-                        </div>
-                        <div v-else><el-empty description="No Workers Found" /></div>
-                    </el-card>
-                    <div v-else>
-                        <div class="api-key-required"><el-icon :size="30" style="margin-right: 10px"><Lock /></el-icon>Modifying/viewing user workers requires an API key</div>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
+    <el-menu
+        :default-active="store.generatorType"
+        :collapse="true"
+        @select="onMenuChange"
+        :mode="isMobile ? 'horizontal' : 'vertical'"
+        :class="isMobile ? 'mobile-generator-types' : 'generator-types'"
+    >
+        <!--GeneratorMenuItem index="Txt2Img"       :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
+        <!--GeneratorMenuItem index="Img2Img"       :icon-one="PictureFilled"       :icon-two="PictureFilled" :isMobile="isMobile" /-->
+        <GeneratorMenuItem index="Txt2Vid"       :icon-one="Comment"             :icon-two="VideoCameraFilled" :isMobile="isMobile" />
+        <GeneratorMenuItem index="Img2Vid"       :icon-one="PictureFilled"       :icon-two="VideoCameraFilled" :isMobile="isMobile" />
+        <!--GeneratorMenuItem index="Img2Txt"    :icon-one="PictureFilled"       :icon-two="Comment" :isMobile="isMobile" /-->
+        <!--GeneratorMenuItem index="Txt2Txt"    :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
+        <!--GeneratorMenuItem index="Rating"        :icon-one="StarEdit24Regular"   :isMobile="isMobile" /-->
+    </el-menu>
+    <div class="form">
+
+        <!--FormTxt2Img v-if="store.generatorType === 'Txt2Img'" /-->
+        <FormTxt2Vid v-if="store.generatorType === 'Txt2Vid'" />
+        <FormImg2Vid v-if="store.generatorType === 'Img2Vid'" />
+        <!--FormImg2Img v-if="store.generatorType === 'Img2Img'" /-->
+        <!--FormRating v-if="store.generatorType === 'Rating'" /-->
+
     </div>
 </template>
 
 <style>
-.user-workers {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    grid-gap: 10px;
+html body {
+    height: calc(100% + 32px);
+}
+
+:root {
+    --sidebar-width: 70px
+}
+
+:root .el-carousel {
+    --el-carousel-arrow-background: rgba(31, 45, 61, 0.31);
+    --el-carousel-arrow-hover-background: rgba(31, 45, 61, 0.51);
+}
+
+:root .el-carousel__arrow {
+    border-radius: 0;
+    height: 100%;
+}
+
+.small-btn {
+    padding: 6px 8px;
+    height: unset;
+}
+
+.generator-types {
+    position: fixed;
+    height: calc(100vh - 67px);
+    top: 67px;
+}
+
+.mobile-generator-types {
+    width: 100%
+}
+
+.generated-image {
+    aspect-ratio: 1 / 1;
     width: 100%;
-}
-
-.dashboard-title {
-    font-size: 50px;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.api-key-required {
-    font-size: 20px;
-    margin-bottom: 1rem;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.center-both-absolute {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.leaderboard {
+.generated-image > .el-card__body {
     width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.news {
-    height: 300px;
+.el-collapse, .sidebar-container {
+    width: 100%
 }
 
-.news > div > div > p {
-    margin-top: 0
+.form {
+    padding-left: 20px;
+    margin-left: var(--sidebar-width);
 }
 
-@media only screen and (max-width: 1000px) {
-    .dashboard-title {
-        font-size: 40px;
-    }
+.main {
+    grid-area: main;
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar {
+    grid-area: sidebar;
+    max-width: 90%;
+}
+
+.image {
+    grid-area: image;
+}
+
+.container {
+    display: grid;
+    height: 75vh;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 40px 95%;
+    grid-template-areas:
+        "sidebar main"
+        "sidebar image";
 }
 
 @media only screen and (max-width: 1280px) {
-    .label {
-        margin-bottom: 5px
+    html body {
+        height: calc(100% + 75%);
+    }
+
+    .generated-image > .el-card__body {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .generated-image {
+        width: 80%;
+        height: 100%;
+    }
+
+    .container {
+        display: grid;
+        height: 110vh;
+        grid-template-rows: minmax(400px, 45vh) 110px 60%;
+        grid-template-columns: 100%;
+        gap: 10px;
+        grid-template-areas:
+            "image"
+            "main"
+            "sidebar";
+    }
+
+    .sidebar {
+        max-width: 100%;
     }
 }
+
+@media only screen and (max-width: 768px) {
+    html body {
+        height: calc(100% * 2);
+    }
+
+    .generated-image {
+        width: 100%;
+        height: 100%;
+    }
+
+    .container {
+        grid-template-rows: minmax(400px, 50vh) 110px 60%;
+    }
+
+    .form {
+        padding-top: 20px;
+        padding-left: 0;
+        margin-left: 0;
+    }
+
+    #app .el-menu.el-menu--horizontal.el-menu--collapse.mobile-generator-types .el-menu-item {
+        width: 60px;
+    }
+}
+
 </style>
