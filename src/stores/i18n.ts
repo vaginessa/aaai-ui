@@ -277,6 +277,8 @@ export const useLanguageStore = defineStore("i18n", () => {
         name = name.replace(/[^0-9a-z]/gi, '')
         if(currentLanguage.value == english.value)
             return ENDirectory[name]
+        else if(currentLanguage.value == german.value)
+            return GEDirectory[name]
         else
             return "Missing Language: " + currentLanguage.value
     }
