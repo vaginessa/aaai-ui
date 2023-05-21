@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useRatingStore } from '@/stores/rating';
 import { useUserStore } from "@/stores/user";
 import RatingView from '../components/RatingView.vue';

@@ -2,7 +2,7 @@
 import { useCanvasStore } from '@/stores/canvas';
 import { onMounted, ref } from 'vue';
 import { ElUpload, ElIcon, ElButton, ElForm, ElColorPicker, type UploadFile, type UploadRawFile, ElInput, ElRow, ElCol, ElMessage } from 'element-plus';
-import { UploadFilled, Select, Download, EditPen, Close, RefreshRight, RefreshLeft, Delete  } from '@element-plus/icons-vue';
+import { UploadFilled, Select, Download, EditPen, RefreshLeft, Delete  } from '@element-plus/icons-vue';
 import { useGeneratorStore } from '@/stores/generator';
 import EraserIcon from './icons/EraserIcon.vue';
 import FormSlider from './FormSlider.vue';
@@ -31,12 +31,10 @@ async function handleChange(uploadFile: UploadFile) {
 
 function removeImage() {
     store.currentImageProps.sourceImage = "";
-    //canvasStore.resetCanvas()
 }
 
 onMounted(() => {
     canvasStore.createNewCanvas("canvas");
-    //store.currentImageProps.sourceImage && fabric.Image.fromURL(store.currentImageProps.sourceImage, canvasStore.newImage);
 })
 
 const WebURL = ref("");
@@ -77,31 +75,6 @@ function getWebImage() {
     }
 }
 
-
-
-
-/*
-
-
-
-                    
-
-            <div class="action-buttons" style="left: 10px; right: unset">
-                <el-button @click="canvasStore.undoAction()"   :icon="RefreshLeft" plain :disabled="canvasStore.redoHistory.length === 0" />
-                <el-button @click="canvasStore.redoAction()"   :icon="RefreshRight" plain :disabled="canvasStore.undoHistory.length === 0" />
-            </div>
-            <div class="action-buttons">
-                <el-button @click="canvasStore.resetDrawing()" :icon="Close" plain />
-                <el-button @click="removeImage"                :icon="Delete" plain />
-                <el-button @click="canvasStore.flipErase()"    :icon="canvasStore.erasing ? EditPen : EraserIcon" plain />
-                <el-color-picker v-model="canvasStore.drawColor" show-alpha v-if="canvasStore.drawing" />
-            </div>
-            <el-form label-width="110px" style="margin-top: 10px">
-                <form-slider style="margin-bottom: 5px" label="Brush Size" prop="brushSize" v-model="canvasStore.brushSize" :min="10" :max="100" :step="10" :change="canvasStore.setBrush" />
-            </el-form>
-
-*/
-
 </script>
 
 <template>
@@ -126,12 +99,6 @@ function getWebImage() {
                         <el-button @click="getWebImage()" :icon="Download" plain />
                     </el-col>
                 </el-row>
-                <!--div class="center-horizontal" style="margin-top: 5px;">OR </div>
-                <div
-                    class="center-both"
-                    style="cursor: pointer; text-decoration: underline; font-size: 1rem"
-                    @click="canvasStore.blankImage()"
-                ><el-icon :size="20" style="margin-right: 2px"><BrushFilled /></el-icon>draw something</div-->
             </div>
         </template>
     </el-upload>
@@ -143,11 +110,6 @@ function getWebImage() {
                 <el-button @click="canvasStore.AcceptImage()" :icon="Select" plain/>
                 <el-button @click="canvasStore.RemoveImage()" :icon="Delete" plain/>
             </div>
-
-            <!--div v-if="canvasStore.imageStage === 'Painting' || canvasStore.imageStage === 'PaintingMask'" class="action-buttons" style="left: 10px; right: unset">
-                <el-button @click="canvasStore.undoAction()"   :icon="RefreshLeft" plain :disabled="canvasStore.redoHistory?.length === 0" />
-                <el-button @click="canvasStore.redoAction()"   :icon="RefreshRight" plain :disabled="canvasStore.undoHistory?.length === 0" />
-            </div-->
 
             <div v-if="canvasStore.imageStage === 'Painting'" class="action-buttons">
                 <el-button @click="canvasStore.downloadMask()" :icon="Download" plain />
