@@ -89,7 +89,7 @@ handleUrlParams();
         <!--GeneratorMenuItem index="Img2Txt"    :icon-one="PictureFilled"       :icon-two="Comment" :isMobile="isMobile" /-->
         <!--GeneratorMenuItem index="Txt2Txt"    :icon-one="Comment"             :icon-two="PictureFilled" :isMobile="isMobile" /-->
         <GeneratorMenuItem index="Rating"        :icon-one="StarEdit24Regular"   :isMobile="isMobile" />
-        <GeneratorMenuItem index="Interrotagion"        :icon-one="ImageSearch"   :isMobile="isMobile" />
+        <GeneratorMenuItem index="Interrogation"        :icon-one="ImageSearch"   :isMobile="isMobile" />
     </el-menu>
     <div class="form">
 
@@ -98,7 +98,7 @@ handleUrlParams();
         <!--FormImg2Vid v-if="store.generatorType === 'Img2Vid'" /-->
         <FormImg2Img v-if="store.generatorType === 'Img2Img'" />
         <FormRating v-if="store.generatorType === 'Rating'" />
-        <FormRating v-if="store.generatorType === 'Interrogation'" />
+        <InterrogationView v-if="store.generatorType === 'Interrogation'" />
 
     </div>
 </template>
