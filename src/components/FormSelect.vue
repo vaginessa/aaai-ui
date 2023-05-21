@@ -24,11 +24,11 @@ const props = defineProps<{
     grouping?: boolean;
 }>();
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "change"]);
 
 function onChanged(value: any) {
     emit("update:modelValue", value);
-    if (props.change) props.change(value);
+    emit("change", value);
 }
 </script>
 

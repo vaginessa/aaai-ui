@@ -9,7 +9,9 @@ import {
     ElIcon,
     ElUpload,
     ElTabs,
-    ElTabPane
+    ElTabPane,
+    ElLoading,
+    vLoading
 } from 'element-plus';
 import {
     UploadFilled,
@@ -25,7 +27,9 @@ import { useOutputStore, type ImageData } from '@/stores/outputs';
 import { downloadMultipleWebp } from '@/utils/download';
 import { db } from '@/utils/db';
 import FormWorkerSelect from '../components/FormWorkerSelect.vue';
+import { useTagsStore } from '@/stores/tags';
 
+const tagStore = useTagsStore();
 const store = useOptionsStore();
 const outputsStore = useOutputStore();
 const userStore = useUserStore();
@@ -64,7 +68,10 @@ async function bulkDownload() {
     const selectedOutputs = await db.outputs.toArray();
     downloadMultipleWebp((selectedOutputs.filter(el => el != undefined) as ImageData[]))
 }
-
+async function onTagsChange() {
+    if (tagStore.tagsTypes[tagStore.currentTagsType].tags.length !== 0) return;
+    tagStore.loadTags(tagStore.currentTagsType);
+}
 </script>
 <template>
     <el-form
@@ -92,6 +99,8 @@ async function bulkDownload() {
         
         <form-radio  :label="lang.GetText(`llsharelaion`)" prop="shareWithLaion" v-model="store.shareWithLaion" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttsharelaion`)" :disabled="userStore.apiKey === '0000000000' || userStore.apiKey === ''" />
     </el-column><el-column>
+        <form-select :label="lang.GetText(`lltagautocomplete`)" prop="tagAutocomplete" v-model="tagStore.currentTagsType" :options="tagStore.possibleTags" @change="onTagsChange" v-loading="tagStore.tagsLoading" :info="lang.GetText(`tttagautocomplete`)" />
+
         <form-select :label="lang.GetText(`llcolormode`)" prop="colorMode" v-model="store.colorMode" :options="options" />
 
         <form-select :label="lang.GetText(`llfileformat`)" prop="downloadFileFormat" v-model="store.pictureDownloadType" :options="PictureTypes" />

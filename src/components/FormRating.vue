@@ -7,7 +7,8 @@ import BaseLink from '../components/BaseLink.vue';
 import {
     ElButton,
 } from 'element-plus';
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const ratingStore = useRatingStore();
 const userStore = useUserStore();
 
@@ -16,10 +17,10 @@ userStore.updateRatingCount();
 </script>
 
 <template>
-    <h1 style="margin: 0">Image Rating</h1>
-    <div>Rate images based on aesthetics to gain kudos and help <BaseLink href="https://laion.ai/">LAION</BaseLink> - the non-profit who helped train Stable Diffusion - improve their datasets!</div>
-    <div v-if="userStore.apiKey === '0000000000' || userStore.apiKey === ''">You have rated a total of <strong>{{ ratingStore.imagesRated }}</strong> images! <BaseLink router href="/options">Sign in</BaseLink> using your API key to start earning kudos.</div>
-    <div v-else>From rating a total of <strong>{{ userStore.ratingCount }}</strong> images, you have gained <strong>{{ userStore.ratingKudos }}</strong> kudos!</div>
+    <h1 style="margin: 0">{{lang.GetText(`ratingtitle`)}}</h1>
+    <div>{{lang.GetText(`ratingtext1`)}} <BaseLink href="https://laion.ai/">LAION</BaseLink>{{lang.GetText(`ratingtext2`)}}</div>
+    <div v-if="userStore.apiKey === '0000000000' || userStore.apiKey === ''">{{lang.GetText(`ratingtext3`)}}<strong>{{ ratingStore.imagesRated }}</strong> ! <BaseLink router href="/options">{{lang.GetText(`llsignin`)}}</BaseLink>{{lang.GetText(`ratingtext4`)}}</div>
+    <div v-else>{{lang.GetText(`ratingtext5`)}} <strong>{{ userStore.ratingCount }}</strong>{{lang.GetText(`ratingtext6`)}}<strong>{{ userStore.ratingKudos }}</strong> kudos!</div>
     <el-button
         @click="() => ratingStore.updateRatingInfo()"
         v-if="!ratingStore.currentRatingInfo.id"

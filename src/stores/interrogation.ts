@@ -18,6 +18,10 @@ export interface InterrogationInfo {
     elapsed_seconds?: number;
 }
 
+interface FormResult {
+    [key: string]: Record<string, any> | undefined;
+}
+
 export const useInterrogationStore = defineStore("interrogate", () => {
     const currentInterrogation = ref<InterrogationInfo>({});
     const interrogating = ref(false);
@@ -84,6 +88,21 @@ export const useInterrogationStore = defineStore("interrogate", () => {
         return json;
     }
 
+    function getFormStatus(formName: string) {
+        const form = currentInterrogation.value.status?.forms?.find(el => el.form === formName);
+        if (!form) return;
+        return {
+            ...form,
+            result: form.result as FormResult | undefined,
+            processing: form.state === 'processing',
+        }
+    }
+
+    function resetInterrogation() {
+        currentInterrogation.value = {};
+        interrogating.value = false;
+    }
+
     return {
         // Variables
         currentInterrogation,
@@ -94,5 +113,7 @@ export const useInterrogationStore = defineStore("interrogate", () => {
         // Actions
         interrogateImage,
         getInterrogationStatus,
+        getFormStatus,
+        resetInterrogation,
     }
 })

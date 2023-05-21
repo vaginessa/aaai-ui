@@ -82,14 +82,16 @@ interface IPromptHistory {
     timestamp: number;
 }
 
-type IGeneratorType = 'Txt2Img' | 'Txt2Vid' | 'Img2Vid' | 'Img2Img' | 'Rating'
+type IHordeGeneratorType = 'Txt2Img' | 'Img2Img' | 'Rating' | 'Interrogation'
+type IChaosGeneratorType = 'Txt2Vid' | 'Img2Vid'
 type IMultiModel = "Enabled" | "Disabled"
 type IGroupedModel ={ label: string; options: {label: string; value: string;}[] }[];
 
 export const useGeneratorStore = defineStore("generator", () => {
     const canvasStore = useCanvasStore();
-
-    const generatorType = useLocalStorage<IGeneratorType>("generationType", "Txt2Img");
+    const validGeneratorTypes = ['Text2Img', 'Img2Img', 'Inpainting'];
+    const generatorType = useLocalStorage<IHordeGeneratorType>("generationType", "Txt2Img");
+    const generatorChaosType = useLocalStorage<IChaosGeneratorType>("generatorChaosType", "Txt2Vid");
 
     const prompt = useLocalStorage("lastPrompt", "")
     const promptHistory = useLocalStorage<IPromptHistory[]>("promptHistory", []);
@@ -394,7 +396,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     /**
      * Generates images on the Horde; returns a list of image(s)
      * */ 
-    async function generateImage(type:IGeneratorType) {
+    async function generateImage(type:IHordeGeneratorType) {
         if (type === "Rating") return [];
         if (prompt.value === "") return generationFailed("Failed to generate: No prompt submitted.");
         if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed("Failed to generate: No model selected.");
@@ -1005,8 +1007,10 @@ export const useGeneratorStore = defineStore("generator", () => {
         // Constants
         availablePostProcessors,
         availableControlType,
+        validGeneratorTypes,
         // Variables
         generatorType,
+        generatorChaosType,
         prompt,
         params,
         images,

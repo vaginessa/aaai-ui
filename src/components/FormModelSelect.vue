@@ -10,12 +10,14 @@ import FormSelect from './FormSelect.vue';
 import InfoTooltip from './InfoTooltip.vue';
 import { useGeneratorStore } from '@/stores/generator';
 import { Plus, Minus } from '@element-plus/icons-vue';
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const store = useGeneratorStore();
 </script>
 
 <template>
     <form-select
-        label="Models"
+        :label="lang.GetText(`llmodel`)"
         prop="models"
         v-model="store.selectedModelMultiple"
         :options="store.filteredAvailableModelsGrouped"
@@ -33,7 +35,7 @@ const store = useGeneratorStore();
             </el-tooltip>
         </template>
     </form-select>
-    <form-select label="Model" prop="model" :grouping="true" v-model="store.selectedModel" :options="store.filteredAvailableModelsGrouped" filterable v-else>
+    <form-select :label="lang.GetText(`llmodel`)" prop="model" :grouping="true" v-model="store.selectedModel" :options="store.filteredAvailableModelsGrouped" filterable v-else>
         <template #label>
             <div style="display: flex; align-items: center; width: 100%">
                 <div style="margin-right: 5px">Model</div>

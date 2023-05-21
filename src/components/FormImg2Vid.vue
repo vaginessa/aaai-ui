@@ -127,16 +127,16 @@ async function handleChange(uploadFile: UploadFile) {
                         <img :src="store.sourceImage" style="max-width:100%;max-height: 500px;" />
                     </div>
                     <div v-if="store.sourceImage != ''" style="margin-top: 25px;margin-bottom:50px;width: 100%;">
-                        <form-on-off-button prop="boomerang" label="Bommerang" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.boomerang_clip" :info ="lang.GetText(`ttboomerang`)" />
-                        <form-on-off-button prop="autozoom" label="Autozoom" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.autozoom" :info ="lang.GetText(`ttautozoom`)" />
-                        <form-slider v-if="store.parallaxParams.autozoom == false" label="Start X Offset" prop="startXOffset" v-model="store.parallaxParams.start_x_offset" :min="-1024" :max="1024" />
-                        <form-slider v-if="store.parallaxParams.autozoom == false" label="Start Y Offset" prop="startYOffset" v-model="store.parallaxParams.start_y_offset" :min="-1024" :max="1024" />
-                        <form-slider v-if="store.parallaxParams.autozoom == false" label="End X Offset" prop="endXOffset" v-model="store.parallaxParams.end_x_offset" :min="-1024" :max="1024" />
-                        <form-slider v-if="store.parallaxParams.autozoom == false" label="End Y Offset" prop="endYOffset" v-model="store.parallaxParams.end_y_offset" :min="-1024" :max="1024" />
-                        <form-slider label="Zoom amount" prop="zoomAmount" v-model="store.parallaxParams.zoom_amount" :min="1.1" :max="2" :step="0.05" />
-                        <form-slider label="Zoom duration" prop="zoomDuration" v-model="store.parallaxParams.zoom_duration" :min="0.2" :max="10" :step="0.05" />
-                        <form-slider label="Frame rate" prop="frameRate" v-model="store.parallaxParams.frame_rate" :min="1" :max="100" />
-                        <form-on-off-button prop="predict" label="Music generation" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.predict_music" />
+                        <form-on-off-button prop="boomerang" :label="lang.GetText(`llboomerang`)" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.boomerang_clip" :info ="lang.GetText(`ttboomerang`)" />
+                        <form-on-off-button prop="autozoom" :label="lang.GetText(`llautozoom`)" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.autozoom" :info ="lang.GetText(`ttautozoom`)" />
+                        <form-slider v-if="store.parallaxParams.autozoom == false" :label="lang.GetText(`llstarx`)" prop="startXOffset" v-model="store.parallaxParams.start_x_offset" :min="-1024" :max="1024" />
+                        <form-slider v-if="store.parallaxParams.autozoom == false" :label="lang.GetText(`llstarty`)" prop="startYOffset" v-model="store.parallaxParams.start_y_offset" :min="-1024" :max="1024" />
+                        <form-slider v-if="store.parallaxParams.autozoom == false" :label="lang.GetText(`llendx`)" prop="endXOffset" v-model="store.parallaxParams.end_x_offset" :min="-1024" :max="1024" />
+                        <form-slider v-if="store.parallaxParams.autozoom == false" :label="lang.GetText(`llendy`)" prop="endYOffset" v-model="store.parallaxParams.end_y_offset" :min="-1024" :max="1024" />
+                        <form-slider :label="lang.GetText(`llzoomamount`)" prop="zoomAmount" v-model="store.parallaxParams.zoom_amount" :min="1.1" :max="2" :step="0.05" />
+                        <form-slider :label="lang.GetText(`llzoomduration`)" prop="zoomDuration" v-model="store.parallaxParams.zoom_duration" :min="0.2" :max="10" :step="0.05" />
+                        <form-slider :label="lang.GetText(`llframerate`)" prop="frameRate" v-model="store.parallaxParams.frame_rate" :min="1" :max="100" />
+                        <form-on-off-button prop="predict" :label="lang.GetText(`llmusic`)" :icon-on="Check" :icon-off="Close" v-model="store.parallaxParams.predict_music" />
                     </div>
                 </el-card>
             </div>
@@ -154,11 +154,11 @@ async function handleChange(uploadFile: UploadFile) {
                 <el-card class="center-both generated-video" >
                     <div class="noticeBox" v-if="!store.generating && store.videoUrl === 'none'">
                         <div class="genNotice" v-if="store.generateLock">
-                            <strong>ATTENTION</strong>
+                            <strong>{{lang.GetText(`vidattention`)}}</strong>
                             <hr/>
-                            Can not accept more generation requests!<br/>
+                            {{lang.GetText(`vidattention2`)}}<br/>
                             {{ store.generateMsg }}<br/>
-                            To find out more join our <BaseLink href="https://discord.gg/ugEqPP5wMT">Discord</BaseLink>!
+                            {{lang.GetText(`vidattention3`)}}<BaseLink href="https://discord.gg/ugEqPP5wMT">Discord</BaseLink>!
                         </div>
                         <div>
                             <FormPun />    
