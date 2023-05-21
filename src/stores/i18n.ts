@@ -5,7 +5,141 @@ import { computed, ref } from "vue";
 export const useLanguageStore = defineStore("i18n", () => {
 
     const currentLanguage = ref("en");
+
     const english = ref("en");
+    const german = ref("de");
+    
+    const GEDirectory:{[key: string]: string} = {
+        "ttsampler":"k_heun und k_dpm_2 verdoppeln die Generierungszeit und die Kudos-Kosten, konvergieren aber doppelt so schnell.",
+        "ttsteps":"Halten Sie die Schrittzahl zwischen 20 und 30 für optimale Generierungszeiten. Die Kohärenz erreicht in der Regel zwischen 60 und 90 Schritten ihren Höhepunkt, wobei ein Kompromiss bei der Geschwindigkeit eingegangen wird.",
+        "ttcfg":"Bei höheren Werten beachtet die KI Ihre Eingabe mehr, benötigt aber möglicherweise eine höhere Schrittzahl. Bei niedrigeren Werten kann die KI kreativer sein.",
+        "ttclipskip":"Wie viele Iterationen beim Parsen des CLIP-Modells übersprungen werden.",
+        "ttpostprocessor":"GPFGAN und Codeformers verbessern Gesichter, RealESRGAN, NMKD, AnimeSharp: vergrößern das Bild, strip_background entfernt den Hintergrund.",
+        "tttiling":"DERZEIT OFFLINE AUF COMFYUI! Erzeugt nahtlose Texturen! Sie können Ihre Bilder hier testen: https://www.pycheung.com/checker/",
+        "ttkarras":"Verbessert die Bilderzeugung und erfordert weniger Schritte. Größtenteils Magie!",
+        "tthiresfix":"Beginnt mit der Generierung in geringerer Auflösung, um Morphing zu vermeiden, skaliert dann hoch und füllt das Bild mit Details auf.",
+        "tthiresfixx":"Sie benötigen ein Bild mit einer Größe von mindestens 576x576!",
+        "tttrustedworker":"Lassen Sie nur vertrauenswürdige Arbeiter Ihre Anfragen bearbeiten, das kann zu längeren Warteschlangen führen.",
+        "ttnsfw":"Zeigt Modelle auf der Liste, die als NSFW gekennzeichnet wurden. Wird nicht benötigt, um NSFW-Inhalte zu erzeugen.",
+        "ttcensornsfw":"Sollen automatisch NSFW erkannte bilder zensiert werden? Übermäßig empfindlich!",
+        "ttcensornsfwx":"NSFW ist deaktiviert!",
+        "ttslowworker":"Wenn diese Option auf \"Wahr\" gesetzt wird, können auch langsamere Arbeiter diese Anfrage bearbeiten. Die Deaktivierung dieser Funktion verursacht zusätzliche Kudos-Kosten.",
+        "ttreplacementfilter" :"Wenn diese Funktion aktiviert ist, werden Wörter, die unethische Inhalte erzeugen könnten, automatisch ersetzt. Wenn Sie die Funktion deaktivieren und unethische Dinge erkannt werden, müssen Sie mit langen Timeouts rechnen!",
+        "ttdenoise":"Bei höheren Werten weicht das Ergebniss stärker vom Ausgangsbild ab.",
+        "ttboomerang":"Hinein- und Herauszoomen. Nach der ersten Bewegung kehren Sie zum Anfang zurück.",
+        "ttautozoom":"Versucht, den interessantesten Zoom zu erzeugen.",
+        "ttinterpolate":"Durch die Interpolation zwischen den Einzelbildern wird die Animation glatter, ohne dass zu viele Einzelbilder gerendert werden müssen.",
+        "ttlength":"Legt die Länge des gesamten Videos in Sekunden fest, so dass die Anzahl der von der KI generierten Bilder FPS*Länge entspricht.",
+
+        "ttlargervalues":"Ermöglicht die Verwendung größerer Schrittgrößen und Dimensionen, wenn Sie die entsprechenden Kudos zur Verfügung haben.",
+        "ttsharelaion":"Automatische und anonyme Weitergabe von Bildern an LAION (die gemeinnützige Organisation, die den Datensatz erstellt hat, der für das Training von Stable Diffusion verwendet wurde) zur Verwendung beim ästhetischen Training, um zukünftige Modelle zu verbessern. Weitere Informationen finden Sie in der Ankündigung unter https://discord.com/channels/781145214752129095/1020707945694101564/1061980573096226826. HINWEIS: Diese Option ist für Benutzer ohne gültigen API-Schlüssel automatisch aktiviert.",
+        "ttmetadata":"Herunterladen und Zippen mit einer JSON-Datei die Generierungseinstellungen zu jedem Bild enthält.",
+        "tttagautocomplete":"Verwenden Sie die Pfeiltasten nach oben und unten, um durch die Tag-Optionen zu blättern, und drücken Sie dann die Eingabetaste, um sie in die auswahl einzufügen.",
+
+        "ttnegativeprompt":"Was aus dem Bild ausgeschlossen werden soll. Funktioniert nicht? Versuchen Sie, die Vorgabe zu erhöhen.",
+
+        "engapikey":"API-Schlüssel",
+        "engenterapikey":"Geben Sie hier Ihren API-Schlüssel ein",
+
+        "lllargervalues":"Größere Werte",
+        "llsharelaion":"Erstellte Bilder mit LAION teilen",
+        "lltagautocomplete":"Tag Autovervollständigen",
+        "llimagesperpage":"Bilder pro Seite",
+        "llpageless":"Seitenloses Format",
+        "llcarouselauto":"Autokarussell",
+        "llfileformat":"Datenformat",
+        "llmetadata":"Metadaten herunterladen",
+        "llexportzip":"Bilder exportieren (ZIP-Datei)",
+        "llimportzip":"Bilder importieren (ZIP-Datei)",
+        "llcolormode":"Farbmodus:",
+
+        "llgenerateprompt":"Eingabe generieren",
+        "llprompthistory":"Eingabegeschichte",
+        "descnoprompthistory":"Keine Eingabegeschichte gefunden - versuchen Sie, ein Bild zu erzeugen!",
+        "llsearchbyprompt":"Nach Eingabe suchen",
+        "descnomatchingprompt":"Es wurde(n) keine passende(n) Eingabe(n) für Ihre Suche gefunden.",
+        "llpromptstyles":"Eingabe Stile",
+        "descnostyles":"Keine Stile gefunden",
+        "descsearcchnostyles":"Es wurde(n) kein(e) passende(r) Stil(e) zu Ihrer Suche gefunden.",
+        "llsearchbystyle":"Suche nach Stil",
+        "llusestyle":"Stil verwenden",
+        "llnegativeprompt":"Negative Eingabe",
+        "placeholdernegative":"Negative Eingabe hier eingeben",
+        "lladdnegativeprompt":"Negative Eingabe hinzufügen",
+        "llnegativeprompts":"Negative Eingaben",
+        "descnonegativeprompts":"Keine negativen Eingaben gefunden",
+        "descnomatchingnegativeprompts":"Es wurde(n) keine passende(n) negative(n) Eingabe(n) für Ihre Suche gefunden.",
+        "lldeletepreset":"Voreinstellung löschen",
+        "llusepreset":"Voreinstellung verwenden",
+
+        "llmodel":"Modell",
+        "llsampler":"Sampler",
+        "llbatchsize":"Anzahl",
+        "llsteps":"Schritte",
+        "llpriorsteps":"Vorherige Schritte",
+        "llwidth":"Breite",
+        "llheight":"Höhe",
+        "llcfg":"Vorgabe",
+        "llpriorcfg":"Vorherige Vorgabe",
+        "llclipskip":"Clip Skip",
+        "llpostprocessors":"Postprozessoren",
+        "llfacefixer":"Gesichter verbessern",
+        "lltiling":"Nahtlos",
+        "llkarras":"Karras",
+        "llhiresfix":"HiRes Korrektur",
+        "lltrustedworker":"Vertrauter Arbeiter",
+        "llnsfw":"NSFW",
+        "llcensornsfw":"Zensiert NSFW",
+        "llslowworker":"Langsame Arbeiter",
+        "llreplacementfilter":"Austauschfilter",
+        "lldenoise":"Init-Stärke",
+        "llfps":"Gewünschte FPS",
+        "lllength":"Gewünschte Dauer",
+        "llinterpolate":"Interpolieren",
+        "llxinterpolate":"Interpolationszeiten",
+
+        "llboomerang":"Bumerang",
+        "llautozoom":"Auto-Zoom",
+        "llstartx":"Start X Versatz",
+        "llstarty":"Start Y Versatz",
+        "llendx":"Ende X Versatz",
+        "llendy":"Ende Y Versatz",
+        "llzoomamount":"Zoom Stärke",
+        "llzoomduration":"Zoom Dauer",
+        "llframerate":"Bildrate",
+        "llmusic":"Musik Generation",
+
+        "llsignin":"Anmelden",
+        "llloadingimage":"Bild lädt...",
+        "llstartrating":"Bewertung starten!",
+
+        "vidattention":"ACHTUNG!",
+        "vidattention2":"Kann keine weiteren Generierungsanfragen annehmen!",
+        "vidattention3":"Um mehr zu erfahren, besuchen Sie unser ",
+
+        "abouttext1":"Dieses Tool bietet ein Front-End, um Bilder mit Stable Diffusion kostenlos zu erstellen! Es werden keine Downloads, teure Hardware oder zusätzliche Software benötigt. Wir bringen Ihnen die neuesten Tools in einem einfachen, kompakten und leicht verständlichen Paket! Derzeit werden mehr als 200 Modelle unterstützt, um all Ihre realistischen, künstlerischen, Anime- und Cartoon-Bedürfnisse abzudecken, und es kommen fast täglich neue hinzu.",
+        "abouttext2":"Suchen Sie einen Ort, an dem Sie Ihre Kunst mit anderen teilen, Fragen stellen oder sich mit Gleichgesinnten austauschen können? Besuchen Sie unser ",
+        "abouttext3":"Wenn Sie dieses Projekt unterstützen möchten, gehen Sie zu ",
+        "abouttext3b":"Jede Spende hilft uns, die Benutzeroberfläche zu pflegen, die Infrastrukturkosten ab zu decken und möglicherweise weitere Programmierer einzustellen, um Ihr Erlebnis noch besser zu machen.!",
+        "abouttext4":"Wenn Sie einen API-Schlüssel benötigen, können Sie einen erhalten unter ",
+        "abouttext5":"DadJokes von ",
+        "abouttext6":"Basierend auf der stableUI, entwickelt von ",
+        "abouttext7":"Powerd by ",
+
+        "dashboardtext1":"Sie sind angemeldet als ",
+        "dashrequiresapikey":"Benutzerstatistiken erfordern einen API-Schlüssel",
+        "dashnoworkersfound":"Keine Arbeiter gefunden",
+        "dashrequiresapikey2":"Für die Änderung/Ansicht von Benutzerarbeitern ist ein API-Schlüssel erforderlich",
+
+        "ratingtitle":"Bild Bewertung",
+        "ratingtext1":"Bewerten Sie Bilder nach ihrer Ästhetik, um Anerkennung und Hilfe zu erhalten ",
+        "ratingtext2":" - ie gemeinnützige Organisation, die bei der Ausbildung von Stable Diffusion geholfen hat - ihre Datensätze zu verbessern!",
+        "ratingtext3":"Sie haben Bilder bewertet, ",
+        "ratingtext4":" benutzen Sie Ihren API-Schlüssel, um Kudos zu verdienen.",
+        "ratingtext5":"Aus der Bewertung von insgesamt ",
+        "ratingtext6":" Bildern, erhielten Sie ",
+
+    }
 
     const ENDirectory:{[key: string]: string} = {
         "ttsampler":"k_heun and k_dpm_2 double generation time and kudos cost, but converge twice as fast.",
@@ -137,14 +271,14 @@ export const useLanguageStore = defineStore("i18n", () => {
         "ratingtext5":"From rating a total of ",
         "ratingtext6":" images, you have gained ",
 
-        
-
     }
 
     function GetText(name: string) {
         name = name.replace(/[^0-9a-z]/gi, '')
         if(currentLanguage.value == english.value)
             return ENDirectory[name]
+        else if(currentLanguage.value == german.value)
+            return GEDirectory[name]
         else
             return "Missing Language: " + currentLanguage.value
     }
