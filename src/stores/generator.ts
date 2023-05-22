@@ -771,6 +771,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                     width: (params?.width as number) * ((params?.post_processing || []).includes("RealESRGAN_x4plus") ? 4 : 1),
                     height: (params?.height as number) * ((params?.post_processing || []).includes("RealESRGAN_x4plus") ? 4 : 1),
                     cfg_scale: params?.cfg_scale,
+                    denoising_strength: params?.denoising_strength,
                     clip_skip: params?.clip_skip,
                     facefixer_strength: params?.facefixer_strength,
                     karras: params?.karras,
