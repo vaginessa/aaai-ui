@@ -14,7 +14,7 @@ const optionsStore = useOptionsStore();
 const userStore = useUserStore();
 window.addEventListener('keyup', (event) => {
     if(event.ctrlKey && event.key == "Enter") {
-    store.generateImage(store.generatorType)
+        store.generateImage(store.generatorType)
     }
 });
 </script>

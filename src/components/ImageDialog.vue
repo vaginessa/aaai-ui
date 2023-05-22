@@ -71,7 +71,7 @@ function handleClose() {
             <span>Steps: {{currentOutput.steps || "Unknown"}} - </span>
             <span>CFG Scale: {{currentOutput.cfg_scale || "Unknown"}}</span>
             <br/>
-            <span>Denoise: {{currentOutput.denoising_strength || "None"}} - </span>
+            <span v-if="currentOutput.denoising_strength">Denoise: {{currentOutput.denoising_strength || "None"}} - </span>
             <span>Clip Skip: {{currentOutput.clip_skip || "Unknown"}} - </span>
             <span>Dimensions: {{currentOutput.width || "???"}}x{{currentOutput.height || "???"}} - </span>
             <span>Karras: {{currentOutput.karras || false}} - </span>
