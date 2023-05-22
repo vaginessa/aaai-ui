@@ -1,10 +1,10 @@
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
 export const useLanguageStore = defineStore("i18n", () => {
 
-    const currentLanguage = ref("en");
+    const currentLanguage = useLocalStorage("currentLanguage", "None");
 
     const english = ref("en");
     const german = ref("de");
@@ -419,6 +419,7 @@ export const useLanguageStore = defineStore("i18n", () => {
     }
 
     return {
-        GetText
+        GetText,
+        currentLanguage
     }
 });

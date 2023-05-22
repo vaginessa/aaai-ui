@@ -20,12 +20,19 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import CircleFilled from "./components/icons/CircleFilled.vue";
 import MainMenuItem from "./components/MainMenuItem.vue";
 import ImageDialog from './components/ImageDialog.vue';
+import { useLanguageStore } from "./stores/i18n";
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
 
+const langStore = useLanguageStore();
 const uiStore = useUIStore();
 const optionStore = useOptionsStore();
+
+if(langStore.currentLanguage == "None") {
+    var userLang = navigator.language;
+    langStore.currentLanguage = userLang.slice(0,2);
+}
 
 const route  = useRoute();
 const menuRef = ref();
