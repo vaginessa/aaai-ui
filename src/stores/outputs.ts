@@ -36,6 +36,7 @@ export interface ImageData {
     seed?: string;
     steps?: number;
     cfg_scale?: number;
+    denoising_strength?: number;
     clip_skip?: number;
     height?: number;
     width?: number;
