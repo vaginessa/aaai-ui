@@ -415,7 +415,11 @@ export const useLanguageStore = defineStore("i18n", () => {
         else if(currentLanguage.value == hungarian.value)
             return HUDirectory[name]
         else
-            return "Missing Language: " + currentLanguage.value
+        {
+            // Fallback english
+            currentLanguage.value = english.value;
+            return ENDirectory[name]
+        }
     }
 
     return {
