@@ -2,8 +2,8 @@
 import { useGeneratorStore } from '@/stores/generator';
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
 import FormInput from '../components/FormInput.vue';
-import { MagicStick } from '@element-plus/icons-vue';
-import { ElButton, ElTooltip } from 'element-plus';
+import { MagicStick, Delete } from '@element-plus/icons-vue';
+import { ElButton, ElTooltip, ElDivider } from 'element-plus';
 const store = useGeneratorStore();
 </script>
 
@@ -14,6 +14,11 @@ const store = useGeneratorStore();
                 <el-button :icon="MagicStick" @click="() => { 
                     MersenneTwister(undefined);
                     store.params.seed = genrand_int32().toString()
+                }" />
+            </el-tooltip><el-divider direction="vertical" border-style="dashed" />
+            <el-tooltip content="Delete" placement="top">
+                <el-button :icon="Delete"     @click="() => {
+                    store.params.seed = '';
                 }" />
             </el-tooltip>
         </template>
