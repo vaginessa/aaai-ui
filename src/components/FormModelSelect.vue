@@ -28,7 +28,7 @@ const store = useGeneratorStore();
         class="multi-model-select" :grouping="true"
     >
         <template #inline>
-            <el-tooltip content="Deactivate Multi Mode" placement="top">
+            <el-tooltip :content="lang.GetText(`lldeactivatemultimode`)" placement="top">
                 <el-button :icon="Minus" @click="() => { 
                     store.multiModelSelect = 'Disabled';
                 }" />
@@ -57,7 +57,7 @@ const store = useGeneratorStore();
             </div>
         </template>
         <template #inline>
-            <el-tooltip content="Activate Multi Mode" placement="top">
+            <el-tooltip :content="lang.GetText(`llactivatemultimode`)" placement="top">
                 <el-button :icon="Plus" @click="() => { 
                     store.multiModelSelect = 'Enabled';
                 }" />

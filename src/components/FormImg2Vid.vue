@@ -36,7 +36,7 @@ function getWebImage() {
     try {
         isValidUrl(WebURL.value).then(validUrl => {
             if(!validUrl) { 
-                throw new Error("Invalid URL!");
+                throw new Error(lang.GetText(`errorinvalidurl`));
             } else {
                 base64Image(WebURL.value || "").then(imgData => {
                     if (imgData !== undefined) {
@@ -50,7 +50,7 @@ function getWebImage() {
     } catch(e) {
         console.log(e);
         ElMessage({
-            message: `Could not retrive image "${(WebURL.value || "")}" ...`,
+            message: `"${lang.GetText('errorcouldnotretrieveimage')}" "${(WebURL.value || "")}" ...`,
             type: 'error',
         });
         WebURL.value = "";
@@ -60,7 +60,7 @@ function getWebImage() {
 async function handleChange(uploadFile: UploadFile) {
     if (!(uploadFile.raw as UploadRawFile).type.includes("image")) {
         ElMessage({
-            message: `Uploaded file needs to be a image! ...`,
+            message: `"${lang.GetText('errorneedstobeanimage')}" ...`,
             type: 'error',
         });
         return;
@@ -69,7 +69,7 @@ async function handleChange(uploadFile: UploadFile) {
     store.sourceImage = base64File;
 }
 
-</script>
+</script> <!-- fuck this shit ^^ both 2 paragraphs-->
 <template>
     <el-form
             label-position="left"
@@ -114,7 +114,7 @@ async function handleChange(uploadFile: UploadFile) {
                             <div>
                                 <el-row style="margin-top: 15px;">
                                     <el-col :span="22">
-                                        <el-input v-model="WebURL" placeholder="Web Link" clearable />
+                                        <el-input v-model="WebURL" :placeholder="lang.GetText(`placeholderweblink`)" clearable />
                                     </el-col>
                                     <el-col :span="2">
                                         <el-button @click="getWebImage()" :icon="Download" plain />

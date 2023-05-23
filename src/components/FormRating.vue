@@ -26,7 +26,7 @@ userStore.updateRatingCount();
         :disabled="ratingStore.submitted"
         style="margin-top: 10px"
         size="large"
-    >{{ ratingStore.submitted ? "Loading image..." : "Start rating!"}}</el-button>
+    >{{ ratingStore.submitted ? lang.GetText(`llloadingimage`) : lang.GetText(`llstartrating`) }}</el-button>
     <RatingView
         :id="ratingStore.currentRatingInfo.id || ''"
         :image-source="ratingStore.currentRatingInfo.url || ''"

@@ -11,6 +11,8 @@ import CrownIcon from '../components/icons/CrownIcon.vue';
 import CircleFilled from '../components/icons/CircleFilled.vue';
 import type { TeamDetailsStable } from '../types/stable_horde';
 import { formatSeconds } from '@/utils/format';
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -32,16 +34,16 @@ const modelSorted = computed(() => [...props.team.models as any].sort((a, b) => 
                 <slot name="header"></slot>
             </div>
         </template>
-        <div class="small-font">ID: {{team.id}}</div>
-        <div>This team has been online for <strong>{{formatSeconds(team.uptime, true, { days: true, hours: true, minutes: true })}}</strong></div>
-        <div>They've generated <strong>{{team.contributions}}</strong> MPS</div>
-        <div>They're going at a speed of <strong>{{team.speed}}</strong> MPS/s</div>
-        <div>They've fulfilled <strong>{{team.requests_fulfilled}}</strong> requests</div>
+        <div class="small-font">{{lang.GetText(`teamid`)}} {{team.id}}</div>
+        <div>{{lang.GetText(`teamonlinefor`)}} <strong>{{formatSeconds(team.uptime, true, { days: true, hours: true, minutes: true })}}</strong></div>
+        <div>{{lang.GetText(`teamgenerated`)}} <strong>{{team.contributions}}</strong> MPS</div>
+        <div>{{lang.GetText(`teamspeed`)}} <strong>{{team.speed}}</strong> MPS/s</div>
+        <div>{{lang.GetText(`teamfulfilled`)}} <strong>{{team.requests_fulfilled}}</strong> {{lang.GetText(`teamrequests`)}}</div>
         <el-collapse style="margin-top: 0.5rem">
-            <el-collapse-item title="Workers" name="1">
-                <div v-if="team.worker_count === 0">They have no workers.</div>
+            <el-collapse-item :title="lang.GetText(`teamworkers`)" name="1">
+                <div v-if="team.worker_count === 0">{{lang.GetText(`teamnoworkers`)}}</div>
                 <div v-else>
-                    <div>They have {{team.worker_count}} worker(s):</div>
+                    <div>{{lang.GetText(`teamtheyhave`)}} {{team.worker_count}} {{lang.GetText(`teamworkerss`)}}</div>
                     <ul class="remove-list-styling">
                         <li v-for="worker in team.workers" :key="worker.id">
                             <strong>
@@ -53,10 +55,10 @@ const modelSorted = computed(() => [...props.team.models as any].sort((a, b) => 
                     </ul>
                 </div>
             </el-collapse-item>
-            <el-collapse-item title="Models" name="2">
-                <div v-if="team.models?.length === 0">They are hosting no models.</div>
+            <el-collapse-item :title="lang.GetText(`teammodels`)" name="2">
+                <div v-if="team.models?.length === 0">{{lang.GetText(`teamnomodels`)}}</div>
                 <div v-else>
-                    <div>They are hosting the models:</div>
+                    <div>{{lang.GetText(`teamhostingmodels`)}}</div>
                     <ul class="remove-list-styling">
                         <li v-for="model in modelSorted" :key="model">
                             <strong>{{model.name}} ({{model.count}})</strong>

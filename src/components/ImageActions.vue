@@ -24,7 +24,8 @@ import type { AestheticRating } from '@/types/stable_horde';
 import { db } from '@/utils/db';
 import RatingView from './RatingView.vue';
 import { ref } from 'vue';
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const store = useGeneratorStore();
 const outputStore = useOutputStore();
 const ratingStore = useRatingStore();
@@ -36,11 +37,11 @@ const props = defineProps<{
 
 const confirmDelete = () => {
     ElMessageBox.confirm(
-        'This action will permanently delete this image. Continue?',
-        'Warning',
+        lang.GetText(`thiswilldelete`),
+        lang.GetText(`warning`),
         {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel',
+            confirmButtonText: lang.GetText(`ok`),
+            cancelButtonText: lang.GetText(`cancel`),
             type: 'warning',
         }
     )
@@ -49,7 +50,7 @@ const confirmDelete = () => {
             if (props.onDelete !== undefined) props.onDelete(props.imageData.id);
             ElMessage({
                 type: 'success',
-                message: 'Deleted Image',
+                message: lang.GetText(`deletedimage`),
             })
         })
 }
@@ -88,7 +89,7 @@ async function copyLink(imageData: ImageData) {
     await navigator.clipboard.writeText(link);
     ElMessage({
         type: 'success',
-        message: 'Copied shareable link to clipboard',
+        message: lang.GetText(`copiedtoclipboard`),
     });
 }
 
@@ -109,16 +110,16 @@ const ratingDialog = ref(false);
 </script>
 
 <template>
-    <el-tooltip content="Delete" placement="top">
+    <el-tooltip :content="lang.GetText(`lldelete`)" placement="top">
         <el-button @click="confirmDelete" type="danger" :icon="Delete" plain/>
     </el-tooltip>
-    <el-tooltip content="Download" placement="top">
+    <el-tooltip :content="lang.GetText(`lldownload`)" placement="top">
         <el-button @click="downloadImage(imageData, `${imageData.seed}-${imageData.prompt}`)" type="success" :icon="Download" plain />
     </el-tooltip>
-    <el-tooltip v-if="!imageData.starred" content="Favourite" placement="top">
+    <el-tooltip v-if="!imageData.starred" :content="lang.GetText(`llfavourite`)" placement="top">
         <el-button v-if="!imageData.starred" @click="outputStore.toggleStarred(imageData.id)" type="warning" :icon="Star" plain />
     </el-tooltip>    
-    <el-tooltip v-if="imageData.starred" content="Unfavourite" placement="top">
+    <el-tooltip v-if="imageData.starred" :content="lang.GetText(`llunfavourite`)" placement="top">
         <el-button v-if="imageData.starred" @click="outputStore.toggleStarred(imageData.id)" type="warning" :icon="StarFilled" plain />
     </el-tooltip>
     <el-button @click="store.generateTxt2Img(imageData)" type="success" :icon="Refresh" plain>Txt2Img</el-button>
@@ -134,7 +135,7 @@ const ratingDialog = ref(false);
     <el-dialog
         v-model="ratingDialog"
         class="rating-dialog"
-        title="Image Rating"
+        :title="lang.GetText(`llimagerating`)"
         append-to-body
     >
         <RatingView

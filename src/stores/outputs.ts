@@ -11,6 +11,8 @@ import { from } from 'rxjs';
 import { useObservable } from "@vueuse/rxjs";
 import { useLiveQuery } from "@/utils/useLiveQuery";
 import { DEBUG_MODE } from "@/constants";
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 
 export interface ImageData {
     generation_date?: string;
@@ -145,14 +147,14 @@ export const useOutputStore = defineStore("outputs", () => {
     
         if (!uploadFile.raw) return;
         if (!uploadFile.raw.type.includes("zip")) {
-            uiStore.raiseError("Uploaded file needs to be a ZIP!", false);
+            uiStore.raiseError(lang.GetText(`outneedstobezip`), false);
             return;
         }
         const { files } = await loadAsync(uploadFile.raw);
         let outputsAppended = 0;
         let outputsFailed = 0;
         ElMessage({
-            message: `Loading images...`,
+            message: lang.GetText(`outloadingimages`),
             type: 'info',
         })
         const pushing = [];
@@ -184,7 +186,7 @@ export const useOutputStore = defineStore("outputs", () => {
                             return resolve(null);
                         });
                     })
-                );
+                );  //fuck this shit too both up and down
             }
         }
         const newImages = await Promise.all(pushing);

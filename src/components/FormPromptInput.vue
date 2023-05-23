@@ -59,7 +59,7 @@ function handleUseStyle(style: string) {
     if (store.filteredAvailableModelsGrouped.map(el => el?.options.map(el2 => el2.value)).find(el => el?.includes(model))) {
         store.selectedModel = model;
     } else {
-        uiStore.raiseWarning("Warning: style's model isn't available.", false)
+        uiStore.raiseWarning(lang.GetText(`Warning: style's model isn't available.`), false)
     }
 }
 
@@ -160,14 +160,14 @@ onKeyStroke("Enter", (e) => {
     <div id="warning" v-if="store.selectedModelData.nsfw && showNsfwBong">
         <svg height="50" viewBox="0 0 512 512" width="50" xmlns="http://www.w3.org/2000/svg"><path fill="#000" d="M449.07,399.08,278.64,82.58c-12.08-22.44-44.26-22.44-56.35,0L51.87,399.08A32,32,0,0,0,80,446.25H420.89A32,32,0,0,0,449.07,399.08Zm-198.6-1.83a20,20,0,1,1,20-20A20,20,0,0,1,250.47,397.25ZM272.19,196.1l-5.74,122a16,16,0,0,1-32,0l-5.74-121.95v0a21.73,21.73,0,0,1,21.5-22.69h.21a21.74,21.74,0,0,1,21.73,22.7Z"/></svg>
         <div class="wtext">
-            <strong>Warning</strong>you are about to generate a prompt that will be filtered by the horde network. Please revise your prompt or choose a non NSFW Model.
+            <strong>{{lang.GetText(`warning`)}}</strong>{{lang.GetText(`warningbadwords`)}}
         </div>
         <div class="clear">&nbsp;</div>
     </div>
-    <form-input :change="showNsfwNotification" prop="prompt" :spanWidth=3 v-model="store.prompt" :autosize="{ minRows: 2 }" resize="vertical" type="textarea" placeholder="Enter prompt here" label-position="top" label-style="justify-content: space-between; width: 100%;" @focus="promptFocused = true" @blur="promptFocused = false">
+    <form-input :change="showNsfwNotification" prop="prompt" :spanWidth=3 v-model="store.prompt" :autosize="{ minRows: 2 }" resize="vertical" type="textarea" :placeholder="lang.GetText(`promptplaceholder`)" label-position="top" label-style="justify-content: space-between; width: 100%;" @focus="promptFocused = true" @blur="promptFocused = false">
         <template #label>
-            <div>Prompt</div>
-            <el-tooltip content="Add trigger (dreambooth)" placement="top" v-if="store.selectedModelData?.trigger">
+            <div>{{lang.GetText(`llprompt`)}}</div>
+            <el-tooltip :content="lang.GetText(`lladdtrigger`)" placement="top" v-if="store.selectedModelData?.trigger">
                 <el-button v-if="store.selectedModelData.trigger.length === 1" @click="() => store.addDreamboothTrigger()" :icon="Plus" class="trigger-select" />
                 <el-select v-else class="trigger-select" @change="store.addDreamboothTrigger">
                     <el-option
@@ -253,7 +253,7 @@ onKeyStroke("Enter", (e) => {
     >
         <template #options>
             <div>
-                <span style="margin-right: 10px">Show Details</span>
+                <span style="margin-right: 10px">{{lang.GetText(`showdetails`)}}</span>
                 <el-switch v-model="showDetails" />
             </div>
         </template>
@@ -263,14 +263,14 @@ onKeyStroke("Enter", (e) => {
                 <strong>{{store.styles[itemProps.item].model}}</strong>
             </div>
             <div v-if="showDetails">
-                <h4>Your prompt after applying:</h4>
+                <h4>{{lang.GetText(`promptafterapply`)}}</h4>
                 <div>
                     <span>{{getStyle(itemProps.item).promptSplit[0]}}</span>
                     <span style="color: var(--el-color-primary)">{{store.prompt || "(none)"}}</span>
                     <span>{{getStyle(itemProps.item).promptSplit[1]}}</span>
                 </div>
                 <div v-if="getStyle(itemProps.item).negativePromptSplit || getStyle(itemProps.item).prompt.includes('{np}')">
-                    <h4>Negative Prompt: </h4>
+                    <h4>{{lang.GetText(`negativeprompt`)}}</h4>
                     <span>{{getStyle(itemProps.item)?.negativePromptSplit?.[0] || ""}}</span>
                     <span style="color: var(--el-color-primary)">{{store.negativePrompt || "(none)"}}</span>
                     <span>{{getStyle(itemProps.item)?.negativePromptSplit?.[1] || ""}}</span>

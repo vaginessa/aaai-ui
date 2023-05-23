@@ -21,7 +21,7 @@ import CircleFilled from "./components/icons/CircleFilled.vue";
 import MainMenuItem from "./components/MainMenuItem.vue";
 import ImageDialog from './components/ImageDialog.vue';
 import { useLanguageStore } from "./stores/i18n";
-
+const lang = useLanguageStore();
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
 
@@ -61,7 +61,7 @@ watch(
         </el-menu-item>
         <MainMenuItem :isMobile="isMobile" index="/dashboard" v-if="isMobile">
             <template #icon><el-icon><home-filled /></el-icon></template>
-            <template #title>Dashboard</template>
+            <template #title>{{lang.GetText(`menudashbard`)}}</template>
         </MainMenuItem>
         <MainMenuItem :isMobile="isMobile" index="/">
             <template #icon>
@@ -70,23 +70,23 @@ watch(
                     <el-icon v-if="uiStore.showGeneratorBadge" class="generator-badge" :size="10"><circle-filled /></el-icon>
                 </div>
             </template>
-            <template #title>Horde</template>
+            <template #title>{{lang.GetText(`menudhorde`)}}</template>
         </MainMenuItem>
         <MainMenuItem :isMobile="isMobile" index="/images" >
             <template #icon><el-icon><icon-menu /></el-icon></template>
-            <template #title>Images</template>
+            <template #title>{{lang.GetText(`menuimages`)}}</template>
         </MainMenuItem>
         <MainMenuItem :isMobile="isMobile" index="/workers">
             <template #icon><el-icon><user /></el-icon></template>
-            <template #title>Workers</template>
+            <template #title>{{lang.GetText(`menuworkers`)}}</template>
         </MainMenuItem>
         <MainMenuItem :isMobile="isMobile" index="/about"  >
             <template #icon><el-icon><document /></el-icon></template>
-            <template #title>About</template>
+            <template #title>{{lang.GetText(`menuabout`)}}</template>
         </MainMenuItem>
         <MainMenuItem :isMobile="isMobile" index="/options">
             <template #icon><el-icon><options /></el-icon></template>
-            <template #title>Options</template>
+            <template #title>{{lang.GetText(`menuoptions`)}}</template>
         </MainMenuItem>
     </el-menu>
     <router-view />

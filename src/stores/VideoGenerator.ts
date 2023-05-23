@@ -6,7 +6,8 @@ import { useUserStore } from "./user";
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
 import { useOptionsStore } from "./options";
 import { validateResponse } from "@/utils/validate";
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 export type ModelGenerationVideo = {
     prompts?: string[];
     neg_prompts?: string;
@@ -88,12 +89,12 @@ export interface IModelData {
 const generateFormBaseRules = reactive<FormRules>({
     prompt: [{
         required: true,
-        message: 'Please input prompt',
+        message: lang.GetText(`vidpleaseinputprompt`),
         trigger: 'change'
     }],
     apiKey: [{
         required: true,
-        message: 'Please input API Key',
+        message: lang.GetText(`vidpleaseinputapi`),
         trigger: 'change'
     }]
 });
@@ -125,7 +126,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         }
         MersenneTwister();
         generating.value = true;
-        queueStatus.value = "Waiting";
+        queueStatus.value = lang.GetText(`vidwaiting`);
 
         const Payload = {
             "Mode": "Picture",
@@ -156,7 +157,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             });
             generating.value = false;
             return;
-        }
+        } //fuck this shit both up and down
         while (requestRunning) {
             await sleep(1250);
             if (cancelled.value) break;
@@ -172,14 +173,14 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                             QueuePosition.value = resJSON['queue'];
                             queueStatus.value = `Queue Position ${resJSON['queue']}`;
                         } else {
-                            queueStatus.value = "Waiting";
+                            queueStatus.value = lang.GetText(`vidwaiting`);
                         }
                     }
                 }
                 if(resJSON['finished'] == 1) {
                     requestRunning = false;
                 }
-                // ugly but it will do for now
+                // ugly but it will do for now... and fuck this shit too
                 if(queueStatus.value == 'Job errored out!') {
                     ElMessage({
                         message: `Error while rendering, most likely wrong shift values! ${requestRunning['msg']}...`,
@@ -213,10 +214,10 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         }
         MersenneTwister();
         generating.value = true;
-        queueStatus.value = "Waiting";
+        queueStatus.value = lang.GetText(`vidwaiting`);
         if(sourceImage.value === undefined || sourceImage.value === '') {
             ElMessage({
-                message: `No file found! ...`,
+                message: lang.GetText(`vidnofilefound`),
                 type: 'error',
             });
             generating.value = false;
@@ -235,7 +236,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             "zoom_amount": parallaxParams.value.zoom_amount,
             "zoom_duration": parallaxParams.value.zoom_duration,
             "Image": sourceImage.value
-        }
+        } // nope fuck this shit
         const url = `https://api.artificial-art.eu/video/push`;
         const response = await fetch(url, {
             method: 'POST',
@@ -251,7 +252,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             });
             generating.value = false;
             return;
-        }
+        } //and fuck this shit as well
         while (requestRunning) {
             await sleep(1250);
             if (cancelled.value) break;
@@ -274,7 +275,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                 if(resJSON['finished'] == 1) {
                     requestRunning = false;
                 }
-                // ugly but it will do for now
+                // ugly but it will do for now, absolutely fuck this shit
                 if(queueStatus.value == 'Job errored out!') {
                     ElMessage({
                         message: `Error while rendering, most likely wrong shift values! ${requestRunning['msg']}...`,
@@ -342,18 +343,18 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         progress.value = 0;
         currentFrame.value = 0;
         totalFrames.value = 0;
-        queueStatus.value = "waiting";
+        queueStatus.value = lang.GetText(`vidwaiting`);
 
         if(params.value.prompts === undefined) {
             ElMessage({
-                message: `No Prompt is set! ...`,
+                message: lang.GetText(`vidnopromptset`),
                 type: 'error',
             });
             return;
         }
         if(params.value.seed === undefined) {
             ElMessage({
-                message: `No Seed is set! ...`,
+                message: lang.GetText(`vidnoseedset`),
                 type: 'error',
             });
             return;
@@ -415,7 +416,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         const resAddJSON = await response.json();
 
         let requestRunning = resAddJSON['success'];
-
+            // no fuck this shit
         if(!requestRunning) {
             generating.value = false;
             useUserStore().UpdateInternally();
@@ -445,9 +446,9 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                             QueuePosition.value = resJSON['queue'];
                             queueStatus.value = `Queue Position ${resJSON['queue']}`;
                         } else {
-                            queueStatus.value = "Waiting";
+                            queueStatus.value = lang.GetText(`vidwaiting`);
                         }
-                    }
+                    } // and fuck this shit too ^^
                 } else if(resJSON["state"] == 10) {
                     totalFrames.value = resJSON["raw_total"];
                     currentFrame.value = resJSON["raw_count"];
@@ -520,10 +521,10 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             generateMsg.value = isUserAllowed.msg.value;
         }
         if(!isQueueLengthResonable) {
-            generateMsg.value = "Queue is too long!";
+            generateMsg.value = lang.GetText(`vidqueuetoolong`);
         }
         if(!isWorkerOnline) {
-            generateMsg.value = "No Workers Online!";
+            generateMsg.value = lang.GetText(`vidnoworkeronline`);
         }
 
         generateLock.value = !(isUserAllowed.allow && isQueueLengthResonable && isWorkerOnline);
@@ -549,7 +550,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
     async function updateAvailableModels() {
         const response = await fetch(`https://api.artificial-art.eu/video/models`);
         const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to get available models")) return;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`vidfailedtogetmodels`))) return;
         const jsonModels: IModelData[] = resJSON['models']
         AvailableModels.value = [];
         jsonModels.forEach((el) => {

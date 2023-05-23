@@ -20,6 +20,8 @@
     import Star12Filled from './icons/Star12Filled.vue';
     import Star12Regular from './icons/Star12Regular.vue';
     import { onKeyStroke } from '@vueuse/core';
+    import { useLanguageStore } from '@/stores/i18n';
+    const lang = useLanguageStore();
     const vStore = useVideoGeneratorStore();
     const store = useGeneratorStore();
     const tagStore = useTagsStore();
@@ -120,7 +122,7 @@
             :autosize="{ minRows: 2 }" 
             resize="vertical" 
             type="textarea" 
-            placeholder="Enter prompt here" 
+            :placeholder="lang.GetText(`promptplaceholder`)" 
             label-position="top" 
             label-style="justify-content: space-between; width: 100%;"
             @focus="selectInput(index+1)"
@@ -128,26 +130,26 @@
             v-if="index == 0 || (index > 0 && vStore.params.model != 'Kandinsky')"
         >
             <template #label>
-                <div>Prompt  {{index+1}}</div>
+                <div>{{lang.GetText(`llprompt`)}} {{index+1}}</div>
             </template>
             <template #inline>
-                <el-tooltip content="Add Prompt" placement="right" v-if="index == 0 && vStore.params.model != 'Kandinsky'">
+                <el-tooltip :content="lang.GetText(`lladdprompt`)" placement="right" v-if="index == 0 && vStore.params.model != 'Kandinsky'">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
                         vStore.params.prompts?.push('');
                     }" :icon="Plus"/>
                 </el-tooltip>
-                <el-tooltip content="Generate Prompt" placement="right">
+                <el-tooltip :content="lang.GetText(`llgenerateprompt`)" placement="right">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
                         vStore.generatePrompt(index);
                     }" :disabled="vStore.generateLock" :icon="MagicStick"/>
                 </el-tooltip>
-                <el-tooltip content="Prompt History" placement="right" v-if="index == 0">
+                <el-tooltip :content="lang.GetText(`llprompthistory`)" placement="right" v-if="index == 0">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => promptLibrary = true" :icon="Clock "/>
                 </el-tooltip>
-                <el-tooltip content="Prompt Styles" placement="right" v-if="index == 0">
+                <el-tooltip :content="lang.GetText(`llpromptstyles`)" placement="right" v-if="index == 0">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() => selectStyle = true" :icon="TrendCharts"/>
                 </el-tooltip>
-                <el-tooltip content="Remove Prompt" placement="right" v-if="index > 0">
+                <el-tooltip :content="lang.GetText(`llremoveprompt`)" placement="right" v-if="index > 0">
                     <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => {
                         vStore.params.prompts.splice(index, 1);
                     }" :icon="Delete"/>
@@ -158,10 +160,10 @@
     <DialogList
         v-model="promptLibrary"
         :list="sortedPromptHistory"
-        title="Prompt History"
-        empty-description="No prompt history found - try generating an image!"
-        search-text="Search by prompt"
-        search-empty-description="Found no matching prompt(s) from your search."
+        :title="lang.GetText(`llprompthistory`)"
+        :empty-description="lang.GetText(`descnoprompthistory`)"
+        :search-text="lang.GetText(`llsearchbyprompt`)"
+        :search-empty-description="lang.GetText(`descnomatchingprompt`)"
         @use="prompt => vStore.params.prompts[0] = prompt"
         @delete="store.removeFromPromptHistory"
     >
@@ -184,11 +186,11 @@
         v-if="selectStyle"
         v-model="selectStyle"
         :list="Object.keys(store.styles).filter(el => el !== 'raw' && el.includes(searchStyle))"
-        title="Prompt Styles"
-        empty-description="No styles found"
-        search-empty-description="Found no matching style(s) from your search."
-        searchText="Search by style"
-        useText="Use Style"
+        :title="lang.GetText(`llpromptstyles`)"
+        :empty-description="lang.GetText(`descnostyles`)"
+        :search-empty-description="lang.GetText(`descsearcchnostyles`)"
+        :searchText="lang.GetText(`llsearchbystyle`)"
+        :useText="lang.GetText(`llusestyle`)"
         @use="handleUseStyle"
         width="50%"
     >
@@ -204,14 +206,14 @@
                 <strong>{{store.styles[itemProps.item].model}}</strong>
             </div>
             <div v-if="showDetails">
-                <h4>Your prompt after applying:</h4>
+                <h4>{{lang.GetText(`promptafterapply`)}}</h4>
                 <div>
                     <span>{{getStyle(itemProps.item).promptSplit[0]}}</span>
                     <span style="color: var(--el-color-primary)">{{store.prompt || "(none)"}}</span>
                     <span>{{getStyle(itemProps.item).promptSplit[1]}}</span>
                 </div>
                 <div v-if="getStyle(itemProps.item).negativePromptSplit || getStyle(itemProps.item).prompt.includes('{np}')">
-                    <h4>Negative Prompt: </h4>
+                    <h4>{{lang.GetText(`negativeprompt`)}}</h4>
                     <span>{{getStyle(itemProps.item)?.negativePromptSplit?.[0] || ""}}</span>
                     <span style="color: var(--el-color-primary)">{{store.negativePrompt || "(none)"}}</span>
                     <span>{{getStyle(itemProps.item)?.negativePromptSplit?.[1] || ""}}</span>
@@ -222,73 +224,73 @@
 
     <form-input
         v-if="vStore.params.model != 'Kandinsky'"
-        label="Negative Prompt"
+        :label="lang.GetText(`llnegativeprompt`)"
         prop="negativePrompt"
         v-model="vStore.params.neg_prompts"
         autosize
         resize="vertical"
         type="textarea"
-        placeholder="Enter negative prompt here"
-        info="What to exclude from the image. Not working? Try increasing the guidance."
+        :placeholder="lang.GetText(`placeholdernegative`)"
+        :info="lang.GetText(`ttnegativeprompt`)"
         label-position="top"
         :spanWidth=2
         @focus="selectInput(-1)"
         @blur="deselectInput(-1)"
     >
         <template #inline>
-            <el-tooltip content="Add Negative Prompt" placement="right">
+            <el-tooltip :content="lang.GetText(`lladdnegativeprompt`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => store.pushToNegativeLibrary(vStore.params.neg_prompts)" :icon="FolderChecked"/>
             </el-tooltip>
-            <el-tooltip content="Negative Prompts" placement="right">
+            <el-tooltip :content="lang.GetText(`llnegativeprompts`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() =>  negativePromptLibrary = true" :icon="FolderOpened"/>
             </el-tooltip>
         </template>
     </form-input>
     <form-input
         v-if="vStore.params.model == 'Kandinsky'"
-        label="Negative Prior Prompt"
+        :label="lang.GetText(`llnegativepriorprompt`)"
         prop="negativePriorPrompt"
         v-model="vStore.params.neg_prompts"
         autosize
         resize="vertical"
         type="textarea"
-        placeholder="Enter negative prompt here"
+        :placeholder="lang.GetText(`placeholdernegative`)"
         label-position="top"
         :spanWidth=2
         @focus="selectInput(-1)"
         @blur="deselectInput(-1)"
     >
         <template #inline>
-            <el-tooltip content="Add Negative Prompt" placement="right">
+            <el-tooltip :content="lang.GetText(`lladdnegativeprompt`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: -5px; width: 95%;" @click="() => store.pushToNegativeLibrary(vStore.params.neg_prompts)" :icon="FolderChecked"/>
             </el-tooltip>
-            <el-tooltip content="Negative Prompts" placement="right">
+            <el-tooltip :content="lang.GetText(`llnegativeprompts`)" placement="right">
                 <el-button class="small-btn" style="margin-left: 5%; margin-top: 2px; width: 95%;" @click="() =>  negativePromptLibrary = true" :icon="FolderOpened"/>
             </el-tooltip>
         </template>
     </form-input>
     <DialogList
         v-model="negativePromptLibrary"
-        title="Negative Prompts"
+        :title="lang.GetText(`llnegativeprompts`)"
         :list="store.negativePromptLibrary"
-        empty-description="No negative prompts found"
-        search-empty-description="Found no matching negative prompt(s) from your search."
-        search-text="Search by prompt"
-        deleteText="Delete preset"
-        useText="Use preset"
+        :empty-description="lang.GetText(`descnonegativeprompts`)"
+        :search-empty-description="lang.GetText(`descnomatchingnegativeprompts`)"
+        :search-text="lang.GetText(`llsearchbyprompt`)"
+        :deleteText="lang.GetText(`lldeletepreset`)"
+        :useText="lang.GetText(`llusepreset`)"
         @use="negPrompt => vStore.params.neg_prompts = negPrompt"
         @delete="store.removeFromNegativeLibrary"
     />
 
     <form-input
         v-if="vStore.params.model == 'Kandinsky'"
-        label="Negative Decoder Prompt"
+        :label="lang.GetText(`llnegativedecoderprompt`)"
         prop="negativeDecoderPrompt"
         v-model="vStore.params.neg_decoder_prompt"
         autosize
         resize="vertical"
         type="textarea"
-        placeholder="Enter negative prompt here"
+        :placeholder="lang.GetText(`placeholdernegative`)"
         label-position="top"
         :spanWidth=2
     >

@@ -27,7 +27,8 @@ import { downloadMultipleWebp } from '@/utils/download';
 import { db } from '@/utils/db';
 import { useWindowSize } from '@vueuse/core'
 import LayoutOutlined from '@/components/icons/LayoutOutlined.vue';
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const { width } = useWindowSize();
 const store = useOutputStore();
 const optionStore = useOptionsStore();
@@ -56,14 +57,14 @@ function deselectAll() {
     uiStore.selected = [];
     uiStore.multiSelect = false;
 }
-
+// fuck this shit
 const confirmDelete = () => {
     ElMessageBox.confirm(
         `This action will permanently delete ${uiStore.selected.length} images. Continue?`,
-        'Warning',
+        lang.GetText(`warning`),
         {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel',
+            confirmButtonText: lang.GetText(`ok`),
+            cancelButtonText: lang.GetText(`cancel`),
             type: 'warning',
         }
     )
@@ -107,7 +108,7 @@ const splitList = computed(() => {
         <div class="options">
             <el-popover
                 placement="bottom"
-                title="Sort By"
+                :title="lang.GetText(`llsortby`)"
                 trigger="click"
                 :width="200"
                 transition="none"
@@ -125,7 +126,7 @@ const splitList = computed(() => {
             </el-popover>
             <el-popover
                 placement="bottom"
-                title="Filter By"
+                :title="lang.GetText(`llfilterby`)"
                 trigger="click"
                 :width="240"
                 transition="none"
@@ -143,7 +144,7 @@ const splitList = computed(() => {
             </el-popover>
             <el-popover
                 placement="bottom"
-                title="Image Layout"
+                :title="lang.GetText(`llimagelayout`)"
                 trigger="click"
                 :width="240"
                 transition="none"
@@ -154,10 +155,10 @@ const splitList = computed(() => {
                 </template>
                 <div
                     v-for="option in [{
-                        label: 'Square Grid',
+                        label: lang.GetText(`llsquaregrid`),
                         value: 'grid'
                     }, {
-                        label: 'Dynamic Layout',
+                        label: lang.GetText(`lldynamiclayout`),
                         value: 'dynamic'
                     }]"
                     :key="option.value"
@@ -165,10 +166,10 @@ const splitList = computed(() => {
                     :class="`el-select-dropdown__item ${store.currentLayout === option.value ? 'selected' : ''}`"
                 >{{ option.label }}</div>
             </el-popover>
-            <el-button @click="deselectPage" :icon="DocumentChecked" v-if="uiStore.selected.filter(el => store.currentOutputs.map(el => el.id).includes(el)).length > 0">Deselect Page</el-button>
-            <el-button @click="selectPage" :icon="Document" v-else>Select Page</el-button>
-            <el-button @click="deselectAll" :icon="CircleCheckFilled" v-if="uiStore.selected.length > 0">Deselect All</el-button>
-            <el-button @click="selectAll" :icon="CircleCheck" v-else>Select All</el-button>
+            <el-button @click="deselectPage" :icon="DocumentChecked" v-if="uiStore.selected.filter(el => store.currentOutputs.map(el => el.id).includes(el)).length > 0">{{lang.GetText(`lldeselectpage`)}}</el-button>
+            <el-button @click="selectPage" :icon="Document" v-else>{{lang.GetText(`llselectpage`)}}</el-button>
+            <el-button @click="deselectAll" :icon="CircleCheckFilled" v-if="uiStore.selected.length > 0">{{lang.GetText(`lldeselectall`)}}</el-button>
+            <el-button @click="selectAll" :icon="CircleCheck" v-else>{{lang.GetText(`llselectall`)}}</el-button>
         </div>
         <el-pagination
             layout="prev, pager, next"
@@ -182,10 +183,10 @@ const splitList = computed(() => {
         <div class="center-both" v-if="uiStore.multiSelect" style="gap: 12px">
             <div>{{ uiStore.selected.length }} selected</div>
             <el-button type="danger" @click="confirmDelete" :icon="Delete" plain>Delete</el-button>
-            <el-button type="success" @click="bulkDownload" :icon="Download" plain style="margin: 0">Download</el-button>
+            <el-button type="success" @click="bulkDownload" :icon="Download" plain style="margin: 0">{{lang.GetText(`lldownload`)}}</el-button>
         </div>
         <div v-else>
-            <em style="font-size: 14px;">(long press to select multiple images)</em>
+            <em style="font-size: 14px;">{{lang.GetText(`lllongpress`)}}</em>
         </div>
     </div>
     <div v-if="store.outputsLength != 0">
@@ -209,7 +210,7 @@ const splitList = computed(() => {
         </div>
     </div>
     <div v-if="store.outputsLength == 0">
-        <el-empty description="No Images Found" />
+        <el-empty :description="lang.GetText(`llnoimagesfound`)" />
     </div>
 </template>
 

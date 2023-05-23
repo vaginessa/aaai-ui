@@ -49,9 +49,9 @@ const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.ap
             <div v-if="signedIn">
                 <div class="dashboard-title">{{lang.GetText(`dashboardtext1`)}} {{dashStore.user.username}}</div>
                 <el-row :gutter="breakLabels ? 0 : 20" justify="center" style="width: 100%; margin-bottom: 2rem;">
-                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Money"   label="Kudos"           :content="dashStore.user.kudos?.toLocaleString()"                       color="var(--el-color-success)" /></el-col>
-                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Picture" label="Requested (Img|Int|Txt)"       :content="dashStore.user.records?.request?.image?.toLocaleString() + ' | ' + dashStore.user.records?.request?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.request?.text?.toLocaleString()" color="var(--el-color-danger)"  /></el-col>
-                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Aim"     label="Generated (Img|Int|Txt)"       :content="dashStore.user.records?.fulfillment?.image?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.text?.toLocaleString()" color="var(--el-color-primary)" /></el-col>
+                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Money"   :label="lang.GetText(`llkudos`)"           :content="dashStore.user.kudos?.toLocaleString()"                       color="var(--el-color-success)" /></el-col>
+                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Picture" :label="lang.GetText(`llrequested`)"       :content="dashStore.user.records?.request?.image?.toLocaleString() + ' | ' + dashStore.user.records?.request?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.request?.text?.toLocaleString()" color="var(--el-color-danger)"  /></el-col>
+                    <el-col :span="spanLabels" class="label"><data-label style="width: 100%" :icon="Aim"     :label="lang.GetText(`llgenerated`)"       :content="dashStore.user.records?.fulfillment?.image?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.interrogation?.toLocaleString() + ' | ' + dashStore.user.records?.fulfillment?.text?.toLocaleString()" color="var(--el-color-primary)" /></el-col>
                 </el-row>                
             </div>
             <div v-else>
@@ -61,29 +61,29 @@ const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.ap
                 <el-col :span="spanAmount" class="label">
                     <el-card style="margin-bottom: 10px;">
                         <template #header>
-                            <strong>Horde Performance</strong>
+                            <strong>{{lang.GetText(`dashhordeperformance`)}}</strong>
                         </template>
-                        <div>There are <strong>{{dashStore.performance.queued_requests}}</strong> queued requests (<strong>{{dashStore.performance.queued_megapixelsteps}}</strong> MPS) with <strong>{{dashStore.performance.worker_count}}</strong> workers (<strong>{{dashStore.performance.thread_count}}</strong> threads).</div>
-                        <div>There are <strong>{{dashStore.performance.queued_forms}}</strong> queued interrogation requests with <strong>{{dashStore.performance.interrogator_count }}</strong> interrogation workers (<strong>{{dashStore.performance.interrogator_thread_count}}</strong> threads).</div>
-                        <div>In the past minute, there have been <strong>{{dashStore.performance.past_minute_megapixelsteps}}</strong> MPS processed.</div>
+                        <div>{{lang.GetText(`dashthereare`)}} <strong>{{dashStore.performance.queued_requests}}</strong>{{lang.GetText(`dashgueuedrequests`)}}<strong>{{dashStore.performance.queued_megapixelsteps}}</strong> {{lang.GetText(`dashmps`)}} <strong>{{dashStore.performance.worker_count}}</strong> {{lang.GetText(`dashworkers`)}}<strong>{{dashStore.performance.thread_count}}</strong> {{lang.GetText(`dashthreads`)}}</div>
+                        <div>{{lang.GetText(`dashthereare`)}} <strong>{{dashStore.performance.queued_forms}}</strong>  {{lang.GetText(`dashqueuedinterrogation`)}} <strong>{{dashStore.performance.interrogator_count }}</strong>  {{lang.GetText(`dashinterrogationworkers`)}}<strong>{{dashStore.performance.interrogator_thread_count}}</strong>  {{lang.GetText(`dashthreads`)}}</div>
+                        <div> {{lang.GetText(`dashinthepastminute`)}} <strong>{{dashStore.performance.past_minute_megapixelsteps}}</strong> {{lang.GetText(`dashtmpsprocessed`)}}</div>
                     </el-card>
                     <el-card style="margin-bottom: 10px;">
                         <template #header>
-                            <strong>AAAI Video Performance</strong>
+                            <strong> {{lang.GetText(`dashaaaivideoperformance`)}}</strong>
                         </template>
-                        <div>There are <strong>{{dashStore.performanceVideo.Queue}}</strong> queued requests (<strong>{{dashStore.performanceVideo.QueuedFrames || 0}}</strong> Frames).</div>
+                        <div>{{lang.GetText(`dashthereare`)}}<strong>{{dashStore.performanceVideo.Queue}}</strong> {{lang.GetText(`dashgueuedrequests`)}}<strong>{{dashStore.performanceVideo.QueuedFrames || 0}}</strong> {{lang.GetText(`dashframes`)}}</div>
                         <br/>
                         <el-table :data="dashStore.performanceTable()" stripe style="width: 100%">
                             <el-table-column prop="type"   label="" />
-                            <el-table-column prop="videos" label="Videos" />
-                            <el-table-column prop="frames" label="Frames" />
-                            <el-table-column prop="uesers" label="Users" />
+                            <el-table-column prop="videos" :label="lang.GetText(`llvideos`)" />
+                            <el-table-column prop="frames" :label="lang.GetText(`llframes`)" />
+                            <el-table-column prop="uesers" :label="lang.GetText(`llusers`)" />
                         </el-table>
                     </el-card>
                 </el-col>
                 <el-col :span="spanAmount" class="label">
                     <el-card v-if="signedIn">
-                        <template #header><strong>Your Workers</strong></template>
+                        <template #header><strong>{{lang.GetText(`dashyourworkers`)}}</strong></template>
                         <div class="user-workers" v-if="dashStore.userWorkers.length !== 0">
                             <WorkerEditor
                                 v-for="worker in dashStore.userWorkers"

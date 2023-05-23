@@ -112,7 +112,7 @@ function getAspectRatio(isWidth: boolean) {
                         <form-on-off-button prop="nsfw" :label="lang.GetText(`llnsfw`)" :icon-on="Check" :icon-off="Close" v-model="store.nsfw" :info ="lang.GetText(`ttnsfw`)" />
                     </el-col>
                     <el-col :span="12" :xs="24">
-                        <form-on-off-button prop="nsfw_censored" :label="lang.GetText(`llcensornsfw`)" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" :info ="lang.GetText(`ttcensornsfw`)" :disabled="!store.nsfw" disabled_info="NSFW is disabled!"/>
+                        <form-on-off-button prop="nsfw_censored" :label="lang.GetText(`llcensornsfw`)" :icon-on="Check" :icon-off="Close" v-model="store.censor_nsfw" :info ="lang.GetText(`ttcensornsfw`)" :disabled="!store.nsfw" :disabled_info="lang.GetText(`ttcensornsfwx`)"/>
                     </el-col>
                     <el-col :span="12" :xs="24">
                         <form-on-off-button prop="slow_workers" :label="lang.GetText(`llslowworker`)" :icon-on="Check" :icon-off="Close" v-model="store.slow_workers" :info ="lang.GetText(`ttslowworker`)" />
