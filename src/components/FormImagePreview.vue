@@ -8,6 +8,8 @@ import { useOptionsStore } from '@/stores/options';
 import { useUserStore } from "@/stores/user";
 import { ElButton, ElCard, ElRow, ElCol } from 'element-plus';
 import FormPun from '../components/FormPuns.vue';
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const uiStore = useUIStore();
 const store = useGeneratorStore();
 const optionsStore = useOptionsStore();
@@ -32,14 +34,14 @@ window.addEventListener('keyup', (event) => {
                     style="width:100%"
                     @click=" store.generateImage(store.generatorType)"
                 >
-                    Generate 
+                    {{lang.GetText(`generate`)}}
                     (<span>
                         <span v-if="userStore.apiKey !== '0000000000' && userStore.apiKey !== ''">
                             {{ optionsStore.allowLargerParams === 'Enabled' ? store.canGenerate ? '✅ ' : '❌ ' : '' }}
-                            {{ store.kudosCost.toFixed(2) }} kudos{{ store.canGenerate ? '' : ' required' }}
-                            for
+                            {{ store.kudosCost.toFixed(2) }} {{lang.GetText(`kudos`)}} {{ store.canGenerate ? '' : ' required' }}
+                            {{lang.GetText(`for`)}}
                         </span>
-                        {{ store.totalImageCount }} image{{ store.totalImageCount === 1 ? "" : "s" }}
+                        {{ store.totalImageCount }} {{lang.GetText(`image`)}} {{ store.totalImageCount === 1 ? "" : "s" }}
                     </span>)
                 </el-button>
             </el-col>
@@ -50,7 +52,7 @@ window.addEventListener('keyup', (event) => {
                     :disabled="store.cancelled || !store.generating"
                     style="width:100%"
                     @click="store.cancelled = true"
-                > Cancel
+                > {{lang.GetText(`cancel`)}}
                 </el-button>
             </el-col>
         </el-row>

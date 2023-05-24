@@ -548,7 +548,14 @@ export const useLanguageStore = defineStore("i18n", () => {
         "menuimages":"Images",
         "menuworkers":"Workers",
         "menuabout":"About",
-        "menuoptions":"Options"
+        "menuoptions":"Options",
+        //formimagepreview.vue
+        "generate":"Generate ",
+        "kudos":" kudos",
+        "for":"for",
+        "image":" image",
+
+
 
     }
 
@@ -577,7 +584,7 @@ export const useLanguageStore = defineStore("i18n", () => {
         "ttlargervalues":"Engedélyezi nagyobb lépésszám és méretek megadását, ha elegendő kudosszal rendelkezel.",
         "ttsharelaion":"Automatikusan és névtelenul megosztja a generált képeket a LAION adatbázissal (a non-profit cég aki a Stable Diffusion-t létrehozta) hogy felhasználják a jövőbeni modellek javításához. Lásd a bejelentést: https://discord.com/channels/781145214752129095/1020707945694101564/1061980573096226826 több információért. MEGJEGYZÉS: Ez az opció automatikusan be van kapcsolva, ha nem vagy bejelentkezve az API kulcsoddal. ",
         "ttmetadata":"Letöléskor a kép mellé csatol egy JSON fájlt a generálás részleteivel és beállításaival.",
-        "tttagautocomplete":"Használt a fel-le nyilakat hogy léptess a rendelkezésre álló szavak között, majd nyomd meg az Entert a beillesztéshez.",
+        "tttagautocomplete":"Használd a fel-le nyilakat hogy léptess a rendelkezésre álló szavak között, majd nyomd meg az Entert a beillesztéshez.",
 
         "ttnegativeprompt":"Mi ne szerepeljen a képen. Nem működik? Próbáld magasabbra venni az Irányítást.",
 
@@ -958,7 +965,12 @@ export const useLanguageStore = defineStore("i18n", () => {
          "menuimages":"Képek",
          "menuworkers":"Munkások",
          "menuabout":"Rólunk",
-         "menuoptions":"Beállítások"
+         "menuoptions":"Beállítások",
+         //formimagepreview.vue
+        "generate":"Generálj ",
+        "kudos":" kudos",
+        "for":"ennyi",
+        "image":" képért",
 
     }
 
