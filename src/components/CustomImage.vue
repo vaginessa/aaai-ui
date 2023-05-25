@@ -96,7 +96,7 @@ const isSelected = computed(() => uiStore.selected.includes(props.imageData.id))
     }
 
     .image-action {
-        position: relative;
+        position: absolute;
         height: 100%;
         width: 100%;
         pointer-events: none;
@@ -117,8 +117,8 @@ const isSelected = computed(() => uiStore.selected.includes(props.imageData.id))
 
     .select-icon {
         position: absolute;
-        right: 0px;
-        top: -50px;
+        right: 5px;
+        top: 5px;
     }
 
 </style>
