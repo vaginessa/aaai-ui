@@ -159,7 +159,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             });
             generating.value = false;
             return;
-        } //fuck this shit both up and down
+        }
         while (requestRunning) {
             await sleep(1250);
             if (cancelled.value) break;
@@ -182,7 +182,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                 if(resJSON['finished'] == 1) {
                     requestRunning = false;
                 }
-                // ugly but it will do for now... and fuck this shit too
+                
                 if(queueStatus.value == 'Job errored out!') {
                     ElMessage({
                         message: lang.GetText('viderrorwhilerendering', {'%MSG%': requestRunning['msg']}),
@@ -238,7 +238,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             "zoom_amount": parallaxParams.value.zoom_amount,
             "zoom_duration": parallaxParams.value.zoom_duration,
             "Image": sourceImage.value
-        } // nope fuck this shit
+        }
         const url = `https://api.artificial-art.eu/video/push`;
         const response = await fetch(url, {
             method: 'POST',
@@ -254,7 +254,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
             });
             generating.value = false;
             return;
-        } //and fuck this shit as well
+        }
         while (requestRunning) {
             await sleep(1250);
             if (cancelled.value) break;
@@ -277,7 +277,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                 if(resJSON['finished'] == 1) {
                     requestRunning = false;
                 }
-                // ugly but it will do for now, absolutely fuck this shit
+                
                 if(queueStatus.value == 'Job errored out!') {
                     ElMessage({
                         message: `Error while rendering, most likely wrong shift values! ${requestRunning['msg']}...`,
@@ -418,7 +418,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         const resAddJSON = await response.json();
 
         let requestRunning = resAddJSON['success'];
-            // no fuck this shit
+        
         if(!requestRunning) {
             generating.value = false;
             useUserStore().UpdateInternally();
@@ -450,7 +450,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                         } else {
                             queueStatus.value = lang.GetText(`vidwaiting`);
                         }
-                    } // and fuck this shit too ^^
+                    }
                 } else if(resJSON["state"] == 10) {
                     totalFrames.value = resJSON["raw_total"];
                     currentFrame.value = resJSON["raw_count"];

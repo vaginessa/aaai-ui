@@ -57,7 +57,7 @@ function deselectAll() {
     uiStore.selected = [];
     uiStore.multiSelect = false;
 }
-// fuck this shit
+
 const confirmDelete = () => {
     ElMessageBox.confirm(
         lang.GetText(`imgthisactionwillpermanentlydelete`, {'%selected%': uiStore.selected.length}),

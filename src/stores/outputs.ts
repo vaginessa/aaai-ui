@@ -186,7 +186,7 @@ export const useOutputStore = defineStore("outputs", () => {
                             return resolve(null);
                         });
                     })
-                );  //fuck this shit too both up and down
+                );
             }
         }
         const newImages = await Promise.all(pushing);

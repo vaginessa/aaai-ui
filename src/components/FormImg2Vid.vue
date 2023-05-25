@@ -69,7 +69,7 @@ async function handleChange(uploadFile: UploadFile) {
     store.sourceImage = base64File;
 }
 
-</script> <!-- fuck this shit ^^ both 2 paragraphs-->
+</script>
 <template>
     <el-form
             label-position="left"
