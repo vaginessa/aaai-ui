@@ -21,6 +21,8 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import handleUrlParams from "@/router/handleUrlParams";
 import { DEBUG_MODE, dots } from "@/constants";
 import ImageSearch from '../components/icons/ImageSearch.vue';
+import ImageDialog from '@/components/ImageDialog.vue';
+import Menu from '../views/Menu.vue';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
@@ -57,6 +59,7 @@ window.addEventListener('keyup', (event) => {
 </script>
 
 <template>
+    <Menu />
     <el-menu
         :default-active="store.generatorType"
         :collapse="true"
@@ -75,6 +78,7 @@ window.addEventListener('keyup', (event) => {
         <FormRating v-if="store.generatorType === 'Rating'" />
         <InterrogationView v-if="store.generatorType === 'Interrogation'" />
     </div>
+    <ImageDialog />
 </template>
 
 <style>

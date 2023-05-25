@@ -28,6 +28,7 @@ import { downloadMultipleWebp } from '@/utils/download';
 import { db } from '@/utils/db';
 import FormWorkerSelect from '../components/FormWorkerSelect.vue';
 import { useTagsStore } from '@/stores/tags';
+import Menu from '../views/Menu.vue';
 
 const tagStore = useTagsStore();
 const store = useOptionsStore();
@@ -74,6 +75,7 @@ async function onTagsChange() {
 }
 </script>
 <template>
+    <Menu />
     <el-form
         class="container"
         label-position="top"

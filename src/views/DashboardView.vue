@@ -19,6 +19,7 @@ import GeneratorMenuItem from '../components/GeneratorMenuItem.vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import handleUrlParams from "@/router/handleUrlParams";
 import { DEBUG_MODE, dots } from "@/constants";
+import Menu from '../views/Menu.vue';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('md');
@@ -40,6 +41,7 @@ handleUrlParams();
 </script>
 
 <template>
+    <Menu />
     <el-menu
         :default-active="store.generatorChaosType"
         :collapse="true"

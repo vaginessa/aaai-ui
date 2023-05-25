@@ -28,6 +28,8 @@ import { db } from '@/utils/db';
 import { useWindowSize } from '@vueuse/core'
 import LayoutOutlined from '@/components/icons/LayoutOutlined.vue';
 import { useLanguageStore } from '@/stores/i18n';
+import ImageDialog from '@/components/ImageDialog.vue';
+import Menu from '../views/Menu.vue';
 const lang = useLanguageStore();
 const { width } = useWindowSize();
 const store = useOutputStore();
@@ -104,6 +106,7 @@ const splitList = computed(() => {
 </script>
 
 <template>
+    <Menu />
     <div class="images-top-bar">
         <div class="options">
             <el-popover
@@ -212,6 +215,7 @@ const splitList = computed(() => {
     <div v-if="store.outputsLength == 0">
         <el-empty :description="lang.GetText(`llnoimagesfound`)" />
     </div>
+    <ImageDialog />
 </template>
 
 <style scoped>

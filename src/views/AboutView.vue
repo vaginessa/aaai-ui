@@ -22,6 +22,7 @@ import { useDashboardStore } from '@/stores/dashboard';
 import { useUserStore } from '@/stores/user';
 import BaseLink from '@/components/BaseLink.vue';
 import { useLanguageStore } from '@/stores/i18n';
+import Menu from '../views/Menu.vue';
 const lang = useLanguageStore();
 const breakpoints = useBreakpoints(breakpointsTailwind);
 
@@ -44,6 +45,7 @@ const sortChange = function(column: any) {
 const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.apiKey != '' && userStore.userId != "0");
 </script>
 <template>
+    <Menu />
     <div class="dashboard">
         <div>
             <div v-if="signedIn">

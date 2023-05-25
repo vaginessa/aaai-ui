@@ -11,6 +11,7 @@ import ModelBox from '@/components/ModelBox.vue';
 import SortWorkers from '@/components/SortWorkers.vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { useLanguageStore } from '@/stores/i18n';
+import Menu from '../views/Menu.vue';
 const lang = useLanguageStore();
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smallerOrEqual('lg');
@@ -18,6 +19,7 @@ const store = useWorkerStore();
 </script>
 
 <template>
+    <Menu />
     <el-tabs v-model="store.activeTab">
         <el-tab-pane :label="lang.GetText(`llworkers`)" name="workers">
             <sort-workers mobile v-if="isMobile" />
