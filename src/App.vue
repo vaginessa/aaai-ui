@@ -70,7 +70,7 @@ watch(
                     <el-icon v-if="uiStore.showGeneratorBadge" class="generator-badge" :size="10"><circle-filled /></el-icon>
                 </div>
             </template>
-            <template #title>{{lang.GetText(`menudhorde`)}}</template>
+            <template #title>{{lang.GetText(`menuhorde`)}}</template>
         </MainMenuItem>
         <MainMenuItem :isMobile="isMobile" index="/images" >
             <template #icon><el-icon><icon-menu /></el-icon></template>
