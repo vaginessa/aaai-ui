@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { useLanguageStore } from '@/stores/i18n';
 import {
-    ElForm, ElRow, ElCol,
+    ElForm, ElRow,
     ElFormItem,
     ElInput,
     ElButton,
     type UploadFile,
     ElIcon,
     ElUpload,
-    ElTabs,
-    ElTabPane,
-    ElLoading,
     vLoading
 } from 'element-plus';
 import {
