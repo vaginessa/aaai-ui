@@ -14,11 +14,6 @@ const uiStore = useUIStore();
 const store = useGeneratorStore();
 const optionsStore = useOptionsStore();
 const userStore = useUserStore();
-window.addEventListener('keyup', (event) => {
-    if(event.ctrlKey && event.key == "Enter") {
-        store.generateImage(store.generatorType)
-    }
-});
 </script>
 
 <template>
@@ -32,7 +27,7 @@ window.addEventListener('keyup', (event) => {
                     type="primary"
                     :disabled="store.generating"
                     style="width:100%"
-                    @click=" store.generateImage(store.generatorType)"
+                    @click="store.generateImage(store.generatorType)"
                 >
                     {{lang.GetText(`generate`)}}
                     (<span>

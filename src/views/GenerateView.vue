@@ -46,6 +46,14 @@ onUnmounted(() => {
 
 disableBadge();
 handleUrlParams();
+
+window.addEventListener('keyup', (event) => {
+    if(store.generating)
+        return;
+    if(event.ctrlKey && event.key == "Enter") {
+        store.generateImage(store.generatorType)
+    }
+});
 </script>
 
 <template>
