@@ -80,41 +80,46 @@ async function onTagsChange() {
         label-width="140px"
         @submit.prevent
     >
-        <el-row justify="space-around"><el-column>
-        <el-form-item :label="lang.GetText(`engapikey`)" prop="apiKey">
-            <el-input v-model="userStore.apiKey" type="password" :placeholder="lang.GetText(`engenterapikey`)" autocomplete="off" class="apikey" show-password />
-            <el-button class="anon" @click="userStore.setAnon()">Anon?</el-button>
-            <div v-if="userStore.userId !== '0'"><small style="color: var(--el-text-color-regular);">User ID: <strong>{{userStore.userId}}</strong></small></div>
-        </el-form-item>
+        <el-row justify="space-around">
+            <el-column>
+                <el-form-item :label="lang.GetText(`engapikey`)" prop="apiKey">
+                    <el-input v-model="userStore.apiKey" type="password" :placeholder="lang.GetText(`engenterapikey`)" autocomplete="off" class="apikey" show-password />
+                    <el-button class="anon" @click="userStore.setAnon()">Anon?</el-button>
+                    <div v-if="userStore.userId !== '0'"><small style="color: var(--el-text-color-regular);">User ID: <strong>{{userStore.userId}}</strong></small></div>
+                </el-form-item>
         
-        <form-worker-select />
+                <form-worker-select />
         
-        <form-slider :label="lang.GetText(`llimagesperpage`)" prop="pageSize" v-model="store.pageSize" :min="10" :max="50" :step="5" :disabled="store.pageless === 'Enabled'" />
+                <form-slider :label="lang.GetText(`llimagesperpage`)" prop="pageSize" v-model="store.pageSize" :min="10" :max="50" :step="5" :disabled="store.pageless === 'Enabled'" />
         
-        <form-radio  :label="lang.GetText(`llpageless`)" prop="pageless" v-model="store.pageless" :options="['Enabled', 'Disabled']" />
+                <form-radio  :label="lang.GetText(`llpageless`)" prop="pageless" v-model="store.pageless" :options="['Enabled', 'Disabled']" />
 
-        <form-radio  :label="lang.GetText(`llcarouselauto`)" prop="autoCarousel" v-model="store.autoCarousel" :options="['Enabled', 'Disabled']" />
+                <form-radio  :label="lang.GetText(`llcarouselauto`)" prop="autoCarousel" v-model="store.autoCarousel" :options="['Enabled', 'Disabled']" />
 
-        <form-radio :label="lang.GetText(`lllargervalues`)" prop="allowLargerParams" v-model="store.allowLargerParams" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttlargervalues`)" :disabled="userStore.apiKey === '0000000000' || userStore.apiKey === ''" />
+                <form-radio :label="lang.GetText(`lllargervalues`)" prop="allowLargerParams" v-model="store.allowLargerParams" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttlargervalues`)" :disabled="userStore.apiKey === '0000000000' || userStore.apiKey === ''" />
         
-        <form-radio  :label="lang.GetText(`llsharelaion`)" prop="shareWithLaion" v-model="store.shareWithLaion" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttsharelaion`)" :disabled="userStore.apiKey === '0000000000' || userStore.apiKey === ''" />
-    </el-column><el-column>
-        <form-select :label="lang.GetText(`lltagautocomplete`)" prop="tagAutocomplete" v-model="tagStore.currentTagsType" :options="tagStore.possibleTags" @change="onTagsChange" v-loading="tagStore.tagsLoading" :info="lang.GetText(`tttagautocomplete`)" />
+                <form-radio  :label="lang.GetText(`llsharelaion`)" prop="shareWithLaion" v-model="store.shareWithLaion" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttsharelaion`)" :disabled="userStore.apiKey === '0000000000' || userStore.apiKey === ''" />
+            </el-column>
+            <el-column>
+                <form-select :label="lang.GetText(`lllanguageswitch`)" prop="tagLanguage" v-model="lang.currentLanguage" :options="lang.possibleLanguage" :info="lang.GetText(`ttlanguageswitchinfo`)" />
 
-        <form-select :label="lang.GetText(`llcolormode`)" prop="colorMode" v-model="store.colorMode" :options="options" />
+                <form-select :label="lang.GetText(`lltagautocomplete`)" prop="tagAutocomplete" v-model="tagStore.currentTagsType" :options="tagStore.possibleTags" @change="onTagsChange" v-loading="tagStore.tagsLoading" :info="lang.GetText(`tttagautocomplete`)" />
 
-        <form-select :label="lang.GetText(`llfileformat`)" prop="downloadFileFormat" v-model="store.pictureDownloadType" :options="PictureTypes" />
+                <form-select :label="lang.GetText(`llcolormode`)" prop="colorMode" v-model="store.colorMode" :options="options" />
 
-        <el-form-item :label="lang.GetText(`llexportzip`)">
-            <el-button :icon="Download" @click="bulkDownload()">{{ lang.GetText('DownloadNImages', {'%COUNT%': outputsStore.outputsLength.toString()}) }}</el-button>
-        </el-form-item>
+                <form-select :label="lang.GetText(`llfileformat`)" prop="downloadFileFormat" v-model="store.pictureDownloadType" :options="PictureTypes" />
+
+                <el-form-item :label="lang.GetText(`llexportzip`)">
+                    <el-button :icon="Download" @click="bulkDownload()">{{ lang.GetText('DownloadNImages', {'%COUNT%': outputsStore.outputsLength.toString()}) }}</el-button>
+                </el-form-item>
         
-        <el-form-item :label="lang.GetText(`llimportzip`)">
-            <el-upload drag ref="upload" :auto-upload="false" @change="handleChange" :file-list="fileList" :limit="1" multiple > <el-icon :size="100"><upload-filled /></el-icon> <div>Drop file here OR <em>click to upload</em></div></el-upload>
-        </el-form-item>
-        
-        <form-radio  :label="lang.GetText(`llmetadata`)" prop="zipMetaData" v-model="store.zipMetaData" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttmetadata`)" />
-    </el-column></el-row>
+                <el-form-item :label="lang.GetText(`llimportzip`)">
+                    <el-upload drag ref="upload" :auto-upload="false" @change="handleChange" :file-list="fileList" :limit="1" multiple > <el-icon :size="100"><upload-filled /></el-icon> <div>Drop file here OR <em>click to upload</em></div></el-upload>
+                </el-form-item>
+                
+                <form-radio  :label="lang.GetText(`llmetadata`)" prop="zipMetaData" v-model="store.zipMetaData" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttmetadata`)" />
+            </el-column>
+        </el-row>
     </el-form>
 </template>
 

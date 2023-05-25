@@ -9,6 +9,8 @@ export const useLanguageStore = defineStore("i18n", () => {
     const english = ref("en");
     const german = ref("de");
     const hungarian =ref("hu");
+    
+    const possibleLanguage: string[] = ["en", "de", "hu"];
 
     const GEDirectory:{[key: string]: string} = {
         "ttsampler":"k_heun und k_dpm_2 verdoppeln die Generierungszeit und die Kudos-Kosten, konvergieren aber doppelt so schnell.",
@@ -388,6 +390,8 @@ export const useLanguageStore = defineStore("i18n", () => {
         "lllongpress":"(lange drücken, um mehrere Bilder auszuwählen)",
         "llnoimagesfound":"Keine Bilder gefunden",
         //optionsview.vue
+        "lllanguageswitch": "Sprache",
+        "ttlanguageswitchinfo": "Hier können Sie die Sprache der Webseite umstellen.",
         "lldark":"Dunkel",
         "lllight":"Hell",
         "llorange":"Orange",
@@ -414,7 +418,6 @@ export const useLanguageStore = defineStore("i18n", () => {
         "for":"für",
         "singularImage":" Bild",
         "pluralImage":" Bilder",
-
     }
 
     const ENDirectory:{[key: string]: string} = {
@@ -794,6 +797,8 @@ export const useLanguageStore = defineStore("i18n", () => {
         "lllongpress":"(long press to select multiple images)",
         "llnoimagesfound":"No Images Found",
         //optionsview.vue
+        "lllanguageswitch": "Language",
+        "ttlanguageswitchinfo": "You can switch the language of the Website.",
         "lldark":"Dark",
         "lllight":"Light",
         "llorange":"Orange",
@@ -1200,6 +1205,8 @@ export const useLanguageStore = defineStore("i18n", () => {
          "lllongpress":"(hosszú nyomvatartás, hogy több képet kijelölhess)",
          "llnoimagesfound":"Nem találtunk képeket",
          //optionsview.vue
+        "lllanguageswitch": "Nyelv",
+        "ttlanguageswitchinfo": "Megváltoztathatja a weboldal nyelvét.",
          "lldark":"Sötét",
          "lllight":"Világos",
          "llorange":"Narancs",
@@ -1266,6 +1273,7 @@ export const useLanguageStore = defineStore("i18n", () => {
 
     return {
         GetText,
-        currentLanguage
+        currentLanguage,
+        possibleLanguage
     }
 });
