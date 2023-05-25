@@ -81,6 +81,15 @@ export const useUIStore = defineStore("ui", () => {
         const currentIndex = outputStore.currentOutputs.findIndex(el => el.id === activeModal.value);
         const outputRight = outputStore.currentOutputs[currentIndex + 1];
 
+        if(currentIndex == -1) {
+            if (outputStore.currentPage <= Math.floor(outputStore.outputsLength / optionStore.pageSize)) {
+                outputStore.currentPage++;
+            }
+            return;
+        }
+
+        console.log(currentIndex);
+
         if (outputRight) {
             activeModal.value = outputRight.id;
             return;
@@ -107,6 +116,13 @@ export const useUIStore = defineStore("ui", () => {
 
         const currentIndex = outputStore.currentOutputs.findIndex(el => el.id === activeModal.value);
         const outputLeft = outputStore.currentOutputs[currentIndex - 1];
+
+        if(currentIndex == -1) {
+            if (outputStore.currentPage > 1) {
+                outputStore.currentPage--;
+            }
+            return;
+        }
 
         if (outputStore.currentPage > 1 && !outputLeft) {
             const next = outputStore.sortBy === "Oldest" ? 
