@@ -8,6 +8,8 @@ import {
     ElImage
 } from 'element-plus';
 import { ref } from 'vue';
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const ratingStore = useRatingStore();
 
 const props = defineProps<{
@@ -23,26 +25,26 @@ const emit = defineEmits<{
 
 const artifactDescriptions = [
     null,
-    "Complete Mess",
-    "Serious Issues",
-    "Minor Issues",
-    "Noticeable Flaws",
-    "Small Errors",
-    "Flawless",
+    lang.GetText(`racompletemess`),
+    lang.GetText(`raseriousissues`),
+    lang.GetText(`raminorissues`),
+    lang.GetText(`ranoticeableflaws`),
+    lang.GetText(`rasmallerrors`),
+    lang.GetText(`raflawmess`),
 ]
 
 const imageDescriptions = [
     null,
-    'The Worst!',
-    'Terrible',
-    'Very Bad',
-    'Rather Bad',
-    'OK',
-    'Not Bad',
-    'Rather Good',
-    'Very Good',
-    'Excellent',
-    'The Best!',
+    lang.GetText(`ratheworst`),
+    lang.GetText(`raterrible`),
+    lang.GetText(`raverybad`),
+    lang.GetText(`raratherbad`),
+    lang.GetText(`raok`),
+    lang.GetText(`ranotbad`),
+    lang.GetText(`rarathergood`),
+    lang.GetText(`raverygood`),
+    lang.GetText(`raexcellent`),
+    lang.GetText(`rathebest`),
 ]
 
 const showImage = ref(false);
@@ -113,16 +115,16 @@ window.addEventListener('keyup', (event) => {
             <el-image v-loading="!showImage" @load="() => showImage = true" :src="imageSource" class="rate-image" />
         </div>
         <div>
-            <div>How would <em><strong>you</strong></em> rate this image? ({{ imageDescriptions[ratingStore.currentRealRating.rating || 1] }})</div>
+            <div>{{lang.GetText(`rahowwouldyourate`)}} ({{ imageDescriptions[ratingStore.currentRealRating.rating || 1] }})</div>
             <el-rate :max="10" v-model="ratingStore.currentRealRating.rating" :colors="colors10"/>
             <div><span class="starLike">1</span><span class="starLike">2</span><span class="starLike">3</span><span class="starLike">4</span><span class="starLike">5</span><span class="starLike">6</span><span class="starLike">7</span><span class="starLike">8</span><span class="starLike">9</span><span class="starLike">10</span></div>
         </div>
         <div>
-            <div>How would <em><strong>you</strong></em> describe the flaws, artifacts, etc? ({{ artifactDescriptions[ratingStore.currentRealRating.artifacts || 1] }})</div>
+            <div>{{lang.GetText(`rahowwouldyoudesc`)}} ({{ artifactDescriptions[ratingStore.currentRealRating.artifacts || 1] }})</div>
             <el-rate :max="6" v-model="ratingStore.currentRealRating.artifacts" :colors="colors6"/>
             <div><span class="starLike">1</span><span class="starLike">2</span><span class="starLike">3</span><span class="starLike">4</span><span class="starLike">5</span><span class="starLike">6</span></div>
         </div>
-        <div><el-button style="height: 50px; width: 200px; margin-bottom: 75px;" @click="() => onRatingSubmit()" :disabled="submitted">Submit rating</el-button></div>
+        <div><el-button style="height: 50px; width: 200px; margin-bottom: 75px;" @click="() => onRatingSubmit()" :disabled="submitted">{{lang.GetText(`rasubmit`)}}</el-button></div>
     </div>
 </template>
 

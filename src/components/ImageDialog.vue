@@ -8,7 +8,8 @@ import { computed, ref, watch } from 'vue';
 import { useUIStore } from '@/stores/ui';
 import { useOutputStore } from '@/stores/outputs';
 import { db } from '@/utils/db';
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const store = useOutputStore();
 const uiStore = useUIStore();
 
@@ -64,22 +65,22 @@ function handleClose() {
         </div>
         <div style="font-size: 18px; font-weight: 500;">{{currentOutput.prompt?.split("###")[0] || 'Unkown Creation'}}</div>
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; letter-spacing: 0.025em;">
-            <div>Negative Prompt: {{currentOutput.prompt?.split("###")[1] || "None"}}</div>
-            <span>Model: {{currentOutput.modelName || "Unknown"}} - </span>
-            <span>Sampler: {{currentOutput.sampler_name || "Unknown"}} - </span>
-            <span>Seed: {{currentOutput.seed || "Unknown"}} - </span>
-            <span>Steps: {{currentOutput.steps || "Unknown"}} - </span>
-            <span>CFG Scale: {{currentOutput.cfg_scale || "Unknown"}}</span>
+            <div>{{lang.GetText(`datanegativeprompt`)}} {{currentOutput.prompt?.split("###")[1] || "None"}}</div>
+            <span>{{lang.GetText(`datamodel`)}} {{currentOutput.modelName || "Unknown"}} - </span>
+            <span>{{lang.GetText(`datasampler`)}} {{currentOutput.sampler_name || "Unknown"}} - </span>
+            <span>{{lang.GetText(`dataseed`)}} {{currentOutput.seed || "Unknown"}} - </span>
+            <span>{{lang.GetText(`datasteps`)}} {{currentOutput.steps || "Unknown"}} - </span>
+            <span>{{lang.GetText(`datacfg`)}} {{currentOutput.cfg_scale || "Unknown"}}</span>
             <br/>
-            <span v-if="currentOutput.denoising_strength">Denoise: {{currentOutput.denoising_strength || "None"}} - </span>
-            <span>Clip Skip: {{currentOutput.clip_skip || "Unknown"}} - </span>
-            <span>Dimensions: {{currentOutput.width || "???"}}x{{currentOutput.height || "???"}} - </span>
-            <span>Karras: {{currentOutput.karras || false}} - </span>
-            <span>Tiling: {{currentOutput.tiling || false}} - </span>
-            <span>Hires Fix: {{currentOutput.hires_fix || false}}</span>
-            <span v-if="currentOutput.control_net"> - ControlNet: {{currentOutput.control_net || "None"}}</span>
-            <div v-if="currentOutput.post_processing?.length">Post-processors: {{(currentOutput.post_processing || []).join(", ") || "None"}}</div>
-            <div>Generated In: {{ currentOutput.generation_time?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2}) }} Sec. By: {{currentOutput.workerName || "Unknown"}} <em>{{currentOutput.workerID ? `(${currentOutput.workerID})` : ''}}</em></div>
+            <span v-if="currentOutput.denoising_strength">{{lang.GetText(`datadenoise`)}} {{currentOutput.denoising_strength || "None"}} - </span>
+            <span>{{lang.GetText(`dataclipskip`)}} {{currentOutput.clip_skip || "Unknown"}} - </span>
+            <span>{{lang.GetText(`datadimensions`)}} {{currentOutput.width || "???"}}x{{currentOutput.height || "???"}} - </span>
+            <span>{{lang.GetText(`datakarras`)}} {{currentOutput.karras || false}} - </span>
+            <span>{{lang.GetText(`datatiling`)}} {{currentOutput.tiling || false}} - </span>
+            <span>{{lang.GetText(`datahiresfix`)}} {{currentOutput.hires_fix || false}} - </span>
+            <span v-if="currentOutput.control_net">{{lang.GetText(`datacontrolnet`)}} {{currentOutput.control_net || "None"}}</span>
+            <div v-if="currentOutput.post_processing?.length">{{lang.GetText(`datapostprocessors`)}} {{(currentOutput.post_processing || []).join(", ") || "None"}}</div>
+            <div>{{lang.GetText(`datageneratedin`)}} {{ currentOutput.generation_time?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2}) }} Sec. By: {{currentOutput.workerName || "Unknown"}} <em>{{currentOutput.workerID ? `(${currentOutput.workerID})` : ''}}</em></div>
         </div>
         <div>
             <ImageActions :image-data="currentOutput" />

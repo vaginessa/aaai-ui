@@ -6,7 +6,8 @@ import { useUserStore } from "./user";
 import { POLL_DASHBOARD_INTERVAL, POLL_USERS_INTERVAL, DEBUG_MODE } from "@/constants";
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const formatter = Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 2});
 
 
@@ -64,7 +65,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     async function getStaleWorker(workerID: string) {
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/workers/${workerID}`);
         const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to find user by API key")) return false;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`dashfailedtofindapi`))) return false;
         return resJSON;
     }
 
@@ -90,7 +91,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     async function updateUsers() {
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/users`);
         const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to update leaderboard")) return false;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`dashfailedtoupdate`))) return false;
         users.value = resJSON;
         updateLeaderboard();
     }
@@ -98,7 +99,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     async function getAAAIVideoPerformance() {
         const response = await fetch(`https://api.artificial-art.eu/video/stats`);
         const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to get AAAI server performance")) return false;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`dashfailedtogetaaai`))) return false;
         performanceVideo.value = resJSON;
 
     }
@@ -106,7 +107,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     async function getHordePerformance() {
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/status/performance`);
         const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to get server performance")) return false;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`dashfailedtoget`))) return false;
         performance.value = resJSON;
     }
 

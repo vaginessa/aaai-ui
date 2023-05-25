@@ -16,6 +16,8 @@ import {
 import type { WorkerDetailsStable } from '@/types/stable_horde';
 import { computed } from 'vue';
 import { formatSeconds } from '@/utils/format';
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -24,15 +26,15 @@ const props = defineProps<{
 
 const status = computed(() => {
     if (props.worker.online) {
-        return "Online";
+        return lang.GetText(`workonline`);
     }
     if (props.worker.paused) {
-        return "Paused";
+        return lang.GetText(`workpaused`);
     }
     if (props.worker.maintenance_mode) {
-        return "Maintenance";
+        return lang.GetText(`workmaintenance`);
     }
-    return "Offline";
+    return lang.GetText(`workoffline`);
 })
 </script>
 
@@ -55,17 +57,17 @@ const status = computed(() => {
                 <slot name="header"></slot>
             </div>
         </template>
-        <div class="small-font">ID: {{worker.id}}</div>
-        <div>This worker has run for <strong>{{formatSeconds(worker.uptime, true, { days: true, hours: true, minutes: true })}}</strong></div>
-        <div>They have generated <strong>{{worker.megapixelsteps_generated}}</strong> MPS</div>
-        <div>They're going at a speed of <strong>{{worker.performance?.split(" ")[0]}}</strong> MPS/s</div>
-        <div>They're utilizing <strong>{{worker.threads}}</strong> thread(s)</div>
-        <div>They have fulfilled <strong>{{worker.requests_fulfilled}}</strong> requests</div>
-        <div>They have NSFW set to <strong>{{worker.nsfw}}</strong></div>
-        <div>Max 1:1 Resolution <strong>{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}x{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}</strong></div>
+        <div class="small-font">{{lang.GetText(`teamid`)}} {{worker.id}}</div>
+        <div>{{lang.GetText(`workhasrunfor`)}}<strong>{{formatSeconds(worker.uptime, true, { days: true, hours: true, minutes: true })}}</strong></div>
+        <div>{{lang.GetText(`workgenerated`)}}<strong>{{worker.megapixelsteps_generated}}</strong> MPS</div>
+        <div>{{lang.GetText(`workspeed`)}}<strong>{{worker.performance?.split(" ")[0]}}</strong> MPS/s</div>
+        <div>{{lang.GetText(`workutiliing`)}}<strong>{{worker.threads}}</strong> {{lang.GetText(`workthread`)}}</div>
+        <div>{{lang.GetText(`workfulfilled`)}}<strong>{{worker.requests_fulfilled}}</strong> {{lang.GetText(`teamrequests`)}}</div>
+        <div>{{lang.GetText(`worknsfw`)}}<strong>{{worker.nsfw}}</strong></div>
+        <div>{{lang.GetText(`workresolution`)}}<strong>{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}x{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}</strong></div>
         <div>
             <el-collapse style="margin-top: 0.5rem; --el-collapse-header-height: 2.5rem">
-                <el-collapse-item :title="worker.models?.length + ' model(s)'" name="1">
+                <el-collapse-item :title="worker.models?.length + '${{lang.GetText(`workmodels`)}}'" name="1">
                     <strong>{{worker.models?.length === 0 ? "stable_diffusion" : ""}}</strong>
                     <strong v-for="(model, index) of worker.models" :key="index">
                         {{model}}{{index === worker.models?.length ? "" : ", "}}
@@ -76,7 +78,7 @@ const status = computed(() => {
         <el-divider v-if="worker.info" style="margin: 10px 0" />
         <div class="small-font">{{worker.info}}</div>
     </el-card>
-</template>
+</template> <!-- fuck this shit -->
 
 <style scoped>
     .card-header {

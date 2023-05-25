@@ -38,19 +38,19 @@ const lang = useLanguageStore();
 const options = [
     {
         value: 'dark',
-        label: 'Dark',
+        label: lang.GetText(`lldark`),
     }, {
         value: 'light',
-        label: 'Light',
+        label: lang.GetText(`lllight`),
     }, {
         value: 'orange',
-        label: 'Orange',
+        label: lang.GetText(`llorange`),
     }, {
         value: 'purple',
-        label: 'Purple',
+        label: lang.GetText(`llpurple`),
     }, {
         value: 'green',
-        label: 'Green',
+        label: lang.GetText(`llgreen`),
     }
 ]
 
@@ -116,7 +116,7 @@ async function onTagsChange() {
         <form-radio  :label="lang.GetText(`llmetadata`)" prop="zipMetaData" v-model="store.zipMetaData" :options="['Enabled', 'Disabled']" :info="lang.GetText(`ttmetadata`)" />
     </el-column></el-row>
     </el-form>
-</template>  
+</template>
 
 <style scoped>
 .anon {

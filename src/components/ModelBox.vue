@@ -23,7 +23,8 @@ import type { IModelData } from '@/stores/generator';
 import { useIntersectionObserver } from '@vueuse/core';
 import { useWorkerStore } from '@/stores/workers';
 import { useOptionsStore } from '@/stores/options';
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const store = useWorkerStore();
 const optStore = useOptionsStore();
 
@@ -33,12 +34,12 @@ const props = defineProps<{
 
 const status = computed(() => {
     if (props.model.count === 0) {
-        return "Offline";
+        return lang.GetText(`modeloffline`);
     }
     if (props.model.queued === 0) {
-        return "Standby";
+        return lang.GetText(`modelstandby`);
     }
-    return "Online";
+    return lang.GetText(`modelonline`);
 })
 
 const imageRef = ref(null);
@@ -74,7 +75,7 @@ useIntersectionObserver(
                     </el-image>
                 </el-carousel-item>
             </el-carousel>
-            <el-empty v-else description="No showcase found!" />
+            <el-empty v-else :description="lang.GetText(`modelnoshowcasefound`)" />
         </div>
         <div v-else style="height: 300px"></div>
         <div style="padding: 20px">
@@ -94,7 +95,7 @@ useIntersectionObserver(
             </div>
             <div>
                 <el-collapse style="margin-top: 0.5rem; --el-collapse-header-height: 2.5rem">
-                    <el-collapse-item :title="`There are ${model.count} workers running this model`" name="1">
+                    <el-collapse-item :title="`${lang.GetText(`modelthereare`)} ${model.count} ${lang.GetText(`modelworkersrunning`)}`" name="1">
                         <div id="workerTable" v-for="(worker) of store.getAllWorkersWithModel(model.name || '')">
                             <div style="float:left; min-width: 20%;">{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}x{{Math.floor(Math.sqrt(worker.max_pixels || 0))}}</div>
                             <div style="float:left; width: 55%;">{{worker.name}}</div>
@@ -108,11 +109,11 @@ useIntersectionObserver(
                 </el-collapse>
             </div>
             <div></div>
-            <div>There are <strong>{{Math.floor((model.queued || 0) / 10_000) / 100}}</strong> MPS queued</div>
-            <div>The average model speed is <strong>{{Math.floor((model.performance || 0) / 10_000) / 100}}</strong> MPS/s</div>
-            <div>It is expected to take <strong>{{model.eta}}s</strong> to clear this queue</div>
+            <div>{{lang.GetText(`modelthereare`)}} <strong>{{Math.floor((model.queued || 0) / 10_000) / 100}}</strong> {{lang.GetText(`modelmpsqueued`)}}</div>
+            <div>{{lang.GetText(`modelaveragespeed`)}} <strong>{{Math.floor((model.performance || 0) / 10_000) / 100}}</strong> MPS/s</div>
+            <div>{{lang.GetText(`modelitisexpected`)}} <strong>{{model.eta}}s</strong> {{lang.GetText(`modeltoclear`)}}</div>
             <div></div>
-            <div>The style of this model is <strong>{{model.style}}</strong></div>
+            <div>{{lang.GetText(`modelthestyleofthis`)}} <strong>{{model.style}}</strong></div>
             <el-divider v-if="model.description" style="margin: 10px 0" />
             <div class="small-font">{{model.description}}</div>
         </div>

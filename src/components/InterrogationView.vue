@@ -19,6 +19,8 @@ import { convertToBase64 } from '@/utils/base64';
 import { useGeneratorStore } from '@/stores/generator';
 import { useUIStore } from '@/stores/ui';
 import { useEllipsis } from '@/utils/useEllipsis';
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const store = useInterrogationStore();
 const genStore = useGeneratorStore();
 const uiStore = useUIStore();
@@ -26,7 +28,7 @@ const upload = ref();
 async function handleChange(uploadFile: UploadFile) {
     upload.value!.clearFiles();
     if (!(uploadFile.raw as UploadRawFile).type.includes("image")) {
-        uiStore.raiseError("Uploaded file needs to be a image!", false);
+        uiStore.raiseError(lang.GetText(`errorneedstobeanimage`), false);
         return;
     }
     const base64File = await convertToBase64(uploadFile.raw as UploadRawFile) as string;
@@ -66,11 +68,11 @@ const { ellipsis } = useEllipsis();
     <el-checkbox-group v-model="store.selectedForms" class="interrogation-form-select">
         <el-checkbox v-for="form in store.possibleForms" :key="form" :label="form">
             <span>{{ form }}</span>
-            <span class="danger">{{ form === "interrogation" ? " (warning: may not fulfill)" : "" }}</span>
+            <span class="danger">{{ form === "interrogation" ? lang.GetText(`warningmaynotfulfill`) : "" }}</span>
         </el-checkbox>
     </el-checkbox-group>
     <div v-if="!store.currentInterrogation.source_image" style="margin-top: 16px;">
-        <strong v-if="!store.selectedForms.length" class="danger">Choose an interrogation option to proceed!</strong>
+        <strong v-if="!store.selectedForms.length" class="danger">{{lang.GetText(`intchoseaninterrogation`)}}</strong>
         <div :style="store.selectedForms.length ? '' : { pointerEvents: 'none', opacity: 0.5 }">
             <el-upload
                 @change="handleChange"
@@ -88,34 +90,34 @@ const { ellipsis } = useEllipsis();
         </div>
     </div>
     <div v-else-if="!store.currentInterrogation.status" style="margin-top: 16px;">
-        <strong>Uploading image{{ellipsis}}</strong>
+        <strong>{{lang.GetText(`intuploadingimage`)}}{{ellipsis}}</strong>
     </div>
     <div v-else>
         <div style="margin-top: 8px">
-            <el-button :icon="Refresh" @click="store.resetInterrogation">New Interrogation</el-button>
-            <el-button :icon="Refresh" @click="useInterrogationCaption" :disabled="captionForm?.processing" v-if="captionForm">Text2Img (Caption)</el-button>
-            <el-button :icon="Refresh" @click="useInterrogation"  :disabled="interrogationForm?.processing" v-if="interrogationForm">Text2Img (Interrogation)</el-button>
+            <el-button :icon="Refresh" @click="store.resetInterrogation">{{lang.GetText(`intnewinterrogation`)}}</el-button>
+            <el-button :icon="Refresh" @click="useInterrogationCaption" :disabled="captionForm?.processing" v-if="captionForm">{{lang.GetText(`inttxt2imgcaption`)}}</el-button>
+            <el-button :icon="Refresh" @click="useInterrogation"  :disabled="interrogationForm?.processing" v-if="interrogationForm">{{lang.GetText(`inttxt2imginterrogation`)}}</el-button>
         </div>
-        <h2 style="margin: 16px 0 8px 0;">Interrogation Results</h2>
+        <h2 style="margin: 16px 0 8px 0;">{{lang.GetText(`intresults`)}}</h2>
         <el-image :src="store.currentInterrogation.source_image" alt="Uploaded Image" />
         <div class="danger" v-if="showWarning">
-            <strong>Interrogation is taking longer than expected and may not fulfill.</strong>
+            <strong>{{lang.GetText(`inttakeslong`)}}</strong>
         </div>
         <div v-if="nsfwForm">
-            <h3>NSFW</h3>
-            <div v-if="nsfwForm.processing">Processing{{ellipsis}}</div>
-            <div v-else>This image is predicted to be <strong>{{ nsfwForm?.result?.nsfw ? "not safe for work" : "safe for work" }}</strong>.</div>
+            <h3>{{lang.GetText(`intnsfw`)}}</h3>
+            <div v-if="nsfwForm.processing">{{lang.GetText(`intprocessing`)}}{{ellipsis}}</div>
+            <div v-else>{{lang.GetText(`intpredict`)}} <strong>{{ nsfwForm?.result?.nsfw ? lang.GetText(`intpredictnsfw`) : lang.GetText(`intpredictsfw`) }}</strong>.</div>
         </div>
         <div v-if="captionForm">
-            <h3>Caption</h3>
-            <div v-if="captionForm.processing">Processing{{ellipsis}}</div>
+            <h3>{{lang.GetText(`intcaption`)}}</h3>
+            <div v-if="captionForm.processing">{{lang.GetText(`intprocessing`)}}{{ellipsis}}</div>
             <div v-else><strong>{{ captionForm?.result?.caption }}</strong></div>
         </div>
         <div v-if="interrogationForm">
-            <h3>Interrogation</h3>
-            <div v-if="interrogationForm.processing">Processing{{ellipsis}}</div>
+            <h3>{{lang.GetText(`intinterrogation`)}}</h3>
+            <div v-if="interrogationForm.processing">{{lang.GetText(`intprocessing`)}}{{ellipsis}}</div>
             <div v-else>
-                <div style="margin-bottom: 8px;">Prompt form: "{{ interrogationAsPrompt }}"</div>
+                <div style="margin-bottom: 8px;">{{lang.GetText(`intpromptform`)}} "{{ interrogationAsPrompt }}"</div>
                 <div v-for="[subject, tags] in Object.entries(interrogationForm?.result?.interrogation || {})" :key="subject">
                     <strong>{{ subject }}</strong>
                     <div v-for="tag in tags" :key="tag.text" style="margin-left: 8px;">

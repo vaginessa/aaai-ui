@@ -16,6 +16,8 @@ import { useWorkerStore } from "@/stores/workers";
 import { useUserStore } from "@/stores/user";
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -46,7 +48,7 @@ async function updateWorkerOptions() {
         // paused being only modifyable as an moderator
         return;
     }
-    if (!validateResponse(response, resJSON, 200, "Failed to modify worker")) return false;
+    if (!validateResponse(response, resJSON, 200, lang.GetText(`editfailedtomodifyworker`) )) return false;
     workerStore.updateWorkers()
     return resJSON;
 }
@@ -55,11 +57,11 @@ let deleteTimer = ref<any>(undefined);
 
 function deleteWorker() {
     ElMessageBox.confirm(
-        "This action will permanently delete this worker. Continue?",
-        'Delete Worker?',
+        lang.GetText(`editpermanentlydelete`),
+        lang.GetText(`editdeleteworker?`),
         {
-            confirmButtonText: 'Delete',
-            cancelButtonText: 'Cancel',
+            confirmButtonText: lang.GetText(`lldelete`),
+            cancelButtonText: lang.GetText(`cancel`),
             type: 'warning',
         }
     ).then(() => {
@@ -71,7 +73,7 @@ function deleteWorker() {
                 }
             });
             const resJSON = await response.json();
-            if (!validateResponse(response, resJSON, 200, "Failed to delete worker")) return false;
+            if (!validateResponse(response, resJSON, 200, lang.GetText(`editfailedtodeleteworker`))) return false;
             workerStore.updateWorkers();
             dialogOpen.value = false;
         }, 60 * 1000)
@@ -107,16 +109,16 @@ const workerOptionsChange = ref({
                 align-center
             >
                 <el-form label-width="140px" :model="workerOptionsChange" label-position="left" @submit.prevent>
-                    <el-form-item label="Change Name">
-                        <div style="font-size: 13px; word-break: keep-all;">Make sure to stop the worker first and then edit bridgeData.py!</div>
+                    <el-form-item :label="lang.GetText(`editchangename`)">
+                        <div style="font-size: 13px; word-break: keep-all;">{{lang.GetText(`editmakesuretostop`)}}</div>
                         <el-input
                             v-model="workerOptionsChange.name"
-                            placeholder="Enter new name here" 
+                            :placeholder="lang.GetText(`editenternewname`)"
                             style="width: 80%; min-width: 200px"
                         />
-                        <el-button @click="updateWorkerOptions">Submit</el-button>
+                        <el-button @click="updateWorkerOptions">{{lang.GetText(`editsubmit`)}}</el-button>
                     </el-form-item>
-                    <el-form-item label="Info">
+                    <el-form-item :label="lang.GetText(`editinfo`)">
                         <el-input
                             v-model="workerOptionsChange.info"
                             :autosize="{ minRows: 2, maxRows: 10 }"
@@ -125,26 +127,26 @@ const workerOptionsChange = ref({
                             type="textarea"
                             style="width: 80%; word-break:keep-all; min-width: 200px;"
                             maxlength="1000"
-                            placeholder="Enter new info here"
+                            :placeholder="lang.GetText(`editenternewinfo`)"
                         />
-                        <el-button @click="updateWorkerOptions">Submit</el-button>
+                        <el-button @click="updateWorkerOptions">{{lang.GetText(`editsubmit`)}}</el-button>
                     </el-form-item>
                     <FormSelect
-                        label="Team"
+                        :label="lang.GetText(`editteam`)"
                         prop="team"
                         v-model="workerOptionsChange.team"
                         :options="[
-                            {label: 'None', value: ''},
+                            {label: lang.GetText(`editnone`), value: ''},
                             ...workerStore.teams.map(el => {return {label: el.name, value: el.id}})
                         ]"
                         :change="updateWorkerOptions"
                     />
-                    <el-form-item label="Maintenance Mode">
+                    <el-form-item :label="lang.GetText(`editmaintenancemode`)">
                         <el-switch v-model="workerOptionsChange.maintenance" @change="updateWorkerOptions" />
                     </el-form-item>
-                    <el-form-item label="Delete Worker">
-                        <el-button type="danger" v-if="deleteTimer == undefined" @click="deleteWorker">Remove</el-button>
-                        <el-button type="danger" v-if="deleteTimer != undefined" @click="cancelDeleteWorker">Cancel Remove (60s timer)</el-button>
+                    <el-form-item :label="lang.GetText(`editdeleteworker`)">
+                        <el-button type="danger" v-if="deleteTimer == undefined" @click="deleteWorker">{{lang.GetText(`editremove`)}}</el-button>
+                        <el-button type="danger" v-if="deleteTimer != undefined" @click="cancelDeleteWorker">{{lang.GetText(`editcancelremove`)}}</el-button>
                     </el-form-item>
                 </el-form>
             </el-dialog>

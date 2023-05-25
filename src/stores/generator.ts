@@ -15,7 +15,8 @@ import { validateResponse } from "@/utils/validate";
 import { ElNotification, type FormRules } from "element-plus";
 import { BASE_URL_STABLE } from "@/constants";
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 function getDefaultStore() {
     return <ModelGenerationInputStable>{
         steps: 30,
@@ -114,9 +115,9 @@ export const useGeneratorStore = defineStore("generator", () => {
     const modelsData = ref<IModelData[]>([]);
     const modelDescription = computed(() => {
         if (selectedModel.value === "Random!") {
-            return "Generate using a random model.";
+            return lang.GetText(`gengenerateusingrandom`);
         }
-        return selectedModelData.value?.description || "Not Found!";
+        return selectedModelData.value?.description || lang.GetText(`gennotfound`);
     })
     const multiModelSelect = useLocalStorage<IMultiModel>("multiModelSelect", "Disabled");
     const selectedModel = useLocalStorage("selectedModel", "stable_diffusion");
@@ -383,12 +384,12 @@ export const useGeneratorStore = defineStore("generator", () => {
     const generateFormBaseRules = reactive<FormRules>({
         prompt: [{
             required: true,
-            message: 'Please input prompt',
+            message: lang.GetText(`genpleaseinputprompt`),
             trigger: 'change'
         }],
         apiKey: [{
             required: true,
-            message: 'Please input API Key',
+            message: lang.GetText(`genpleaseinputapi`),
             trigger: 'change'
         }]
     });
@@ -398,9 +399,9 @@ export const useGeneratorStore = defineStore("generator", () => {
      * */ 
     async function generateImage(type:IHordeGeneratorType) {
         if (type === "Rating") return [];
-        if (prompt.value === "") return generationFailed("Failed to generate: No prompt submitted.");
-        if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed("Failed to generate: No model selected.");
-        if (multiControlTypeSelect.value === "Enabled" && selectedControlTypeMultiple.value.length === 0 && generatorType.value === "Img2Img") return generationFailed("Failed to generate: No control type selected.");
+        if (prompt.value === "") return generationFailed(lang.GetText(`gennoprompt`));
+        if (multiModelSelect.value === "Enabled" && selectedModelMultiple.value.length === 0) return generationFailed(lang.GetText(`gennomodel`));
+        if (multiControlTypeSelect.value === "Enabled" && selectedControlTypeMultiple.value.length === 0 && generatorType.value === "Img2Img") return generationFailed(lang.GetText(`gennocontroltype`));
 
         const canvasStore = useCanvasStore();
         const optionsStore = useOptionsStore();
@@ -545,8 +546,8 @@ export const useGeneratorStore = defineStore("generator", () => {
     
                 const status = await checkImage(queuedImage.jobId);
                 if (!status) return generationFailed();
-                 if ((status as RequestStatusCheck).faulted) return generationFailed("Failed to generate: Generation faulted.");
-                if ((status as RequestStatusCheck).is_possible === false) return generationFailed("Failed to generate: Generation not possible.");
+                 if ((status as RequestStatusCheck).faulted) return generationFailed(lang.GetText(`genfaulted`));
+                if ((status as RequestStatusCheck).is_possible === false) return generationFailed(lang.GetText(`gennotpossible`));
                 queuedImage.waitData = (status as RequestStatusCheck);
 
                 if ((status as RequestStatusCheck).done) {
@@ -617,7 +618,7 @@ export const useGeneratorStore = defineStore("generator", () => {
         queue.value = [];
         return [];
     }
-
+    //fuck this shit
     function validateParam(paramName: string, param: number, max: number, defaultValue: number) {
         if (param <= max) return param;
         useUIStore().raiseWarning(`This image was generated using the 'Larger Values' option. Setting '${paramName}' to its default value instead of ${param}.`, true)
@@ -732,7 +733,7 @@ export const useGeneratorStore = defineStore("generator", () => {
             body: JSON.stringify(parameters)
         })
         const resJSON: RequestAsync = await response.json();
-        if (!validateResponse(response, resJSON, 202, "Failed to fetch ID", onInvalidResponse)) return false;
+        if (!validateResponse(response, resJSON, 202, lang.GetText(`genfailedtofetchid`), onInvalidResponse)) return false;
         return resJSON;
     }
 
@@ -850,7 +851,7 @@ export const useGeneratorStore = defineStore("generator", () => {
 
         const resJSON: RequestStatusCheck = await response.json();
         if (cancelled.value) return { wait_time: 0, done: false };
-        if (!validateResponse(response, resJSON, 200, "Failed to check image status", onInvalidResponse)) return false;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`genfailedtocheckimagestatus`), onInvalidResponse)) return false;
         return resJSON;
     }
 
@@ -863,7 +864,7 @@ export const useGeneratorStore = defineStore("generator", () => {
             method: 'DELETE',
         });
         const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to cancel image", onInvalidResponse)) return false;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`genfailedtocancelimage`), onInvalidResponse)) return false;
         const generations: GenerationStable[] = resJSON.generations;
         return generations;
     }
@@ -874,7 +875,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     async function getImageStatus(imageID: string) {
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/generate/status/`+imageID);
         const resJSON = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to check image status", onInvalidResponse)) return false;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`genfailedtocheckimagestatus`), onInvalidResponse)) return false;
         const generations: GenerationStable[] = resJSON.generations;
         return generations;
     }
@@ -894,7 +895,7 @@ export const useGeneratorStore = defineStore("generator", () => {
     async function updateAvailableModels() {
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/status/models`);
         const resJSON: ActiveModel[] = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to get available models")) return;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`genfailedtogetavailablemodels`))) return;
 
         const dbResponse = await fetch(MODELS_DB_URL);
         const dbJSON = await dbResponse.json();
@@ -946,7 +947,7 @@ export const useGeneratorStore = defineStore("generator", () => {
             }
         });
 
-        availableModelsGrouped.value.push({ label: 'Extra', options: [{value: "Random!", label: "Random!"}, {value: "All Models!", label: "All Models!"}] });
+        availableModelsGrouped.value.push({ label: 'Extra', options: [{value: lang.GetText(`genrandom`), label: lang.GetText(`genrandom`)}, {value: lang.GetText(`genallmodels`), label: lang.GetText(`genallmodels`)}] });
     }
 
     async function updateStyles() {

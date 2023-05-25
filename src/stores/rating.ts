@@ -8,7 +8,8 @@ import { useUserStore } from "./user";
 import { useUIStore } from "./ui";
 import { BASE_URL_STABLE } from "@/constants";
 import { ElMessage } from 'element-plus';
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 export const useRatingStore = defineStore("rating", () => {
     const currentRatingInfo = ref<DatasetImagePopResponse>({});
     const pendingRatingInfo = ref<DatasetImagePopResponse>({});
@@ -36,7 +37,7 @@ export const useRatingStore = defineStore("rating", () => {
             if(retryCount > 5) 
             {
                 ElMessage({
-                    message: `Unable to get new Horde rating image...`,
+                    message: lang.GetText(`rateunabletogetnew`),
                     type: 'info',
                 })
                 return;
@@ -51,7 +52,7 @@ export const useRatingStore = defineStore("rating", () => {
         }
 
         const json: DatasetImagePopResponse = await response.json();
-        if (!validateResponse(response, json, 200, "Failed to get rating", onInvalidResponse)) return;
+        if (!validateResponse(response, json, 200, lang.GetText(`ratefailedtogetrating`), onInvalidResponse)) return;
         submitted.value = false;
         return json;
     }
@@ -68,7 +69,7 @@ export const useRatingStore = defineStore("rating", () => {
             body: JSON.stringify(currentRating),
         });
         const json: RatePostResponse = await response.json();
-        if (!validateResponse(response, json, 201, "Failed to submit rating", onInvalidResponse)) return;
+        if (!validateResponse(response, json, 201, lang.GetText(`ratefailedtosubmit`), onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
         await userStore.addNewRating(json?.reward || 0);
     }
@@ -87,7 +88,7 @@ export const useRatingStore = defineStore("rating", () => {
             }),
         });
         const json: GenerationSubmitted = await response.json();
-        if (!validateResponse(response, json, 200, "Failed to submit rating", onInvalidResponse)) return;
+        if (!validateResponse(response, json, 200, lang.GetText(`ratefailedtosubmit`), onInvalidResponse)) return;
         imagesRated.value = (imagesRated.value || 0) + 1;
         await userStore.addNewRating(json.reward || 0);
     }

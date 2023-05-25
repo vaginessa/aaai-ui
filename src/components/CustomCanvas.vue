@@ -10,7 +10,8 @@ import { useUIStore } from '@/stores/ui';
 import { convertToBase64 } from '@/utils/base64';
 import { encode } from "image-js";
 import { loadURL as base64Image, toBase64URL } from "../utils/base64"
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 const store = useGeneratorStore();
 const uiStore = useUIStore();
 const canvasStore = useCanvasStore();
@@ -19,7 +20,7 @@ const upload = ref();
 
 async function handleChange(uploadFile: UploadFile) {
     if (!(uploadFile.raw as UploadRawFile).type.includes("image")) {
-        uiStore.raiseError("Uploaded file needs to be a image!", false);
+        uiStore.raiseError(lang.GetText(`errorneedstobeanimage`), false);
         upload.value!.clearFiles();
         return;
     }
@@ -56,7 +57,7 @@ function getWebImage() {
     try {
         isValidUrl(WebURL.value).then(validUrl => {
             if(!validUrl) 
-                throw new Error("Invalid URL!");
+                throw new Error(lang.GetText(`errorinvalidurl`));
                 base64Image(WebURL.value || "").then(imgData => {
                     Promise.resolve(toBase64URL(encode(imgData), "image/webp")).then(data => {
                     store.currentImageProps.sourceImage = data;
@@ -68,7 +69,7 @@ function getWebImage() {
     } catch(e) {
         console.log(e);
         ElMessage({
-            message: `Could not retrive image "${(WebURL.value || "")}" ...`,
+            message: `"${lang.GetText('errorcouldnotretrieveimage')}" "${(WebURL.value || "")}" ...`,
             type: 'error',
         });
         WebURL.value = "";
@@ -76,7 +77,6 @@ function getWebImage() {
 }
 
 </script>
-
 <template>
     <el-upload
         drag
@@ -93,7 +93,7 @@ function getWebImage() {
             <div v-if="store.generatorType === 'Img2Img'">
                 <el-row style="margin-top: 15px;">
                     <el-col :span="22">
-                        <el-input v-model="WebURL" placeholder="Web Link" clearable />
+                        <el-input v-model="WebURL" :placeholder="lang.GetText(`placeholderweblink`)" clearable />
                     </el-col>
                     <el-col :span="2">
                         <el-button @click="getWebImage()" :icon="Download" plain />
@@ -124,10 +124,10 @@ function getWebImage() {
             </div>
 
             <el-form v-if="canvasStore.imageStage === 'Scaling'" label-width="110px" style="margin-top: 10px">
-                <form-slider style="margin-bottom: 5px" label="Scaling" prop="brushSize" v-model="canvasStore.canvasImageScaleFactor" :min="0.05" :max="1" :step="0.05" :change="canvasStore.setScale"/>
+                <form-slider style="margin-bottom: 5px" :label="lang.GetText(`llscaling`)" prop="brushSize" v-model="canvasStore.canvasImageScaleFactor" :min="0.05" :max="1" :step="0.05" :change="canvasStore.setScale"/>
             </el-form>
             <el-form v-if="canvasStore.imageStage === 'Painting' || canvasStore.imageStage === 'PaintingMask'" label-width="110px" style="margin-top: 10px">
-                <form-slider style="margin-bottom: 5px" label="Brush Size" prop="brushSize" v-model="canvasStore.brushSize" :min="10" :max="100" :step="10" :change="canvasStore.setBrush" />
+                <form-slider style="margin-bottom: 5px" :label="lang.GetText(`llbrushsize`)" prop="brushSize" v-model="canvasStore.brushSize" :min="10" :max="100" :step="10" :change="canvasStore.setBrush" />
             </el-form>
 
         </div>

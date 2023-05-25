@@ -6,7 +6,8 @@ import { useGeneratorStore, type IModelData } from "./generator";
 import { POLL_WORKERS_INTERVAL, DEBUG_MODE } from "@/constants";
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
-
+import { useLanguageStore } from '@/stores/i18n';
+const lang = useLanguageStore();
 type SortOptions = "Default" | "Name" | "Info" | "Uptime" | "MPS" | "Speed" | "Requests" | "Model Count" | "Worker Count" | "Queued" | "Clear Time"
 
 export const useWorkerStore = defineStore("workers", () => {
@@ -135,7 +136,7 @@ export const useWorkerStore = defineStore("workers", () => {
     function updateWorkers() {
         fetch(`${BASE_URL_STABLE}/api/v2/workers`).then(response => {
             response.json().then(resJSON => {
-                if (!validateResponse(response, resJSON, 200, "Failed to update workers")) return;
+                if (!validateResponse(response, resJSON, 200, lang.GetText(`workfailedtoupdateworkers`))) return;
                 if (DEBUG_MODE) console.log("Updated workers!", resJSON)
                 workers.value = [];
                 (resJSON as WorkerDetailsStable[]).forEach(el => {
@@ -152,7 +153,7 @@ export const useWorkerStore = defineStore("workers", () => {
     async function updateTeams() {
         const response = await fetch(`${BASE_URL_STABLE}/api/v2/teams`);
         const resJSON: TeamDetailsStable[] = await response.json();
-        if (!validateResponse(response, resJSON, 200, "Failed to update teams")) return;
+        if (!validateResponse(response, resJSON, 200, lang.GetText(`workfailedtoupdateteams`))) return;
         if (DEBUG_MODE) console.log("Updated teams!", resJSON)
         teams.value = resJSON;
     }
