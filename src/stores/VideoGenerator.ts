@@ -7,7 +7,6 @@ import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
 import { useOptionsStore } from "./options";
 import { validateResponse } from "@/utils/validate";
 import { useLanguageStore } from '@/stores/i18n';
-const lang = useLanguageStore();
 export type ModelGenerationVideo = {
     prompts?: string[];
     neg_prompts?: string;
@@ -86,22 +85,25 @@ export interface IModelData {
     Name?: string;
 }
 
-const generateFormBaseRules = reactive<FormRules>({
-    prompt: [{
-        required: true,
-        message: lang.GetText(`vidpleaseinputprompt`),
-        trigger: 'change'
-    }],
-    apiKey: [{
-        required: true,
-        message: lang.GetText(`vidpleaseinputapi`),
-        trigger: 'change'
-    }]
-});
-
 export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
 
+
+    const lang = useLanguageStore();
     const optionsStore = useOptionsStore();
+    
+
+    const generateFormBaseRules = reactive<FormRules>({
+        prompt: [{
+            required: true,
+            message: lang.GetText(`vidpleaseinputprompt`),
+            trigger: 'change'
+        }],
+        apiKey: [{
+            required: true,
+            message: lang.GetText(`vidpleaseinputapi`),
+            trigger: 'change'
+        }]
+    });
     
     function generateClicked() {
         generateVideo();
@@ -152,7 +154,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
         if(!requestRunning) {
             useUserStore().UpdateInternally();
             ElMessage({
-                message: `Error while requesting! ${requestRunning['msg']}...`,
+                message: lang.GetText("viderrorwhilerequesting",{"%msg%": requestRunning['msg']}),
                 type: 'error',
             });
             generating.value = false;
@@ -171,7 +173,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                     if(queueStatus.value == "") {
                         if(resJSON['queue'] > 0) {
                             QueuePosition.value = resJSON['queue'];
-                            queueStatus.value = `Queue Position ${resJSON['queue']}`;
+                            queueStatus.value = lang.GetText(`vidqueuepos`, {"%QUEUE%": resJSON['queue']});
                         } else {
                             queueStatus.value = lang.GetText(`vidwaiting`);
                         }
@@ -183,7 +185,7 @@ export const useVideoGeneratorStore = defineStore("VideoGenerator", () => {
                 // ugly but it will do for now... and fuck this shit too
                 if(queueStatus.value == 'Job errored out!') {
                     ElMessage({
-                        message: `Error while rendering, most likely wrong shift values! ${requestRunning['msg']}...`,
+                        message: lang.GetText('viderrorwhilerendering', {'%MSG%': requestRunning['msg']}),
                         type: 'error',
                     });
                     requestRunning = false;

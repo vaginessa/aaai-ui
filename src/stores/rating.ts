@@ -9,8 +9,8 @@ import { useUIStore } from "./ui";
 import { BASE_URL_STABLE } from "@/constants";
 import { ElMessage } from 'element-plus';
 import { useLanguageStore } from '@/stores/i18n';
-const lang = useLanguageStore();
 export const useRatingStore = defineStore("rating", () => {
+    const lang = useLanguageStore();
     const currentRatingInfo = ref<DatasetImagePopResponse>({});
     const pendingRatingInfo = ref<DatasetImagePopResponse>({});
     const imagesRated = useLocalStorage<number>("ratedImages", 0);

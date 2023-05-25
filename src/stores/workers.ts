@@ -7,10 +7,10 @@ import { POLL_WORKERS_INTERVAL, DEBUG_MODE } from "@/constants";
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
 import { useLanguageStore } from '@/stores/i18n';
-const lang = useLanguageStore();
 type SortOptions = "Default" | "Name" | "Info" | "Uptime" | "MPS" | "Speed" | "Requests" | "Model Count" | "Worker Count" | "Queued" | "Clear Time"
 
 export const useWorkerStore = defineStore("workers", () => {
+    const lang = useLanguageStore();
     const workers = ref<WorkerDetailsStable[]>([]);
     const teams = ref<TeamDetailsStable[]>([]);
     const sortBy = useLocalStorage<SortOptions>("sortBy", "Default");

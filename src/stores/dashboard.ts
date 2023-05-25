@@ -7,7 +7,6 @@ import { POLL_DASHBOARD_INTERVAL, POLL_USERS_INTERVAL, DEBUG_MODE } from "@/cons
 import { validateResponse } from "@/utils/validate";
 import { BASE_URL_STABLE } from "@/constants";
 import { useLanguageStore } from '@/stores/i18n';
-const lang = useLanguageStore();
 const formatter = Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 2});
 
 
@@ -28,6 +27,7 @@ export type AAAIVideoPerformance = {
   };
 
 export const useDashboardStore = defineStore("dashboard", () => {
+    const lang = useLanguageStore();
     const user = ref<UserDetailsStable>({});
     const userWorkers = ref<WorkerDetailsStable[]>([]);
     const performance = ref<HordePerformanceStable>({});
@@ -149,19 +149,19 @@ export const useDashboardStore = defineStore("dashboard", () => {
     function performanceTable() {
         const tableData = [
           {
-            type: "Last Hour",
+            type: lang.GetText('ChaosPerformanceLastHour'),
             videos: Intl.NumberFormat('en-US').format(performanceVideo.value.HourGenerated || 0),
             frames: Intl.NumberFormat('en-US').format(performanceVideo.value.HourFrames || 0),
             uesers: Intl.NumberFormat('en-US').format(performanceVideo.value.HourUsers || 0),
           },
           {
-            type: "Last Day",
+            type: lang.GetText('ChaosPerformanceLastDay'),
             videos: Intl.NumberFormat('en-US').format(performanceVideo.value.DayGenerated || 0),
             frames: Intl.NumberFormat('en-US').format(performanceVideo.value.DayFrames || 0),
             uesers: Intl.NumberFormat('en-US').format(performanceVideo.value.DayUsers || 0),
           },
           {
-            type: "Total",
+            type: lang.GetText('ChaosPerformanceTotal'),
             videos: Intl.NumberFormat('en-US').format(performanceVideo.value.TotalGenerated || 0),
             frames: Intl.NumberFormat('en-US').format(performanceVideo.value.TotalFrames || 0),
             uesers: Intl.NumberFormat('en-US').format(performanceVideo.value.TotalUsers || 0),

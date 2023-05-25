@@ -60,7 +60,7 @@ function deselectAll() {
 // fuck this shit
 const confirmDelete = () => {
     ElMessageBox.confirm(
-        `This action will permanently delete ${uiStore.selected.length} images. Continue?`,
+        lang.GetText(`imgthisactionwillpermanentlydelete`, {'%selected%': uiStore.selected.length}),
         lang.GetText(`warning`),
         {
             confirmButtonText: lang.GetText(`ok`),

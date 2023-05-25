@@ -63,15 +63,15 @@ const signedIn = computed(() => userStore.apiKey != '0000000000' && userStore.ap
                         <template #header>
                             <strong>{{lang.GetText(`dashhordeperformance`)}}</strong>
                         </template>
-                        <div>{{lang.GetText(`dashthereare`)}} <strong>{{dashStore.performance.queued_requests}}</strong>{{lang.GetText(`dashgueuedrequests`)}}<strong>{{dashStore.performance.queued_megapixelsteps}}</strong> {{lang.GetText(`dashmps`)}} <strong>{{dashStore.performance.worker_count}}</strong> {{lang.GetText(`dashworkers`)}}<strong>{{dashStore.performance.thread_count}}</strong> {{lang.GetText(`dashthreads`)}}</div>
-                        <div>{{lang.GetText(`dashthereare`)}} <strong>{{dashStore.performance.queued_forms}}</strong>  {{lang.GetText(`dashqueuedinterrogation`)}} <strong>{{dashStore.performance.interrogator_count }}</strong>  {{lang.GetText(`dashinterrogationworkers`)}}<strong>{{dashStore.performance.interrogator_thread_count}}</strong>  {{lang.GetText(`dashthreads`)}}</div>
-                        <div> {{lang.GetText(`dashinthepastminute`)}} <strong>{{dashStore.performance.past_minute_megapixelsteps}}</strong> {{lang.GetText(`dashtmpsprocessed`)}}</div>
+                        <div v-html="lang.GetText(`DashboardHordeImages`, {'%queued_requests%': (dashStore.performance.queued_requests || 0).toString(), '%queued_megapixelsteps%': (dashStore.performance.queued_megapixelsteps || 0).toString(), '%worker_count%': (dashStore.performance.worker_count || 0).toString(), '%thread_count%': (dashStore.performance.thread_count || 0).toString()})"></div>
+                        <div v-html="lang.GetText(`DashboardHordeInterrogator`, {'%queued_forms%': (dashStore.performance.queued_forms || 0).toString(), '%interrogator_count%': (dashStore.performance.interrogator_count || 0).toString(), '%interrogator_thread_count%': (dashStore.performance.interrogator_thread_count || 0).toString()})"></div>
+                        <div v-html="lang.GetText(`DashboardHordeInThePast`, {'%past_minute_megapixelsteps%': dashStore.performance.past_minute_megapixelsteps})"></div>
                     </el-card>
                     <el-card style="margin-bottom: 10px;">
                         <template #header>
                             <strong> {{lang.GetText(`dashaaaivideoperformance`)}}</strong>
                         </template>
-                        <div>{{lang.GetText(`dashthereare`)}}<strong>{{dashStore.performanceVideo.Queue}}</strong> {{lang.GetText(`dashgueuedrequests`)}}<strong>{{dashStore.performanceVideo.QueuedFrames || 0}}</strong> {{lang.GetText(`dashframes`)}}</div>
+                        <div v-html="lang.GetText(`DashboardChaosImagesPerformance`, {'%Queue%': (dashStore.performanceVideo.Queue || 0).toString(), '%QueuedFrames%': (dashStore.performanceVideo.QueuedFrames || 0).toString()})"></div>
                         <br/>
                         <el-table :data="dashStore.performanceTable()" stripe style="width: 100%">
                             <el-table-column prop="type"   label="" />

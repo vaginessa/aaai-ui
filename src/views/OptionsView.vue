@@ -106,7 +106,7 @@ async function onTagsChange() {
         <form-select :label="lang.GetText(`llfileformat`)" prop="downloadFileFormat" v-model="store.pictureDownloadType" :options="PictureTypes" />
 
         <el-form-item :label="lang.GetText(`llexportzip`)">
-            <el-button :icon="Download" @click="bulkDownload()">Download {{outputsStore.outputsLength}} image(s)</el-button>
+            <el-button :icon="Download" @click="bulkDownload()">{{ lang.GetText('DownloadNImages', {'%COUNT%': outputsStore.outputsLength.toString()}) }}</el-button>
         </el-form-item>
         
         <el-form-item :label="lang.GetText(`llimportzip`)">

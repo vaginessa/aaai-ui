@@ -35,15 +35,15 @@ const modelSorted = computed(() => [...props.team.models as any].sort((a, b) => 
             </div>
         </template>
         <div class="small-font">{{lang.GetText(`teamid`)}} {{team.id}}</div>
-        <div>{{lang.GetText(`teamonlinefor`)}} <strong>{{formatSeconds(team.uptime, true, { days: true, hours: true, minutes: true })}}</strong></div>
-        <div>{{lang.GetText(`teamgenerated`)}} <strong>{{team.contributions}}</strong> MPS</div>
-        <div>{{lang.GetText(`teamspeed`)}} <strong>{{team.speed}}</strong> MPS/s</div>
-        <div>{{lang.GetText(`teamfulfilled`)}} <strong>{{team.requests_fulfilled}}</strong> {{lang.GetText(`teamrequests`)}}</div>
+        <div v-html="lang.GetText(`teamonlinefor`, {'%ONLINE%': (formatSeconds(team.uptime, true, { days: true, hours: true, minutes: true }))})"></div>
+        <div v-html="lang.GetText(`teamgenerated`, {'%CONT%': (team.contributions || 0).toString()})"></div>
+        <div v-html="lang.GetText(`teamspeed`, {'%SPEED%': (team.speed || 0).toString()})"></div>
+        <div v-html="lang.GetText(`teamfulfilled`, {'%FULLFILLED%': (team.requests_fulfilled || 0).toString()})"></div>
         <el-collapse style="margin-top: 0.5rem">
             <el-collapse-item :title="lang.GetText(`teamworkers`)" name="1">
                 <div v-if="team.worker_count === 0">{{lang.GetText(`teamnoworkers`)}}</div>
                 <div v-else>
-                    <div>{{lang.GetText(`teamtheyhave`)}} {{team.worker_count}} {{lang.GetText(`teamworkerss`)}}</div>
+                    <div v-html="lang.GetText(`teamworkercount`, {'%COUNT%': (team.worker_count || 0).toString()})"></div>
                     <ul class="remove-list-styling">
                         <li v-for="worker in team.workers" :key="worker.id">
                             <strong>

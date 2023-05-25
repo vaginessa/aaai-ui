@@ -6,7 +6,6 @@ import { useUserStore } from "./user";
 import { useUIStore } from "./ui";
 import { BASE_URL_STABLE } from "@/constants";
 import { useLanguageStore } from '@/stores/i18n';
-const lang = useLanguageStore();
 function sleep(ms: number) {
     return new Promise(res=>setTimeout(res, ms));
 }
@@ -24,6 +23,7 @@ interface FormResult {
 }
 
 export const useInterrogationStore = defineStore("interrogate", () => {
+    const lang = useLanguageStore();
     const currentInterrogation = ref<InterrogationInfo>({});
     const interrogating = ref(false);
     const possibleForms: ("nsfw" | "caption" | "interrogation")[] = ["nsfw", "caption", "interrogation"];

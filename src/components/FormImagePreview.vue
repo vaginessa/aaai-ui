@@ -41,7 +41,7 @@ window.addEventListener('keyup', (event) => {
                             {{ store.kudosCost.toFixed(2) }} {{lang.GetText(`kudos`)}} {{ store.canGenerate ? '' : ' required' }}
                             {{lang.GetText(`for`)}}
                         </span>
-                        {{ store.totalImageCount }} {{lang.GetText(`image`)}} {{ store.totalImageCount === 1 ? "" : "s" }}
+                        {{ store.totalImageCount }} {{ store.totalImageCount === 1 ? lang.GetText(`singularImage`) : lang.GetText(`pluralImage`) }}
                     </span>)
                 </el-button>
             </el-col>

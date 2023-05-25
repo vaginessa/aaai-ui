@@ -12,7 +12,6 @@ import { useObservable } from "@vueuse/rxjs";
 import { useLiveQuery } from "@/utils/useLiveQuery";
 import { DEBUG_MODE } from "@/constants";
 import { useLanguageStore } from '@/stores/i18n';
-const lang = useLanguageStore();
 
 export interface ImageData {
     generation_date?: string;
@@ -60,6 +59,7 @@ export interface ImageData {
 }
 
 export const useOutputStore = defineStore("outputs", () => {
+    const lang = useLanguageStore();
     const outputsLength = useObservable<number, number>(
         from(
             liveQuery(() => db.outputs.count())
@@ -181,7 +181,7 @@ export const useOutputStore = defineStore("outputs", () => {
                                 starred: json.starred ? 1 : 0,
                             })
                         }).catch(err => {
-                            uiStore.raiseError(`Error while importing image: ${err}`, false);
+                            uiStore.raiseError(lang.GetText('outerrorwhileimporting', {'%ERROR%': err}), false);
                             outputsFailed++;
                             return resolve(null);
                         });
@@ -192,7 +192,7 @@ export const useOutputStore = defineStore("outputs", () => {
         const newImages = await Promise.all(pushing);
         pushOutputs(newImages.filter(image => image !== null) as ImageData[]);
         ElMessage({
-            message: `Successfully imported ${outputsAppended}/${outputsAppended + outputsFailed} images!`,
+            message: lang.GetText('outsuccessfullyimported', {'%APPENDED%': outputsAppended.toString(), '%TOTAL%': (outputsAppended + outputsFailed).toString()}),
             type: 'success',
         })
     }

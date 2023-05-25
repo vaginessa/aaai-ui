@@ -16,7 +16,7 @@ import { ElNotification, type FormRules } from "element-plus";
 import { BASE_URL_STABLE } from "@/constants";
 import { genrand_int32, MersenneTwister } from '@/utils/mersenneTwister';
 import { useLanguageStore } from '@/stores/i18n';
-const lang = useLanguageStore();
+
 function getDefaultStore() {
     return <ModelGenerationInputStable>{
         steps: 30,
@@ -89,6 +89,7 @@ type IMultiModel = "Enabled" | "Disabled"
 type IGroupedModel ={ label: string; options: {label: string; value: string;}[] }[];
 
 export const useGeneratorStore = defineStore("generator", () => {
+    const lang = useLanguageStore();
     const canvasStore = useCanvasStore();
     const validGeneratorTypes = ['Text2Img', 'Img2Img', 'Inpainting'];
     const generatorType = useLocalStorage<IHordeGeneratorType>("generationType", "Txt2Img");
@@ -618,10 +619,10 @@ export const useGeneratorStore = defineStore("generator", () => {
         queue.value = [];
         return [];
     }
-    //fuck this shit
+    
     function validateParam(paramName: string, param: number, max: number, defaultValue: number) {
         if (param <= max) return param;
-        useUIStore().raiseWarning(`This image was generated using the 'Larger Values' option. Setting '${paramName}' to its default value instead of ${param}.`, true)
+        useUIStore().raiseWarning(lang.GetText('genlargervalues', {'%paramName%': paramName, '%param%': param.toString()}), true)
         return defaultValue;
     }
 

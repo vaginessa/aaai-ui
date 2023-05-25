@@ -139,6 +139,281 @@ export const useLanguageStore = defineStore("i18n", () => {
         "ratingtext4":" benutzen Sie Ihren API-Schlüssel, um Kudos zu verdienen.",
         "ratingtext5":"Aus der Bewertung von insgesamt ",
         "ratingtext6":" Bildern, erhielten Sie ",
+        //customcanvas.vue
+        "errorneedstobeanimage":"Die hochgeladene Datei muss ein Bild sein!",
+        "errorinvalidurl":"Ungültige URL!",
+        "errorcouldnotretrieveimage":"Das Bild konnte nicht abgerufen werden",
+        "placeholderweblink":"Internet-Link",
+        "llscaling":"Skalierung",
+        "llbrushsize":"Pinselgröße",
+        //formcontrolselect.vue
+        "llcontroltype":"Kontrolltyp",
+        "lldeactivatemultimode":"Multi-Modus deaktivieren",
+        "llactivatemultimode":"Multi-Modus aktivieren",
+        //formpromptinput.vue
+        "errorstylemodelnotavailable":"Warnung: Das Modell des Stils ist nicht verfügbar.",
+        "warning":"ACHTUNG!",
+        "warningbadwords":" Sie sind dabei, einen Prompt zu erstellen, der vom Horde Netzwerk gefiltert wird. Bitte überarbeiten Sie Ihren Prompt oder wählen Sie ein nicht NSFW Modell.",
+        "promptplaceholder":"Eingabe",
+        "llprompt":"Eingabe",
+        "lladdtrigger":"Auslöser hinzufügen (dreambooth)",
+        "showdetails":"Details anzeigen: ",
+        "promptafterapply":"Eingabe nach der Anwendung: ",
+        "negativeprompt":"Negative eingabe: ",
+        //formpromptinputvideo.vue
+        "lladdprompt":"Eingabe Hinzufügen",
+        "llremoveprompt":"Eingabe Entfernen",
+        "llnegativepriorpromp":"Negative vorstehende Eingabe",
+        "llnegativedecoderprompt":"Negative Decoder Eingabe",
+        //formseed.vue
+        "llseed":"Seed",
+        "placeholderseed":"Legen Sie den Seed hier fest.",
+        "llrandomize":"Zufallsgenerierung!",
+        "lldelete":"Entfernen",
+        //formseedvideo.vue
+        "lladdseed":"Seed Hinzufügen",
+        "llremoveseed":"Seed Entfernen",
+        //formworkerselect.vue
+        "llusespecificworker":"Spezifischen Arbeiter verwenden",
+        //imageactions.vue
+        "thiswilldelete":"Dadurch wird dieses Bild endgültig gelöscht. Weiter?",
+        "ok":"OK",
+        "cancel":"Abbrechen",
+        "deletedimage":"Gelöschtes Bild",
+        "copiedtoclipboard":"Kopieren eines teilbaren Links in die Zwischenablage",
+        "lldownload":"Herunterladen",
+        "llfavourite":"Favorisieren",
+        "llunfavourite":"Entfavorisieren",
+        "llimagerating":"Bild Bewertung",
+        //imagedialog.vue
+        "datanegativeprompt":"Negative Eingabe: ",
+        "datamodel":"Modell: ",
+        "datasampler":"Sampler: ",
+        "dataseed":"Seed: ",
+        "datasteps":"Schritte: ",
+        "datacfg":"CFG Scale: ",
+        "datadenoise":"Entrauschen: ",
+        "dataclipskip":"Clip Skip: ",
+        "datadimensions":"Abmessungen: ",
+        "datakarras":"Karras: ",
+        "datatiling":"Kacheln: ",
+        "datahiresfix":"HiRes Fix: ",
+        "datacontrolnet":"ControlNet: ",
+        "datapostprocessors":"Nachbearbeiter: ",
+        "datageneratedin":"Generiert in: ",
+        //imageprogress.vue
+        "progest":"EST: ",
+        "proggenerationstatus":"Generation Status",
+        "progpending":"Ausstehend: ",
+        "progproccessing":"Bearbeitung: ",
+        "progfinished":"Fertig: ",
+        "progrestarted":"Neustart: ",
+        "progqueuepos":"Warteschlange Position: ",
+        "progview":"Siehe ",
+        "progimages":" Bilder.",
+        //interrogationview.vue
+        "warningmaynotfulfill":"Achtung: wird möglicher weise nicht durchgeführt!",
+        "intchoseaninterrogation":"Wählen Sie eine Vernehmungsoption, um fortzufahren!",
+        "intuploadingimage":"Bild hochladen ",
+        "intnewinterrogation":"Neue Vernehmung",
+        "inttxt2imgcaption":"Text2Img (Bildunterschrift)",
+        "inttxt2imginterrogation":"Text2Img (Befragung)",
+        "intresults":"Ergebnisse der Vernehmung",
+        "inttakeslong":"Das Verhör dauert länger als erwartet und ist möglicherweise nicht erfolgreich.",
+        "intnsfw":"NSFW",
+        "intprocessing":"Bearbeitung",
+        "intpredict":"Dieses Bild ist geschätzt ",
+        "intpredictnsfw":"nicht sicher für die Arbeit.",
+        "intpredictsfw":"sicher für die Arbeit.",
+        "intcaption":"Beschriftung",
+        "intinterrogation":"Vernehmung",
+        "intpromptform":"Eingabeaufforderung: ",
+        //modelbox.vue
+        "modeloffline":"Offline",
+        "modelstandby":"Stanby",
+        "modelonline":"Online",
+        "modelnoshowcasefound":"Kein Vorschau gefunden!",
+        "modelthereare":"Es gibt ",
+        "modelworkersrunning":" Arbeiter, die dieses Modell ausführen.",
+        "modelmpsqueued":" MPS in der Warteschlange.",
+        "modelaveragespeed":"Die durchschnittliche Modellgeschwindigkeit beträgt ",
+        "modelitisexpected":"Es wird erwartet, dass die ",
+        "modeltoclear":" um diese Warteschlange zu leeren",
+        "modelthestyleofthis":"Der Stil dieses Modells ist ",
+        //ratingview.vue
+        "racompletemess":"Komplettes Durcheinander",
+        "raseriousissues":"Ernsthafte Probleme",
+        "raminorissues":"Kleinere Probleme",
+        "ranoticeableflaws":"Auffällige Mängel",
+        "rasmallerrors":"Kleine Fehler",
+        "raflawmess":"Makellos",
+        "ratheworst":"Das Schlimmste!",
+        "raterrible":"Schrecklich",
+        "raverybad":"Sehr schlecht",
+        "raratherbad":"Eher schlecht",
+        "raok":"OK",
+        "ranotbad":"Nicht schlecht",
+        "rarathergood":"Ziemlich gut",
+        "raverygood":"Sehr gut",
+        "raexcellent":"Ausgezeichnet",
+        "rathebest":"Das Beste!",
+        "rahowwouldyourate":"Wie würden SIE dieses Bild bewerten?",
+        "rahowwouldyoudesc":"Wie würden SIE die Mängel, Artefakte usw. beschreiben?",
+        "rasubmit":"Bewertung einreichen",
+        //sortworkers.vue
+        "llsearch":"Suche",
+        "llsortby":"Sortieren nach",
+        "lldescending":"Absteigend",
+        "llascending":"Aufsteigend",
+        //teambox.vue
+        "teamid":"ID: ",
+        "teamonlinefor":"Dieses Team ist online seit <strong>%ONLINE%</strong>",
+        "teamgenerated":"Sie haben <strong>%CONT%</strong> MPS generiert",
+        "teamspeed":"Sie arbeiten mit einer geschwindigkeit von <strong>%SPEED%</strong> MPS/s",
+        "teamfulfilled":"Sie haben <strong>%FULLFILLED%</strong> anfragen abgearbeitet",
+        "teamworkers":"Arbeiter",
+        "teamnoworkers":"Keine Arbeiter aktiv.",
+        "teamworkercount":"Es sind %COUNT% Arbeiter aktiv.",
+        "teammodels":"Modelle",
+        "teamnomodels":"Sie stellen keine Modelle zur Verfügung.",
+        "teamhostingmodels":"Sie stellen die Modelle zur Verfügung:",
+        //workerbox.vue
+        "workonline":"Online",
+        "workpaused":"Pausiert",
+        "workmaintenance":"Wartung",
+        "workoffline":"Offline",
+        "workhasrunfor":"Dieser Arbeiter hat für <strong>%ONLINE%</strong> gearbeitet",
+        "workgenerated":"Sie haben <strong>%CONT%</strong> MPS generiert",
+        "workspeed":"Sie arbeiten mit einer geschwindigkeit von <strong>%SPEED%</strong> MPS/s",
+        "workutilizing":"Sie verwenden <strong>%THREADS%</strong> Thread(s)",
+        "workfulfilled":"Sie haben <strong>%FULFILLED%</strong> anfragen abgearbeitet",
+        "worknsfw":"Sie haben NSFW auf %ISNSFW% eingestellt",
+        "workresolution":"Max. 1:1 Auflösung <strong>%X% x %Y%</strong>",
+        "workmodels":"%MODELS% modell(e)",
+        //workereditor.vue
+        "editfailedtomodifyworker":"Änderung des Arbeiters fehlgeschlagen",
+        "editpermanentlydelete":"Dadurch wird dieser Arbeiter endgültig gelöscht. Weiter?",
+        "editdeleteworker?":"Arbeiter löschen?",
+        "editfailedtodelete":"Arbeiter konnte nicht gelöscht werden",
+        "editchangename":"Name ändern",
+        "editmakesuretostop":"Stellen Sie sicher, dass Sie zuerst den Arbeiter anhalten und dann bridgeData.py bearbeiten!",
+        "editenternewname":"Neuen Namen hier eingeben",
+        "editsubmit":"Abschicken",
+        "editinfo":"Info",
+        "editenternewinfo":"Neue Informationen hier eingeben",
+        "editteam":"Team",
+        "editnone":"Keiner",
+        "editmaintenancemode":"Wartungsmodus",
+        "editdeleteworker":"Arbeiter löschen",
+        "editremove":"Entfernen",
+        "editcancelremove":"Abbrechen Entfernen (60s-Timer)",
+        //dashboard.ts
+        "dashfailedtofindapi":"Suche nach Benutzer über API-Schlüssel fehlgeschlagen",
+        "dashfailedtoupdate":"Aktualisierung der Rangliste fehlgeschlagen",
+        "dashfailedtogetaaai":"Leistung des AAAI-Servers konnte nicht abgerufen werden",
+        "dashfailedtoget":"Serverleistung konnte nicht abgerufen werden",
+        //generator.ts
+        "gengenerateusingrandom":"Generieren Sie mit einem Zufallsmodell.",
+        "gennotfound":"Nicht gefunden!",
+        "genpleaseinputprompt":"Bitte Aufforderung eingeben",
+        "genpleaseinputapi":"Bitte API-Schlüssel eingeben",
+        "genfailedtofetchid":"Abruf der ID fehlgeschlagen",
+        "genfailedtocheckimagestatus":"Bildstatus konnte nicht geprüft werden",
+        "genfailedtocancelimage":"Bild konnte nicht gelöscht werden",
+        "genfailedtogetavailablemodels":"Verfügbare Modelle konnten nicht abgerufen werden",
+        "genrandom":"Zufällig!",
+        "genallmodels":"Alle Modelle!",
+        "gennoprompt":"Generierung fehlgeschlagen: Keine Aufforderung übermittelt.",
+        "gennomodel":"Generierung fehlgeschlagen: Kein Modell ausgewählt.",
+        "gennocontroltype":"Generierung fehlgeschlagen: Kein Kontrolltyp ausgewählt.",
+        "genfaulted":"Generierung fehlgeschlagen: Erzeugung fehlgeschlagen.",
+        "gennoptopssible":"Generierung fehlgeschlagen: Generierung nicht möglich.",
+        "genlargervalues":"Dieses Bild wurde unter Verwendung der Option \"Größere Werte\" erstellt. Einstellung von %paramName% auf seinen Standardwert anstelle von %param%.",
+        //ingerrogation.ts
+        "intfailedtogetimage":"Abfrage-ID konnte nicht abgerufen werden: Kein Bild geliefert.",
+        "intfailedtogetid":"Abfrage-ID konnte nicht abgerufen werden",
+        "intfailedtogetstatus":"Abfragestatus konnte nicht abgefragt werden",
+        //outputs.ts
+        "outneedstobezip":"Die hochgeladene Datei muss ein ZIP-Datei sein!",
+        "outloadingimages":"Bilder werden geladen...",
+        "outerrorwhileimporting":"Fehler beim Importieren von Bildern: %ERROR%",
+        "outsuccessfullyimported":"Erfolgreich %APPENDED% / %TOTAL% Bilder importiert!",
+        //rating.ts
+        "rateunabletogetnew":"Neues Bild der Horde-Bewertung kann nicht abgerufen werden...",
+        "ratefailedtogetrating":"Kein neues Bild für Bewertung erhalten",
+        "ratefailedtosubmit":"Bewertung konnte nicht übermittelt werden",
+        //videogenerator.ts
+        "vidpleaseinputprompt":"Eingabe",
+        "vidpleaseinputapi":"Bitte API-Schlüssel eingeben",
+        "vidwaiting":"Warten",
+        "viderrorwhilerequesting":"Fehler beim Anfordern! %MSG% ...",
+        "vidqueuepos":"Position in der Warteschlange %QUEUE%",
+        "viderrorwhilerendering":"Fehler beim Rendern, wahrscheinlich falsche Shift-Werte! %MSG% ...",
+        "vidnofilefound":"Keine Datei gefunden! ...",
+        "vidnopromptset":"Es ist kein Eingabe eingestellt! ...",
+        "vidnoseedset":"Es wurde kein Seed gesetzt! ...",
+        "vidqueuetoolong":" Die Warteschlange ist zu lang!",
+        "vidnoworkeronline":"Keine Arbeiter Online!",
+        "vidfailedtogetmodels":"Verfügbare Modelle konnten nicht abgerufen werden",
+        //workers.ts
+        "workfailedtoupdateworkers":"Aktualisierung der Arbeiter fehlgeschlagen",
+        "workfailedtoupdateteams":"Aktualisierung der Teams fehlgeschlagen",
+        //aboutview.vue
+        "llkudos":"Kudos",
+        "llrequested":"Angefordert (Img|Int|Txt)",
+        "llgenerated":"Erzeugt (Img|Int|Txt)",
+        "dashhordeperformance":"Leistungen der Horde",
+        "DashboardHordeImages":"Es sind <strong>%queued_requests%</strong> anfragen in der Warteschlange (<strong>%queued_megapixelsteps%</strong>) MPS mit <strong>%worker_count%</strong> Arbeitern (<strong>%thread_count%</strong> Threads).",
+        "DashboardHordeInterrogator":"Es sind <strong>%queued_forms%</strong> Abfragebefehl in der Warteschlange mit <strong>%interrogator_count%</strong> Abfragearbeitern (<strong>%interrogator_thread_count%</strong> Threads).",
+        "DashboardHordeInThePast":"In der letzten Minute wurden <strong>%past_minute_megapixelsteps%</strong> MPS verarbeitet.",
+        "dashaaaivideoperformance":"AAAI Chaos Arbeiter Leistung",
+        "DashboardChaosImagesPerformance":"Es sind  <strong>%Queue%</strong> anfragen in der Warteschlange (<strong>%QueuedFrames%</strong> Bilder).",
+        "llvideos":"Filme",
+        "llframes":"Bilder",
+        "llusers":"Benutzer",
+        "dashyourworkers":"Ihre Arbeiter",
+        "ChaosPerformanceLastHour":"Letzte Stunde",
+        "ChaosPerformanceLastDay":"Letzte 24 Stunden",
+        "ChaosPerformanceTotal":"Insgesamt",
+        //imagesview.vue
+        "imgthisactionwillpermanentlydelete":"This action will permanently delete %selected% images. Continue?",
+        "llfilterby":"Filtern nach",
+        "llimagelayout":"Bild-Layout",
+        "llsquaregrid":"Quadratisches Raster",
+        "lldynamiclayout":"Dynamisches Layout",
+        "llselectpage":"Seite auswählen",
+        "lldeselectpage":"Seite abwählen",
+        "llselectall":"Alle auswählen",
+        "lldeselectall":"Alle abwählen",
+        "lllongpress":"(lange drücken, um mehrere Bilder auszuwählen)",
+        "llnoimagesfound":"Keine Bilder gefunden",
+        //optionsview.vue
+        "lldark":"Dunkel",
+        "lllight":"Hell",
+        "llorange":"Orange",
+        "llpurple":"Violett",
+        "llgreen":"Grün",
+        "DownloadNImages":"Download %COUNT% Bild(er)",
+        //workersview.vue
+        "llworkers":"Arbeiter",
+        "descnoworkersfound":"Keine Arbeiter gefunden",
+        "llteams":"Teams",
+        "descnoteamsfound":"Keine Teams gefunden",
+        "llmodels":"Modelle",
+        "descnomodelsfound":"Keine Modelle gefunden",
+        //app.vue
+        "menudashboard":"Dashboard",
+        "menuhorde":"Horde",
+        "menuimages":"Bilder",
+        "menuworkers":"Arbeiter",
+        "menuabout":"Über uns",
+        "menuoptions":"Einstellungen",
+        //formimagepreview.vue
+        "generate":"Erstellen ",
+        "kudos":" kudos",
+        "for":"für",
+        "singularImage":" Bild",
+        "pluralImage":" Bilder",
 
     }
 
@@ -270,7 +545,6 @@ export const useLanguageStore = defineStore("i18n", () => {
         "ratingtext4":" using your API key to start earning kudos.",
         "ratingtext5":"From rating a total of ",
         "ratingtext6":" images, you have gained ",
-        //german translation until here
         //customcanvas.vue
         "errorneedstobeanimage":"Uploaded file needs to be a image!",
         "errorinvalidurl":"Invalid URL!",
@@ -399,15 +673,13 @@ export const useLanguageStore = defineStore("i18n", () => {
         "llascending":"Ascending",
         //teambox.vue
         "teamid":"ID: ",
-        "teamonlinefor":"This team has been online for ",
-        "teamgenerated":"They've generated ",
-        "teamspeed":"They're going at a speed of ",
-        "teamfulfilled":"They've fulfilled ",
-        "teamrequests":" requests",
+        "teamonlinefor":"This team has been online for <strong>%ONLINE%</strong>",
+        "teamgenerated":"They've generated <strong>%CONT%</strong> MPS",
+        "teamspeed":"They're going at a speed of <strong>%SPEED%</strong> MPS/s",
+        "teamfulfilled":"They've fulfilled <strong>%FULLFILLED%</strong> requests",
         "teamworkers":"Workers",
         "teamnoworkers":"They have no workers.",
-        "teamtheyhave":"They have ",
-        "teamworkerss":" worker(s):",
+        "teamworkercount":"They have %COUNT% worker(s):",
         "teammodels":"Models",
         "teamnomodels":"They are hosting no models.",
         "teamhostingmodels":"They are hosting the models:",
@@ -416,15 +688,14 @@ export const useLanguageStore = defineStore("i18n", () => {
         "workpaused":"Paused",
         "workmaintenance":"Maintenance",
         "workoffline":"Offline",
-        "workhasrunfor":"This worker has run for ",
-        "workgenerated":"They have generated ",
-        "workspeed":"They're going at a speed of ",
-        "workutilizing":"They're utilizing ",
-        "workthread":" thread(s)",
-        "workfulfilled":"They have fulfilled ",
-        "worknsfw":"They have NSFW set to ",
-        "workresolution":"Max 1:1 Resolution ",
-        "workmodels":" model(s)", //fuck this shit
+        "workhasrunfor":"This worker has run for <strong>%ONLINE%</strong>",
+        "workgenerated":"They've generated <strong>%CONT%</strong> MPS",
+        "workspeed":"They're going at a speed of <strong>%SPEED%</strong> MPS/s",
+        "workutilizing":"They're utilizing <strong>%THREADS%</strong> thread(s)",
+        "workfulfilled":"They've fulfilled <strong>%FULFILLED%</strong> requests",
+        "worknsfw":"They have NSFW set to %ISNSFW%",
+        "workresolution":"Max 1:1 Resolution <strong>%X% x %Y%</strong>",
+        "workmodels":"%MODELS% model(s)",
         //workereditor.vue
         "editfailedtomodifyworker":"Failed to modify worker",
         "editpermanentlydelete":"This action will permanently delete this worker. Continue?",
@@ -463,8 +734,7 @@ export const useLanguageStore = defineStore("i18n", () => {
         "gennocontroltype":"Failed to generate: No control type selected.",
         "genfaulted":"Failed to generate: Generation faulted.",
         "gennoptopssible":"Failed to generate: Generation not possible.",
-        "genlargervalues":"This image was generated using the 'Larger Values' option. Setting ", //fuck this shit
-        "geninsteadof":" to its default value instead of ",
+        "genlargervalues":"This image was generated using the 'Larger Values' option. Setting %paramName% to its default value instead of %param%.",
         //ingerrogation.ts
         "intfailedtogetimage":"Failed to get interrogation ID: No image supplied.",
         "intfailedtogetid":"Failed to get interrogation ID",
@@ -472,9 +742,8 @@ export const useLanguageStore = defineStore("i18n", () => {
         //outputs.ts
         "outneedstobezip":"Uploaded file needs to be a ZIP!",
         "outloadingimages":"Loading images...",
-        "outerrorwhileimporting":"Error while importing image: ", //fuck this shit too
-        "outsuccessfullyimported":"Successfully imported ",
-        "outimages":" images!",
+        "outerrorwhileimporting":"Error while importing image: %ERROR%",
+        "outsuccessfullyimported":"Successfully imported %APPENDED%/%TOTAL% images!",
         //rating.ts
         "rateunabletogetnew":"Unable to get new Horde rating image...",
         "ratefailedtogetrating":"Failed to get rating",
@@ -483,9 +752,9 @@ export const useLanguageStore = defineStore("i18n", () => {
         "vidpleaseinputprompt":"Please input prompt",
         "vidpleaseinputapi":"Please input API key",
         "vidwaiting":"Waiting",
-        "viderrorwhilerequesting":"Error while requesting!", //fuck this shit
-        "vidqueuepos":"Queue position",
-        "viderrorwhilerendering":"Error while rendering, most likely wrong shift valutes! ",
+        "viderrorwhilerequesting":"Error while requesting! %MSG% ...",
+        "vidqueuepos":"Queue position %QUEUE%",
+        "viderrorwhilerendering":"Error while rendering, most likely wrong shift valutes! %MSG% ...",
         "vidnofilefound":"No file found! ...",
         "vidnopromptset":"No prompt is set! ...",
         "vidnoseedset":"No seed is set! ...",
@@ -500,24 +769,20 @@ export const useLanguageStore = defineStore("i18n", () => {
         "llrequested":"Requested (Img|Int|Txt)",
         "llgenerated":"Generated (Img|Int|Txt)",
         "dashhordeperformance":"Horde Performance",
-        "dashthereare":"There are ",
-        "dashqueuedrequests":" queued requests ( ",
-        "dashmps":" ) MPS with ",
-        "dashworkers":" workers ( ",
-        "dashthreads":" threads).",
-        "dashqueuedinterrogation":" queued interrogation requests with ",
-        "dashinterrogationworkers":" interrogation workers ( ",
-        "dashinthepastminute":"In the past minute, there have been ",
-        "dashmpsprocessed":" MPS processed.",
-        "dashaaaivideoperformance":"AAAI Video Performance",
-        "dashframes":" Frames).",
+        "DashboardHordeImages":"There are <strong>%queued_requests%</strong> queued requests (<strong>%queued_megapixelsteps%</strong>) MPS with <strong>%worker_count%</strong> workers (<strong>%thread_count%</strong> threads).",
+        "DashboardHordeInterrogator":"There are <strong>%queued_forms%</strong> queued interrogation requests with <strong>%interrogator_count%</strong> interrogation workers (<strong>%interrogator_thread_count%</strong> threads).",
+        "DashboardHordeInThePast":"In the past minute, there have been <strong>%past_minute_megapixelsteps%</strong> MPS processed.",
+        "dashaaaivideoperformance":"AAAI Chaos Worker Performance",
+        "DashboardChaosImagesPerformance":"There are <strong>%Queue%</strong> queued requests (<strong>%QueuedFrames%</strong> Frames).",
         "llvideos":"Videos",
         "llframes":"Frames",
         "llusers":"Users",
         "dashyourworkers":"Your Workers",
+        "ChaosPerformanceLastHour":"Last Hour",
+        "ChaosPerformanceLastDay":"Last 24 Hours",
+        "ChaosPerformanceTotal":"Total",
         //imagesview.vue
-        "imgthisactionwillpermanentlydelete":"This action will permanently delete ",
-        "imgimagescontinue":" images. Continue?", // nope, fuck this shit
+        "imgthisactionwillpermanentlydelete":"This action will permanently delete %selected% images. Continue?",
         "llfilterby":"Filter by",
         "llimagelayout":"Image Layout",
         "llsquaregrid":"Square Grid",
@@ -534,7 +799,7 @@ export const useLanguageStore = defineStore("i18n", () => {
         "llorange":"Orange",
         "llpurple":"Purple",
         "llgreen":"Green",
-        //download N images not localised, cant, im too weak, insert palpatine pleading here
+        "DownloadNImages":"Download %COUNT% image(s)",
         //workersview.vue
         "llworkers":"Workers",
         "descnoworkersfound":"No workers Found",
@@ -553,10 +818,8 @@ export const useLanguageStore = defineStore("i18n", () => {
         "generate":"Generate ",
         "kudos":" kudos",
         "for":"for",
-        "image":" image",
-
-
-
+        "singularImage":" image",
+        "pluralImage":" images",
     }
 
     const HUDirectory:{[key: string]: string} = {
@@ -816,15 +1079,13 @@ export const useLanguageStore = defineStore("i18n", () => {
          "llascending":"Növekvő",
          //teambox.vue
          "teamid":"Azonosító: ",
-         "teamonlinefor":"Ez a csapat aktív enny ideje: ",
-         "teamgenerated":"Ennyit generáltak: ",
-         "teamspeed":"Ezzel a sebességgel dolgoznak: ",
-         "teamfulfilled":"Befejeztek ",
-         "teamrequests":" felkérést.",
+         "teamonlinefor":"Ez a csapat aktív enny ideje <strong>%ONLINE%</strong>",
+         "teamgenerated":"Ennyit generáltak <strong>%CONT%</strong> MPS",
+         "teamspeed":"Ezzel a sebességgel dolgoznak <strong>%SPEED%</strong> MPS/s",
+         "teamfulfilled":"Befejeztek <strong>%FULLFILLED%</strong> felkérést",
          "teamworkers":"Munkások",
          "teamnoworkers":"Nincsenek Munkások.",
-         "teamtheyhave":"Nekik ",
-         "teamworkerss":" munkásuk van.",
+         "teamworkercount":"Nekik %COUNT% munkásuk van.",
          "teammodels":"Modellek",
          "teamnomodels":"Nincsenek modelljeik.",
          "teamhostingmodels":"Ezeket a modelleket futtatják:",
@@ -833,15 +1094,14 @@ export const useLanguageStore = defineStore("i18n", () => {
          "workpaused":"Megállítva",
          "workmaintenance":"Karbantartás",
          "workoffline":"Kikapccsolva",
-         "workhasrunfor":"Ez a munkás ennyi ideje fut: ",
-         "workgenerated":"Ennyit generált: ",
-         "workspeed":"Ezzel a sebességgel megy: ",
-         "workutilizing":"Jelenleg ",
-         "workthread":" szálon fut.",
-         "workfulfilled":"Ennyi kérést teljesített: ",
-         "worknsfw":"Az NSFW beállításuk ",
-         "workresolution":"Maximális 1:1 Felbontás ",
-         "workmodels":" modell(ek)", //fuck this shit
+         "workhasrunfor":"Ez a munkás ennyi ideje fut <strong>%ONLINE%</strong>",
+         "workgenerated":"Ennyit generáltak <strong>%CONT%</strong> MPS",
+         "workspeed":"Ezzel a sebességgel dolgoznak <strong>%SPEED%</strong> MPS/s",
+         "workutilizing":"Jelenleg <strong>%THREADS%</strong> szálon fut.",
+         "workfulfilled":"Befejeztek <strong>%FULFILLED%</strong> felkérést",
+         "worknsfw":"Az NSFW beállításuk %ISNSFW%",
+         "workresolution":"Maximális 1:1 Felbontás <strong>%X% x %Y%</strong>",
+         "workmodels":"%MODELS% modell(ek)",
          //workereditor.vue
          "editfailedtomodifyworker":"Nem sikerült megváltoztatni a munkást",
          "editpermanentlydelete":"Ez véglegesen törölni fogja a munkást. Folytatja?",
@@ -880,8 +1140,7 @@ export const useLanguageStore = defineStore("i18n", () => {
          "gennocontroltype":"Nem sikerült elkészíteni: Nem választott ki Kontroll Típust.",
          "genfaulted":"Nem sikerült elkészíteni: A generáció Hibás.",
          "gennoptopssible":"Nem sikerült elkészíteni: A generáció nem lehetséges.",
-         "genlargervalues":"Ez a kép 'Nagyobb Értékek' beállítással készült.", //fuck this shit
-         "geninsteadof":" az alapbeállítása, ehelyett ",
+         "genlargervalues":"Ez a kép 'Nagyobb Értékek' beállítással készült. Setting %paramName% az alapbeállítása, ehelyett %param%.",
          //ingerrogation.ts
          "intfailedtogetimage":"Nem sikerült kivallatni: Nem adott meg képet.",
          "intfailedtogetid":"Nem sikerült kivallatási azonosítót szerezni",
@@ -889,9 +1148,8 @@ export const useLanguageStore = defineStore("i18n", () => {
          //outputs.ts
          "outneedstobezip":"A feltöltött fájlnak ZIP-nek kell lennie!",
          "outloadingimages":"Képek betöltése...",
-         "outerrorwhileimporting":"Hiba a kép importálása közben: ", //fuck this shit too
-         "outsuccessfullyimported":"Sikeresen importálva ",
-         "outimages":" képek!",
+         "outerrorwhileimporting":"Hiba a kép importálása közben: %ERROR%",
+         "outsuccessfullyimported":"Sikeresen importálva %APPENDED%/%TOTAL% képek!",
          //rating.ts
          "rateunabletogetnew":"Nem sikerül új Horda értékelési képet szerezni...",
          "ratefailedtogetrating":"Nem sikerült az értékelést megkapni",
@@ -900,9 +1158,9 @@ export const useLanguageStore = defineStore("i18n", () => {
          "vidpleaseinputprompt":"Kérjük adj meg felszólítást",
          "vidpleaseinputapi":"Kérjük adj meg API kulcsot",
          "vidwaiting":"Várakozás",
-         "viderrorwhilerequesting":"Hiba a kérelem során!", //fuck this shit
-         "vidqueuepos":"Helyezés a Sorban",
-         "viderrorwhilerendering":"Hiba renderelés közben, valószínűleg hibás értékek! ",
+         "viderrorwhilerequesting":"Hiba a kérelem során! %MSG% ...",
+         "vidqueuepos":"Helyezés a Sorban %QUEUE%",
+         "viderrorwhilerendering":"Hiba renderelés közben, valószínűleg hibás értékek! %MSG% ...",
          "vidnofilefound":"Nem találtunk fájlt! ...",
          "vidnopromptset":"Nincs felszólítás! ...",
          "vidnoseedset":"Nincs Mag! ...",
@@ -917,24 +1175,20 @@ export const useLanguageStore = defineStore("i18n", () => {
          "llrequested":"Kért (Kép|Kih|Szöv)",
          "llgenerated":"Generált (Kép|Kih|Szöv)",
          "dashhordeperformance":"Horda Teljesítmény",
-         "dashthereare":"Jelenleg ",
-         "dashqueuedrequests":" sorban álló kérelem ( ",
-         "dashmps":" ) MPS és ",
-         "dashworkers":" munkás ( ",
-         "dashthreads":" szálon).",
-         "dashqueuedinterrogation":" sorban álló kihallgatási kérelem ",
-         "dashinterrogationworkers":" kihallgató munkással ( ",
-         "dashinthepastminute":"Az elmúlt percben ",
-         "dashmpsprocessed":" MPS-t dolgoztak fel.",
-         "dashaaaivideoperformance":"AAAI Videó Teljesítmény",
-         "dashframes":" Kocka).",
+         "DashboardHordeImages":"Jelenleg <strong>%queued_requests%</strong> sorban álló kérelem (<strong>%queued_megapixelsteps%</strong>) MPS és <strong>%worker_count%</strong> munkás (<strong>%thread_count%</strong> szálon).",
+         "DashboardHordeInterrogator":"Jelenleg <strong>%queued_forms%</strong> sorban álló kihallgatási kérelem <strong>%interrogator_count%</strong> kihallgató munkással (<strong>%interrogator_thread_count%</strong> szálon).",
+         "DashboardHordeInThePast":"Az elmúlt percben <strong>%past_minute_megapixelsteps%</strong> MPS-t dolgoztak fel.",
+         "dashaaaivideoperformance":"AAAI Chaos Munkás Teljesítmény",
+         "DashboardChaosImagesPerformance":"Jelenleg <strong>%Queue%</strong> sorban álló kérelem (<strong>%QueuedFrames%</strong> Kocka).",
          "llvideos":"Videók",
          "llframes":"Kockák",
          "llusers":"Felhasználók",
          "dashyourworkers":"A Te Munkásaid",
+         "ChaosPerformanceLastHour":"Ebben az órában",
+         "ChaosPerformanceLastDay":"Utolsó 24 órában",
+         "ChaosPerformanceTotal":"Összesen",
          //imagesview.vue
-         "imgthisactionwillpermanentlydelete":"Ez véglegesen törölni fog ",
-         "imgimagescontinue":" képet, folytatja?", // nope, fuck this shit
+         "imgthisactionwillpermanentlydelete":"Ez véglegesen törölni fog képet %selected% folytatja?",
          "llfilterby":"Szűrés",
          "llimagelayout":"Kép Elrendezés",
          "llsquaregrid":"Szögletes",
@@ -951,7 +1205,7 @@ export const useLanguageStore = defineStore("i18n", () => {
          "llorange":"Narancs",
          "llpurple":"Bíbor",
          "llgreen":"Zöld",
-         //download N images not localised, cant, im too weak, insert palpatine pleading here
+         "DownloadNImages":"%COUNT% Kép Letöltése",
          //workersview.vue
          "llworkers":"Munkások",
          "descnoworkersfound":"Nem találtunk munkásokat",
@@ -970,18 +1224,38 @@ export const useLanguageStore = defineStore("i18n", () => {
         "generate":"Generálj ",
         "kudos":" kudos",
         "for":"ennyi",
-        "image":" képért",
-
+        "singularImage":" kép",
+        "pluralImage":" kép",
     }
 
-    function GetText(name: string) {
-        name = name.replace(/[^0-9a-z]/gi, '')
-        if(currentLanguage.value == english.value)
-            return ENDirectory[name]
-        else if(currentLanguage.value == german.value)
-            return GEDirectory[name]
-        else if(currentLanguage.value == hungarian.value)
-            return HUDirectory[name]
+    function GetText(name: string, obj: any = undefined) {
+        name = name.replace(/[^0-9a-z]/gi, '');
+        var text = GetTextInternal(name, currentLanguage.value);
+        if(obj !== undefined) 
+        {
+            text = text.replace(/%\w+%/g, function(all) {
+                return obj[all] || all;
+            });
+        }
+        return text;
+    }
+    
+    function GetTextInternal(name: string, language: string) : string {
+        if(language == english.value)
+            if(ENDirectory[name] !== undefined)
+                return ENDirectory[name];
+            else
+                return "Missing Translation!";
+        else if(language == german.value)
+            if(GEDirectory[name] !== undefined)
+                return GEDirectory[name];
+            else
+                return GetTextInternal(name, english.value);
+        else if(language == hungarian.value)
+            if(HUDirectory[name] !== undefined)
+                return HUDirectory[name]
+            else
+                return GetTextInternal(name, english.value);
         else
         {
             // Fallback english
