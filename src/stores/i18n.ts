@@ -841,14 +841,14 @@ export const useLanguageStore = defineStore("i18n", () => {
         "llNewest":"Newest",
         "llOldest":"Oldest",
         
-        "llShowingAll":"Showing All",
-        "llShowAll":"Show All",
-        "llShowingFavourited":"Showing Favourited",
-        "llShowFavourited":"Show Favourited",
-        "llShowingUnfavourited":"Showing Unfavourited",
-        "llShowUnfavourited":"Show Unfavourited",
-        "llShowingUnrated":"Showing Unrated",
-        "llShowUnrated":"Show Unrated",
+        "llShowingall":"Showing All",
+        "llShowall":"Show All",
+        "llShowingfavourited":"Showing Favourited",
+        "llShowfavourited":"Show Favourited",
+        "llShowingunfavourited":"Showing Unfavourited",
+        "llShowunfavourited":"Show Unfavourited",
+        "llShowingunrated":"Showing Unrated",
+        "llShowunrated":"Show Unrated",
     }
 
     const HUDirectory:{[key: string]: string} = {
@@ -1261,14 +1261,14 @@ export const useLanguageStore = defineStore("i18n", () => {
         "llNewest":"Újabb",
         "llOldest":"Régebbi",
 
-        "llShowingAll":"Mindent mutat",
-        "llShowAll":"Minden mutatása",
-        "llShowingFavourited":"Kedvencek megjelenítve",
-        "llShowFavourited":"Kedvencek megjelenítése",
-        "llShowingUnfavourited":"Nem Kedveltek megjelenítve",
-        "llShowUnfavourited":"Nem Kedveltek megjelenítése",
-        "llShowingUnrated":"Nem értékeltek mutatva",
-        "llShowUnrated":"Nem értékeltek mutatása",
+        "llShowingall":"Mindent mutat",
+        "llShowall":"Mind mutatása",
+        "llShowingfavourited":"Kedvencek megjelenítve",
+        "llShowfavourited":"Kedvencek megjelenítése",
+        "llShowingunfavourited":"Jelöletlen megjelenítve",
+        "llShowunfavourited":"Jelöletlen megjelenítése",
+        "llShowingunrated":"Nem értékelt mutatva",
+        "llShowunrated":"Nem értékelt mutatása",
     }
 
     function GetText(name: string, obj: any = undefined) {
