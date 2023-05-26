@@ -121,7 +121,7 @@ const splitList = computed(() => {
                     <el-button class="btn-select"><el-icon :size="16"><Sort /></el-icon></el-button>
                 </template>
                 <div
-                    v-for="option in ['Newest', 'Oldest']"
+                    v-for="option in [lang.GetText(`llnewest`), lang.GetText(`lloldest`)]"
                     :key="option"
                     @click="() => store.sortBy = (option as any)"
                     :class="`el-select-dropdown__item ${store.sortBy === option ? 'selected' : ''}`"
@@ -139,7 +139,7 @@ const splitList = computed(() => {
                     <el-button class="btn-select"><el-icon :size="16"><Filter /></el-icon></el-button>
                 </template>
                 <div
-                    v-for="option in ['all', 'favourited', 'unfavourited', 'unrated']"
+                    v-for="option in [lang.GetText(`llall`), lang.GetText(`llfavourited`), lang.GetText(`llunfavourited`), lang.GetText(`llunrated`)]"
                     :key="option"
                     @click="() => store.filterBy = (option as any)"
                     :class="`el-select-dropdown__item ${store.filterBy === option ? 'selected' : ''}`"
