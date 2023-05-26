@@ -121,11 +121,11 @@ const splitList = computed(() => {
                     <el-button class="btn-select"><el-icon :size="16"><Sort /></el-icon></el-button>
                 </template>
                 <div
-                    v-for="option in [lang.GetText(`llnewest`), lang.GetText(`lloldest`)]"
+                    v-for="option in ['Newest', 'Oldest']"
                     :key="option"
                     @click="() => store.sortBy = (option as any)"
                     :class="`el-select-dropdown__item ${store.sortBy === option ? 'selected' : ''}`"
-                >{{option}}</div>
+                >{{lang.GetText(`ll` + option)}}</div>
             </el-popover>
             <el-popover
                 placement="bottom"
@@ -139,11 +139,11 @@ const splitList = computed(() => {
                     <el-button class="btn-select"><el-icon :size="16"><Filter /></el-icon></el-button>
                 </template>
                 <div
-                    v-for="option in [lang.GetText(`llall`), lang.GetText(`llfavourited`), lang.GetText(`llunfavourited`), lang.GetText(`llunrated`)]"
+                    v-for="option in ['all', 'favourited', 'unfavourited', 'unrated']"
                     :key="option"
                     @click="() => store.filterBy = (option as any)"
                     :class="`el-select-dropdown__item ${store.filterBy === option ? 'selected' : ''}`"
-                >{{store.filterBy === option ? "Showing" : "Show"}} {{option}}</div>
+                >{{store.filterBy === option ? lang.GetText(`llShowing`+ option) : lang.GetText(`llShow`+ option)}}</div>
             </el-popover>
             <el-popover
                 placement="bottom"

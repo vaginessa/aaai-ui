@@ -419,12 +419,17 @@ export const useLanguageStore = defineStore("i18n", () => {
         "singularImage":" Bild",
         "pluralImage":" Bilder",
         //imagesview.vue
-        "llnewest":"Neuer",
-        "lloldest":"älter",
-        "llall":"Beide",
-        "llfavourited":"Favoriten",
-        "llunfavourited":"Un-Favoriten",
-        "llunrated":"Un-Bewertet",
+        "llNewest":"Neuste",
+        "llOldest":"Älteste",
+
+        "llShowingall":"Zeigt Alle",
+        "llShowall":"Alle anzeigen",
+        "llShowingfavourited":"Zeigt Favoriten",
+        "llShowfavourited":"Favoriten anzeigen",
+        "llShowingunfavourited":"Zeigt Nicht Favoriten",
+        "llShowunfavourited":"Nicht Favoriten anzeigen",
+        "llShowingunrated":"Zeigt Unbewertet",
+        "llShowunrated":"Unbewertet anzeigen",
     }
 
     const ENDirectory:{[key: string]: string} = {
@@ -833,12 +838,17 @@ export const useLanguageStore = defineStore("i18n", () => {
         "singularImage":" image",
         "pluralImage":" images",
         //imagesview.vue
-        "llnewest":"Newest",
-        "lloldest":"Oldest",
-        "llall":"All",
-        "llfavourited":"Favourited",
-        "llunfavourited":"Unfavourited",
-        "llunrated":"Unrated",
+        "llNewest":"Newest",
+        "llOldest":"Oldest",
+        
+        "llShowingAll":"Showing All",
+        "llShowAll":"Show All",
+        "llShowingFavourited":"Showing Favourited",
+        "llShowFavourited":"Show Favourited",
+        "llShowingUnfavourited":"Showing Unfavourited",
+        "llShowUnfavourited":"Show Unfavourited",
+        "llShowingUnrated":"Showing Unrated",
+        "llShowUnrated":"Show Unrated",
     }
 
     const HUDirectory:{[key: string]: string} = {
@@ -1248,12 +1258,17 @@ export const useLanguageStore = defineStore("i18n", () => {
         "singularImage":" képet",
         "pluralImage":" képet",
         //imagesview.vue
-        "llnewest":"Újabb",
-        "lloldest":"Régebbi",
-        "llall":"Mind",
-        "llfavourited":"Kedvencek",
-        "llunfavourited":"Nem Kedvencek",
-        "llunrated":"Nem Értékelt",
+        "llNewest":"Újabb",
+        "llOldest":"Régebbi",
+
+        "llShowingAll":"Mindent mutat",
+        "llShowAll":"Minden mutatása",
+        "llShowingFavourited":"Kedvencek megjelenítve",
+        "llShowFavourited":"Kedvencek megjelenítése",
+        "llShowingUnfavourited":"Nem Kedveltek megjelenítve",
+        "llShowUnfavourited":"Nem Kedveltek megjelenítése",
+        "llShowingUnrated":"Nem értékeltek mutatva",
+        "llShowUnrated":"Nem értékeltek mutatása",
     }
 
     function GetText(name: string, obj: any = undefined) {
