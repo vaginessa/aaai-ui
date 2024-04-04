@@ -470,7 +470,7 @@ export const useGeneratorStore = defineStore("generator", () => {
                     prompt: currentPrompt,
                     params: {
                         ...params.value,
-                        seed: plannedSeeds[iN],
+                        seed: (+plannedSeeds[iN] - 1).toString(),
                         seed_variation: params.value.seed === "" ? 1000 : 1,
                         post_processing: params.value.post_processing || [],
                         sampler_name: currentSampler,
